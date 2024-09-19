@@ -12,6 +12,7 @@ public class C6461Assembler {
     private static Set<String> registerToRegister = new HashSet<>();
     private static Set<String> shiftRotate = new HashSet<>();
     private static Set<String> inputOutput = new HashSet<>();
+    private static Set<String> miscellaneous = new HashSet<>();
     private static String rowFormat = "%-10s %-13s %-6s %-16s %5s";
 
     // initialize opcodeMap.
@@ -56,8 +57,9 @@ public class C6461Assembler {
         opcodeMap.put("OUT", "110100"); 
         opcodeMap.put("CHK", "110101"); 
 
-        // Halt.
+        // Miscellaneous Instructions.
         opcodeMap.put("HLT", "000000");
+        opcodeMap.put("TRAP", "011110");
     }
 
     // initialize memoryToMemory instructions.
@@ -103,6 +105,12 @@ public class C6461Assembler {
         inputOutput.add("IN");
         inputOutput.add("OUT");
         inputOutput.add("CHK");
+    }
+
+    // initalize miscellaneous.
+    static {
+        miscellaneous.add("HLT");
+        miscellaneous.add("TRAP");
     }
     
     // Pass One: Populate the label table and determine code location.
@@ -217,100 +225,93 @@ public class C6461Assembler {
     // Resolves the operand as either a label or a direct value, handling comma-separated operands.
     // Example: 3,0,10
     private static String getOperandValue(String opcode, String operand) {
-        // set default values.
-        int register = 0, indexRegister = 0, address = 0, indirectBit = 0;  
-        int registerX = 0, registerY = 0;
-        int count = 0, L_R = 0, A_L = 0;
+        // define instruction fields.
+        int register = 0;
+        int indexRegister = 0;
+        int address = 0;
+        int indirectBit = 0;  
+        int registerX = 0;
+        int registerY = 0;
+        int count = 0;
+        int L_R = 0;
+        int A_L = 0;
         int devID = 0;
+        int trapCode;
 
         StringBuilder output = new StringBuilder();
+        
+        String opcodeBinary = "";
+        String registerBinary = "";
+        String indexRegisterBinary = "";
+        String indirectBitBinary = "";
+        String addressBinary = "";
         String binaryString = "";
+        String registerXBinary = "";
+        String registerYBinary = "";
+        String A_LBinary = "";    
+        String L_RBinary = "";    
+        String countBinary = "";
+        String devIDBinary = "";
+        String trapCodeBinary = "";
 
-        // Split the operand by commas
+        // Split the operand by commas.
         String[] parts = operand.split(",");
-        if (parts.length > 0) {
-            // For RFS, the operand is just an immediate value.
-            /* 
-             * Opcode = 6 bits
-             * IX, I = 3 bits (000)
-             * Immediate = 5 bits
-             * Unused = 2 bits (00)
-            */
-            if (opcode.equals("RFS")) {
-                StringBuilder sb = new StringBuilder();
+        
+        // CASE 1: Memory to Memory Instruction.
+        if(memoryToMemory.contains(opcode)) {
+            // Case a: r, x, address[,I].
+            if (opcode.equals("LDR") || opcode.equals("STR") || opcode.equals("LDA") || opcode.equals("JZ") || opcode.equals("JNE") || opcode.equals("SOB") || opcode.equals("JGE") || opcode.equals("JCC") || opcode.equals("AMR") || opcode.equals("SMR")) {
+                register = Integer.parseInt(parts[0]);
+                indexRegister = Integer.parseInt(parts[1]);
+                address = Integer.parseInt(parts[2]);
 
-                String opcodeBinary = opcodeMap.get("RFS"); 
+                // Indirect bit.
+                if (parts.length > 3) {
+                    indirectBit = Integer.parseInt(parts[3]);  
+                }
+            } 
 
-                // RFS ignores IX and I fields, so we set them to 00 and 0 respectively.
-                // Convert index register to binary (2 bits)
-                String indexRegisterBinary = String.format("%2s", Integer.toBinaryString(indexRegister)).replace(' ', '0');
-                
-                // Convert indirect bit to binary (1 bit)
-                String indirectBitBinary = Integer.toBinaryString(indirectBit);
+            // Case b: x, address[,I].
+            else if (opcode.equals("LDX") || opcode.equals("STX") || opcode.equals("JMA") || opcode.equals("JSR") || opcode.equals("JMA")) {
+                indexRegister = Integer.parseInt(parts[0]);
+                address = Integer.parseInt(parts[1]);
 
-                int immediate = Integer.parseInt(operand); 
-                String immediateBitBinary = String.format("%5s", Integer.toBinaryString(immediate)).replace(' ', '0');
-
-                int unused = 0;
-                String unusedBitBinary = String.format("%2s", Integer.toBinaryString(unused)).replace(' ', '0');
-
-                sb.append(opcodeBinary);
-                sb.append(indexRegisterBinary);
-                sb.append(indirectBitBinary);
-                sb.append(immediateBitBinary);
-                sb.append(unusedBitBinary);
-
-                return binaryToOctal(sb.toString());
+                // Indirect bit.
+                if (parts.length > 2) {
+                    indirectBit = Integer.parseInt(parts[2]);
+                }
             }
 
-            // CASE 1: Memory to Memory Instruction.
-            if(memoryToMemory.contains(opcode)) {
-                // Case a: r, x, address[,I].
-                if (opcode.equals("LDR") || opcode.equals("STR") || opcode.equals("LDA") || opcode.equals("JZ") || opcode.equals("JNE") || opcode.equals("SOB") || opcode.equals("JGE") || opcode.equals("JCC") || opcode.equals("AMR") || opcode.equals("SMR")) {
-                    register = Integer.parseInt(parts[0]);
-                    indexRegister = Integer.parseInt(parts[1]);
-                    address = Integer.parseInt(parts[2]);
-    
-                    // Indirect bit.
-                    if (parts.length > 3) {
-                        indirectBit = Integer.parseInt(parts[3]);  
-                    }
-                } 
-    
-                // Case b: x, address[,I].
-                else if (opcode.equals("LDX") || opcode.equals("STX") || opcode.equals("JMA") || opcode.equals("JSR") || opcode.equals("JMA")) {
-                    indexRegister = Integer.parseInt(parts[0]);
-                    address = Integer.parseInt(parts[1]);
-    
-                    // Indirect bit.
-                    if (parts.length > 2) {
-                        indirectBit = Integer.parseInt(parts[2]);
-                    }
-                }
+            // Case c: r, immed.
+            else if(opcode.equals("AIR") || opcode.equals("SIR")) {
+                register = Integer.parseInt(parts[0]);
+                address = (Integer.parseInt(parts[1]));
+            }
+
+            // Case d: Immed.
+            else if(opcode.equals("RFS")) {
+                address = Integer.parseInt(parts[0]);
+            }
+
+            // Compute binary.
+            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
+            registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');
+            indexRegisterBinary = String.format("%2s", Integer.toBinaryString(indexRegister)).replace(' ', '0');
+            indirectBitBinary = Integer.toBinaryString(indirectBit);
+            addressBinary = String.format("%5s", Integer.toBinaryString(address)).replace(' ', '0');
             
-                else if(opcode.equals("HLT")) {
-                    return "000000";
-                }
+            // Combine all parts into a single 16-bit instruction
+            output.append(opcodeBinary);
+            output.append(registerBinary);
+            output.append(indexRegisterBinary);
+            output.append(indirectBitBinary);
+            output.append(addressBinary);
 
-                // Compute binary.
-                String opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
-                String registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');
-                String indexRegisterBinary = String.format("%2s", Integer.toBinaryString(indexRegister)).replace(' ', '0');
-                String indirectBitBinary = Integer.toBinaryString(indirectBit);
-                String addressBinary = String.format("%5s", Integer.toBinaryString(address)).replace(' ', '0');
-                
-                // Combine all parts into a single 16-bit instruction
-                output.append(opcodeBinary);
-                output.append(registerBinary);
-                output.append(indexRegisterBinary);
-                output.append(indirectBitBinary);
-                output.append(addressBinary);
-
-                // After creating the binary string
-                binaryString = output.toString();
-                return binaryToOctal(binaryString);
-            }
+            // After creating the binary string
+            binaryString = output.toString();
+            return binaryToOctal(binaryString);
         }
+        
 
         // CASE 2: Register to Register Instructions.
         else if(registerToRegister.contains(opcode)) {
@@ -323,9 +324,9 @@ public class C6461Assembler {
             }
 
             // Compute binary.
-            String opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
-            String registerXBinary = String.format("%2s", Integer.toBinaryString(registerX)).replace(' ', '0');
-            String registerYBinary = String.format("%2s", Integer.toBinaryString(registerY)).replace(' ', '0');
+            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
+            registerXBinary = String.format("%2s", Integer.toBinaryString(registerX)).replace(' ', '0');
+            registerYBinary = String.format("%2s", Integer.toBinaryString(registerY)).replace(' ', '0');
 
             // Combine all parts into a single 16-bit instruction.
             output.append(opcodeBinary);
@@ -345,11 +346,11 @@ public class C6461Assembler {
             L_R = Integer.parseInt(parts[4]);
 
             // Compute binary.
-            String opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
-            String registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');   // 2 bits.
-            String A_LBinary = Integer.toBinaryString(A_L);     // 1 bit.
-            String L_RBinary = Integer.toBinaryString(L_R);     // 1 bit.
-            String countBinary = String.format("%4s", Integer.toBinaryString(count)).replace(' ', '0');     // 4 bits.
+            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
+            registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');   // 2 bits.
+            A_LBinary = Integer.toBinaryString(A_L);     // 1 bit.
+            L_RBinary = Integer.toBinaryString(L_R);     // 1 bit.
+            countBinary = String.format("%4s", Integer.toBinaryString(count)).replace(' ', '0');     // 4 bits.
 
             // Combine all parts into a single 16-bit instruction.
             output.append(opcodeBinary);
@@ -368,9 +369,9 @@ public class C6461Assembler {
             devID = Integer.parseInt(parts[1]);
 
             // Compute binary.
-            String opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
-            String registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');   // 2 bits.
-            String devIDBinary = String.format("%5s", Integer.toBinaryString(devID)).replace(' ', '0');   // 5 bits.
+            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
+            registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');   // 2 bits.
+            devIDBinary = String.format("%5s", Integer.toBinaryString(devID)).replace(' ', '0');   // 5 bits.
 
             // Combine all parts into a single 16-bit instruction.
             output.append(opcodeBinary);
@@ -382,7 +383,30 @@ public class C6461Assembler {
             return binaryToOctal(binaryString);
         }
 
-        // CASE 5: Default.
+        // CASE 5: Miscellaneous Instructions.
+        else if(miscellaneous.contains(opcode)) {
+            // TRAP.
+            if(opcode.contains("TRAP")) {
+                trapCode = Integer.parseInt(parts[0]);
+
+                // Compute binary.
+                opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
+                trapCodeBinary = String.format("%4s", Integer.toBinaryString(trapCode)).replace(' ', '0');     // 4 bits.
+
+                // Combine all parts into a single 16-bit instruction.
+                output.append(opcodeBinary);
+                output.append("000000");    // unused bits.
+                output.append(trapCodeBinary);
+
+                binaryString = output.toString();
+                return binaryToOctal(binaryString);
+            }
+
+            //HLT.
+            return "000000";
+        }
+
+        // CASE 6: Default.
         return "";
     }
 
