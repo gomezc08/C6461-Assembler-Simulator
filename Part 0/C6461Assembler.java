@@ -12,6 +12,7 @@ public class C6461Assembler {
     private static Set<String> registerToRegister = new HashSet<>();
     private static Set<String> shiftRotate = new HashSet<>();
     private static Set<String> inputOutput = new HashSet<>();
+    private static String rowFormat = "%-10s %-13s %-6s %-16s %5s";
 
     // initialize opcodeMap.
     static {
@@ -153,7 +154,7 @@ public class C6461Assembler {
 
             // Handle LOC: change the current address.
             if (parts[1].equalsIgnoreCase("LOC")) {
-                listingFile.add(String.format("%s %s %s %s %s", "", "", parts[1], parts[2], comment));
+                listingFile.add(String.format(rowFormat, "", "", parts[1], parts[2], comment));
                 currentAddress = Integer.parseInt(parts[2]);
             } 
 
@@ -171,7 +172,8 @@ public class C6461Assembler {
                 }
 
                 // Update(s).
-                listingFile.add(String.format("%06o %s %s %s %s", currentAddress, dataValue, parts[1], parts[2], comment));
+                String currentAddressOctal = String.format("%06o", currentAddress);
+                listingFile.add(String.format(rowFormat, currentAddressOctal, dataValue, parts[1], parts[2], comment));
                 loadFile.add(String.format("%06o %s", currentAddress, dataValue));
                 currentAddress++;
             }
@@ -188,16 +190,11 @@ public class C6461Assembler {
                     if (parts.length > 2) { // Ensure there is an operand
                         operandValue = getOperandValue(opcode, parts[2]); // Handle operands
                     }
-                    //System.out.print(currentAddress + " : ");
-                    //System.out.println(String.format("%06o", currentAddress));
-                    // Combine opcode and operand
-                    StringBuilder output = new StringBuilder();
-                    output.append(String.format("%06o", currentAddress));
-                    output.append(" ");
-                    output.append(operandValue);
+
+                    String currentAddressOctal = String.format("%06o", currentAddress);
                     
-                    listingFile.add(String.format("%s %s %s %s %s", "",output.toString(), parts[1], parts[2], comment));
-                    loadFile.add(output.toString());
+                    listingFile.add(String.format(rowFormat, currentAddressOctal, operandValue, parts[1], parts[2], comment));
+                    loadFile.add(String.format("%s %s", currentAddressOctal, operandValue));
                     currentAddress++;
                 } 
 
@@ -209,7 +206,8 @@ public class C6461Assembler {
             }
 
             else if(parts[1].equalsIgnoreCase("HLT")) {
-                listingFile.add(String.format("%06o %s %s %s %s %s", currentAddress, "000000", parts[0], parts[1], parts[2], comment));
+                String currentAddressOctal = String.format("%06o", currentAddress);
+                listingFile.add(String.format("%-10s %s %-6s %-24s %-16s", currentAddressOctal, "000000", parts[0], parts[1], comment));
                 loadFile.add(String.format("%06o %s", currentAddress, "000000"));
             }
         }
