@@ -1,3 +1,37 @@
+/*
+ * C6461Assembler: This class contains methods for assembling a C6461 assembly source file into machine code. 
+ * The assembler follows a two-pass process: 
+ * Pass One populates the label table and determines code locations, while Pass Two generates the machine code.
+ * 
+ * passOne(String fileName): Populates the label table and determines code location.
+ * - @param fileName: The name of the source file to read.
+ * - @throws IOException If an I/O error occurs.
+ * 
+ * passTwo(String fileName): Converts source instructions into machine code and generates the listing and load files.
+ * - @param fileName: The name of the source file to read.
+ * - @throws IOException If an I/O error occurs.
+ * 
+ * getOperandValue(String opcode, String operand): Resolves an operand (e.g., register, address) into a machine code value.
+ * - @param opcode: The operation code to process (e.g., LDR, STR).
+ * - @param operand: The operand part of the instruction (e.g., registers, memory address).
+ * - @return String The corresponding machine code value in octal.
+ * 
+ * binaryToOctal(String binaryString): Converts a binary string into its octal representation.
+ * - @param binaryString: The binary string to convert.
+ * - @return String The converted octal value as a string.
+ * 
+ * isInstruction(String[] parts): Checks if a given line of the source file contains a valid instruction.
+ * - @param parts: An array of strings representing a split line of source code.
+ * - @return boolean True if the line contains an instruction, false otherwise.
+ * 
+ * writeFiles(): Writes the listing and load file outputs based on the processed instructions.
+ * - @throws IOException If an I/O error occurs while writing to the files. 
+ * 
+ * run(String sourceFile): Executes the assembler by running both passes and writing output files.
+ * @param sourceFile The name of the source file to assemble.
+ * @throws IOException If an I/O error occurs during file reading or writing.
+ */
+
 import java.io.*;
 import java.util.*;
 
@@ -466,11 +500,17 @@ public class C6461Assembler {
         loadWriter.close();
     }
 
+    public static void run(String sourceFile) throws IOException {
+        System.out.println("<<Running the Assembler>>");
+        passOne(sourceFile);  
+        passTwo(sourceFile);
+        writeFiles();
+        System.out.println("<<Finished Running the Assembler>>");
+    }
+
     public static void main(String[] args) throws IOException {
         // Sample input file
         String sourceFile = "SourceFile.asm";
-        passOne(sourceFile);
-        passTwo(sourceFile);
-        writeFiles();
+        run(sourceFile);
     }
 }
