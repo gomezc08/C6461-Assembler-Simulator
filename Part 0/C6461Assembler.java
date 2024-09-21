@@ -113,13 +113,13 @@ public class C6461Assembler {
         memoryToMemory.add("JGE");
         memoryToMemory.add("AMR");
         memoryToMemory.add("SMR");
+        memoryToMemory.add("AIR");
+        memoryToMemory.add("SIR");
 
     }
 
     // initalize registerToRegister.
     static {
-        registerToRegister.add("AIR");
-        registerToRegister.add("SIR");
         registerToRegister.add("MLT");
         registerToRegister.add("DVD");
         registerToRegister.add("TRR");

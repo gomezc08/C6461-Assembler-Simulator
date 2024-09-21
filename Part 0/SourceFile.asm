@@ -14,6 +14,7 @@ Label   Opcode  Operand     Comments
         NOT     1           ; test2
         SRC     2,3,1,0     ; test3
         OUT     2,1         ; test4
+        SIR     1,10        ;new test!!!
         LDR     3,0,10      ;R3 GETS 12
         LDR     2,2,10      ;R2 GETS 12
         LDR     1,2,10,1    ;R1 GETS 18

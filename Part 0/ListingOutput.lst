@@ -13,11 +13,12 @@
 000021     172400        NOT    1                		; test2
 000022     143103        SRC    2,3,1,0          		; test3
 000023     151001        OUT    2,1              		; test4
-000024     003412        LDR    3,0,10           		;R3 GETS 12
-000025     003212        LDR    2,2,10           		;R2 GETS 12
-000026     002652        LDR    1,2,10,1         		;R1 GETS 18
-000027     006000        LDA    0,0,0            		;R0 GETS 0 to set CONDITION CODE
-000030     102110        LDX    1,8              		;X1 GETS 1024
-000031     024100        JZ     0,1,0            		;JUMP TO End IF R0 = 0
+000024     016412        SIR    1,10             		;new test!!!
+000025     003412        LDR    3,0,10           		;R3 GETS 12
+000026     003212        LDR    2,2,10           		;R2 GETS 12
+000027     002652        LDR    1,2,10,1         		;R1 GETS 18
+000030     006000        LDA    0,0,0            		;R0 GETS 0 to set CONDITION CODE
+000031     102110        LDX    1,8              		;X1 GETS 1024
+000032     024100        JZ     0,1,0            		;JUMP TO End IF R0 = 0
                          LOC    1024                  
 002000     000000 End:   HLT                      		;STOP         
