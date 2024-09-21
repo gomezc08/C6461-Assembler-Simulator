@@ -9,6 +9,11 @@ Label   Opcode  Operand     Comments
         Data    18
         Data    12
         LDX     2,7         ;X2 GETS 3
+        JZ      3,2,30
+        MLT     0,2         ; test1
+        NOT     1           ; test2
+        SRC     2,3,1,0     ; test3
+        OUT     2,1         ; test4
         LDR     3,0,10      ;R3 GETS 12
         LDR     2,2,10      ;R2 GETS 12
         LDR     1,2,10,1    ;R1 GETS 18

@@ -374,10 +374,10 @@ public class C6461Assembler {
 
         // CASE 3: Shift and Rotate Instructions.
         else if(shiftRotate.contains(opcode)) {
-            register = Integer.parseInt(parts[1]);
-            count = Integer.parseInt(parts[2]);
+            register = Integer.parseInt(parts[0]);
+            count = Integer.parseInt(parts[1]);
+            L_R = Integer.parseInt(parts[2]);
             A_L = Integer.parseInt(parts[3]);
-            L_R = Integer.parseInt(parts[4]);
 
             // Compute binary.
             opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
@@ -400,6 +400,7 @@ public class C6461Assembler {
 
         // CASE 4: I/O Instructions.
         else if(inputOutput.contains(opcode)) {
+            register = Integer.parseInt(parts[0]);
             devID = Integer.parseInt(parts[1]);
 
             // Compute binary.

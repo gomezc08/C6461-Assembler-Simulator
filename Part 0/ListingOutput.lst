@@ -8,11 +8,16 @@
 000014     000022        Data   18                    
 000015     000014        Data   12                    
 000016     102207        LDX    2,7              		;X2 GETS 3
-000017     003412        LDR    3,0,10           		;R3 GETS 12
-000020     003212        LDR    2,2,10           		;R2 GETS 12
-000021     002652        LDR    1,2,10,1         		;R1 GETS 18
-000022     006000        LDA    0,0,0            		;R0 GETS 0 to set CONDITION CODE
-000023     102110        LDX    1,8              		;X1 GETS 1024
-000024     024100        JZ     0,1,0            		;JUMP TO End IF R0 = 0
+000017     025636        JZ     3,2,30                
+000020     160200        MLT    0,2              		; test1
+000021     172400        NOT    1                		; test2
+000022     143103        SRC    2,3,1,0          		; test3
+000023     151001        OUT    2,1              		; test4
+000024     003412        LDR    3,0,10           		;R3 GETS 12
+000025     003212        LDR    2,2,10           		;R2 GETS 12
+000026     002652        LDR    1,2,10,1         		;R1 GETS 18
+000027     006000        LDA    0,0,0            		;R0 GETS 0 to set CONDITION CODE
+000030     102110        LDX    1,8              		;X1 GETS 1024
+000031     024100        JZ     0,1,0            		;JUMP TO End IF R0 = 0
                          LOC    1024                  
 002000     000000 End:   HLT                      		;STOP         
