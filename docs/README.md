@@ -1,1 +1,1 @@
-# C6461-Assembler-Simulator
+- ### HOW TO RUN ASSEMBLER: Run `java .\src\Assembler.java` frnom the command line.
