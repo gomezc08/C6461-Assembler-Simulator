@@ -35,7 +35,7 @@
 import java.io.*;
 import java.util.*;
 
-public class C6461Assembler {
+public class Assembler {
     // Holds label locations
     private static Map<String, Integer> labelTable = new HashMap<>();
     private static List<String> listingFile = new ArrayList<>();
@@ -486,14 +486,14 @@ public class C6461Assembler {
 
     // Writes the output to files.
     private static void writeFiles() throws IOException {
-        BufferedWriter listWriter = new BufferedWriter(new FileWriter("ListingOutput.lst"));
+        BufferedWriter listWriter = new BufferedWriter(new FileWriter("output/ListingOutput.lst"));
         for (String line : listingFile) {
             listWriter.write(line);
             listWriter.newLine();
         }
         listWriter.close();
 
-        BufferedWriter loadWriter = new BufferedWriter(new FileWriter("LoadFile.ld"));
+        BufferedWriter loadWriter = new BufferedWriter(new FileWriter("output/LoadFile.ld"));
         for (String line : loadFile) {
             loadWriter.write(line);
             loadWriter.newLine();
@@ -511,7 +511,7 @@ public class C6461Assembler {
 
     public static void main(String[] args) throws IOException {
         // Sample input file
-        String sourceFile = "SourceFile.asm";
+        String sourceFile = "assembly/SourceFile.asm";
         run(sourceFile);
     }
 }
