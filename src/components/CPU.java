@@ -7,14 +7,16 @@ public class CPU {
     private MemoryBufferRegister mbr;
     private InstructionRegister ir;
     private GeneralPurposeRegisters gprs;
-    
-    public CPU(ProgramCounter pc, Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, InstructionRegister ir, GeneralPurposeRegisters gprs) {
+    private IndexRegisters indexRegisters;  // Add Index Registers for effective address calculation
+
+    public CPU(ProgramCounter pc, Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, InstructionRegister ir, GeneralPurposeRegisters gprs, IndexRegisters indexRegisters) {
         this.pc = pc;
         this.memory = memory;
         this.mar = mar;
         this.mbr = mbr;
         this.ir = ir;
         this.gprs = gprs;
+        this.indexRegisters = indexRegisters;  // Initialize the index registers
     }
 
     // Fetch the next instruction from memory
@@ -30,19 +32,42 @@ public class CPU {
         int instruction = ir.getIR(); // Get the instruction from IR
         int opcode = (instruction >> 12) & 0xF; // Extract the opcode (upper 4 bits)
         int reg = (instruction >> 6) & 0x7; // Extract the register (middle 3 bits)
-        int address = instruction & 0xFFF; // Extract the memory address (lower 12 bits)
+        int ix = (instruction >> 3) & 0x3; // Extract the index register (2 bits)
+        int i = (instruction >> 2) & 0x1; // Extract the indirect bit (1 bit)
+        int address = instruction & 0x3F; // Extract the memory address (lower 6 bits)
+
+        // Calculate Effective Address (EA) considering indexing and indirect addressing
+        int effectiveAddress = calculateEffectiveAddress(address, ix, i);
 
         switch (opcode) {
-            case 0x1: // Example: Load (LDR)
-                loadRegisterFromMemory(reg, address);
+            case 0x1: // Load (LDR)
+                loadRegisterFromMemory(reg, effectiveAddress);
                 break;
-            case 0x2: // Example: Store (STR)
-                storeRegisterToMemory(reg, address);
+            case 0x2: // Store (STR)
+                storeRegisterToMemory(reg, effectiveAddress);
                 break;
             default:
                 System.out.println("Unknown opcode: " + opcode);
                 break;
         }
+    }
+
+    // Effective Address Calculation
+    private int calculateEffectiveAddress(int address, int ix, int i) {
+        int effectiveAddress = address;
+
+        // Indexed Addressing (using Index Registers)
+        if (ix > 0) {
+            effectiveAddress += indexRegisters.getIndexRegister(ix - 1); // Index registers start from 0 in implementation
+        }
+
+        // Indirect Addressing (follow pointer)
+        if (i == 1) {
+            mar.setMAR(effectiveAddress); // Set MAR to the effective address
+            effectiveAddress = memory.loadValue(mar.getMAR()); // Get value from memory for indirect addressing
+        }
+
+        return effectiveAddress;
     }
 
     // Load value from memory into the given register
