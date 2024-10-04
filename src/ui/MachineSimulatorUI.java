@@ -1,141 +1,155 @@
 package ui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.*;
+import javax.swing.border.*;
 
 public class MachineSimulatorUI extends JFrame {
 
-    // UI Components
-    private JTextField[] gprFields;     // General Purpose Registers (GPR 0-3)
-    private JTextField[] ixrFields;     // Index Registers (IXR 1-3)
-    private JTextField pcField, marField, mbrField, irField; // Register fields
-    private JTextArea cacheContentArea; // Cache content display
-    private JTextArea printerArea;      // Printer area
-    private JTextField consoleInputField; // Console input field
-    private JTextField binaryField, octalInputField; // Binary and octal input
+    private JTextField[] gprFields, ixrFields;
+    private JTextField pcField, marField, mbrField, irField, ccField, mfrField;
+    private JTextArea cacheContentArea, printerArea;
+    private JTextField binaryField, octalInputField, programFileField, consoleInputField;
 
     public MachineSimulatorUI() {
         setTitle("CSCI 6461 Machine Simulator");
-        setSize(800, 600); // Set initial size
+        setSize(1000, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the window
+        setLocationRelativeTo(null);
+        getContentPane().setBackground(new Color(173, 216, 230));
 
-        // Initialize UI components
-        gprFields = new JTextField[4]; // 4 GPRs
-        ixrFields = new JTextField[3]; // 3 IXRs
-
-        for (int i = 0; i < 4; i++) {
-            gprFields[i] = new JTextField(5);
-        }
-
-        for (int i = 0; i < 3; i++) {
-            ixrFields[i] = new JTextField(5);
-        }
-
-        pcField = new JTextField(5);
-        marField = new JTextField(5);
-        mbrField = new JTextField(5);
-        irField = new JTextField(5);
-        binaryField = new JTextField(10);
-        octalInputField = new JTextField(5);
-
-        cacheContentArea = new JTextArea(10, 20);
-        cacheContentArea.setEditable(false);
-
-        printerArea = new JTextArea(5, 20);
-        printerArea.setEditable(false);
-
-        consoleInputField = new JTextField(20);
-
-        // Layout Setup
         setLayout(new BorderLayout());
 
-        JPanel mainPanel = new JPanel(new GridLayout(3, 1)); // Main panel
+        // Initialize components
+        gprFields = new JTextField[4];
+        ixrFields = new JTextField[3];
+        for (int i = 0; i < 4; i++) gprFields[i] = new JTextField(10);
+        for (int i = 0; i < 3; i++) ixrFields[i] = new JTextField(10);
 
-        // Create panel for GPR and IXR
-        JPanel registerPanel = new JPanel(new GridLayout(2, 1));
+        pcField = new JTextField(10);
+        marField = new JTextField(10);
+        mbrField = new JTextField(10);
+        irField = new JTextField(10);
+        ccField = new JTextField(5);
+        mfrField = new JTextField(5);
+        binaryField = new JTextField(20);
+        octalInputField = new JTextField(5);
+        programFileField = new JTextField(30);
+        consoleInputField = new JTextField(30);
 
-        // GPR panel
-        JPanel gprPanel = new JPanel(new GridLayout(5, 2));
-        gprPanel.add(new JLabel("GPR"));
-        gprPanel.add(new JLabel());
-        for (int i = 0; i < 4; i++) {
-            gprPanel.add(new JLabel("R" + i));
-            gprPanel.add(gprFields[i]);
+        // Main panel
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBackground(new Color(173, 216, 230));
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        // GPR Panel
+        JPanel gprPanel = createLabeledPanel("GPR", gprFields, 4);
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridwidth = 1; gbc.gridheight = 2;
+        gbc.fill = GridBagConstraints.BOTH;
+        mainPanel.add(gprPanel, gbc);
+
+        // IXR Panel
+        JPanel ixrPanel = createLabeledPanel("IXR", ixrFields, 3);
+        gbc.gridx = 1; gbc.gridy = 0;
+        gbc.gridwidth = 1; gbc.gridheight = 2;
+        mainPanel.add(ixrPanel, gbc);
+
+        // Control Registers Panel
+        JPanel controlPanel = new JPanel(new GridLayout(4, 2, 5, 5));
+        controlPanel.setBackground(new Color(173, 216, 230));
+        controlPanel.setBorder(BorderFactory.createTitledBorder("Control Registers"));
+        String[] controlLabels = {"PC", "MAR", "MBR", "IR"};
+        JTextField[] controlFields = {pcField, marField, mbrField, irField};
+        for (int i = 0; i < controlLabels.length; i++) {
+            controlPanel.add(new JLabel(controlLabels[i]));
+            controlPanel.add(controlFields[i]);
         }
+        gbc.gridx = 2; gbc.gridy = 0;
+        gbc.gridwidth = 1; gbc.gridheight = 1;
+        mainPanel.add(controlPanel, gbc);
 
-        // IXR panel
-        JPanel ixrPanel = new JPanel(new GridLayout(4, 2));
-        ixrPanel.add(new JLabel("IXR"));
-        ixrPanel.add(new JLabel());
-        for (int i = 0; i < 3; i++) {
-            ixrPanel.add(new JLabel("X" + (i + 1)));
-            ixrPanel.add(ixrFields[i]);
-        }
+        // CC and MFR Panel
+        JPanel ccMfrPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        ccMfrPanel.setBackground(new Color(173, 216, 230));
+        ccMfrPanel.setBorder(BorderFactory.createTitledBorder("Status"));
+        ccMfrPanel.add(new JLabel("CC"));
+        ccMfrPanel.add(ccField);
+        ccMfrPanel.add(new JLabel("MFR"));
+        ccMfrPanel.add(mfrField);
+        gbc.gridx = 2; gbc.gridy = 1;
+        mainPanel.add(ccMfrPanel, gbc);
 
-        registerPanel.add(gprPanel);
-        registerPanel.add(ixrPanel);
-
-        // Create panel for control registers (PC, MAR, MBR, IR)
-        JPanel controlRegPanel = new JPanel(new GridLayout(4, 2));
-        controlRegPanel.add(new JLabel("PC"));
-        controlRegPanel.add(pcField);
-        controlRegPanel.add(new JLabel("MAR"));
-        controlRegPanel.add(marField);
-        controlRegPanel.add(new JLabel("MBR"));
-        controlRegPanel.add(mbrField);
-        controlRegPanel.add(new JLabel("IR"));
-        controlRegPanel.add(irField);
-
-        // Panel for binary and octal input
-        JPanel inputPanel = new JPanel(new GridLayout(2, 2));
+        // Input Panel
+        JPanel inputPanel = new JPanel(new GridLayout(3, 2, 5, 5));
+        inputPanel.setBackground(new Color(173, 216, 230));
+        inputPanel.setBorder(BorderFactory.createTitledBorder("Input"));
         inputPanel.add(new JLabel("Binary"));
         inputPanel.add(binaryField);
         inputPanel.add(new JLabel("Octal Input"));
         inputPanel.add(octalInputField);
+        inputPanel.add(new JLabel("Program File"));
+        inputPanel.add(programFileField);
+        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridwidth = 3;
+        mainPanel.add(inputPanel, gbc);
 
-        // Panel for cache content and printer
-        JPanel cachePrinterPanel = new JPanel(new GridLayout(2, 1));
-        cachePrinterPanel.add(new JScrollPane(cacheContentArea)); // Scroll for cache content
-        cachePrinterPanel.add(new JScrollPane(printerArea));      // Scroll for printer area
-
-        // Panel for console input
-        JPanel consolePanel = new JPanel(new FlowLayout());
-        consolePanel.add(new JLabel("Console Input"));
-        consolePanel.add(consoleInputField);
-
-        // Buttons for operations (Load, Store, Run, Halt, etc.)
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 4));
+        // Button Panel
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 4, 5, 5));
+        buttonPanel.setBackground(new Color(173, 216, 230));
         String[] buttonLabels = {"Load", "Load+", "Store", "Store+", "Run", "Step", "Halt", "IPL"};
         for (String label : buttonLabels) {
             JButton button = new JButton(label);
+            if (label.equals("IPL")) {
+                button.setBackground(Color.RED);
+                button.setForeground(Color.WHITE);
+            } else {
+                button.setBackground(new Color(100, 149, 237)); // Cornflower blue
+                button.setForeground(Color.WHITE);
+            }
             buttonPanel.add(button);
-            // Add action listener to buttons (placeholder for now)
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    System.out.println(label + " button clicked");
-                }
-            });
         }
+        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        mainPanel.add(buttonPanel, gbc);
 
-        // Add panels to the main panel
-        mainPanel.add(registerPanel);
-        mainPanel.add(controlRegPanel);
-        mainPanel.add(inputPanel);
+        // Right Panel for Cache Content and Printer
+        JPanel rightPanel = new JPanel(new GridLayout(2, 1));
+        cacheContentArea = new JTextArea(10, 30);
+        cacheContentArea.setEditable(false);
+        printerArea = new JTextArea(5, 30);
+        printerArea.setEditable(false);
+        rightPanel.add(new JScrollPane(cacheContentArea));
+        rightPanel.add(new JScrollPane(printerArea));
 
-        // Add everything to the frame
+        // Console Input Panel
+        JPanel consolePanel = new JPanel(new BorderLayout());
+        consolePanel.setBackground(new Color(173, 216, 230));
+        consolePanel.setBorder(BorderFactory.createTitledBorder("Console Input"));
+        consolePanel.add(consoleInputField, BorderLayout.CENTER);
+
+        // Add panels to frame
         add(mainPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-        add(cachePrinterPanel, BorderLayout.EAST);
-        add(consolePanel, BorderLayout.NORTH);
+        add(rightPanel, BorderLayout.EAST);
+        add(consolePanel, BorderLayout.SOUTH);
 
         setVisible(true);
     }
 
+    private JPanel createLabeledPanel(String title, JTextField[] fields, int count) {
+        JPanel panel = new JPanel(new GridLayout(count + 1, 2, 5, 5));
+        panel.setBackground(new Color(173, 216, 230));
+        panel.setBorder(BorderFactory.createTitledBorder(title));
+        panel.add(new JLabel(title));
+        panel.add(new JLabel());
+        for (int i = 0; i < count; i++) {
+            panel.add(new JLabel(Integer.toString(i)));
+            panel.add(fields[i]);
+        }
+        return panel;
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MachineSimulatorUI());
+        SwingUtilities.invokeLater(MachineSimulatorUI::new);
     }
 }
