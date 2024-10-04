@@ -13,12 +13,12 @@ public class InstructionRegister {
     }
 
     // Method to set the instruction (ensures it's within 16-bit range)
-    public void setInstruction(short instruction) {
+    public void setIR(short instruction) {
         this.instruction = instruction;
     }
 
     // Method to get the full 16-bit instruction
-    public short getInstruction() {
+    public short getIR() {
         return this.instruction;
     }
 
@@ -44,7 +44,7 @@ public class InstructionRegister {
 
         // Example instruction: 0x1234 (opcode: 1, operands: 0x234)
         short instruction = (short) 0x1234;
-        ir.setInstruction(instruction);
+        ir.setIR(instruction);
 
         // Display the instruction, opcode, and operands
         System.out.println(ir);  // Output: Instruction: 1234, Opcode: 1, Operands: 234

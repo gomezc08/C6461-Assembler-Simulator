@@ -8,32 +8,36 @@ public class Playground {
         MemoryAddressRegister mar = new MemoryAddressRegister();
         MemoryBufferRegister mbr = new MemoryBufferRegister();
         InstructionRegister ir = new InstructionRegister();
-        GeneralPurposeRegisters gprs = new GeneralPurposeRegisters(4);
-        CPU cpu = new CPU(pc, memory, mar, mbr, ir, gprs);
+        GeneralPurposeRegisters gprs = new GeneralPurposeRegisters(4); // Assuming 4 GPRs
+        IndexRegisters indexRegisters = new IndexRegisters(3); // Assuming 3 index registers
+        ConditionCode cc = new ConditionCode(); // Condition codes
 
-        // Load a simple program into memory (example instructions)
-        // Instruction format: opcode(4 bits), reg(3 bits), address(12 bits)
-        // For simplicity: 
-        // 0x1234 -> LDR R1, address 0x034  (opcode 1 for LDR, R1 = reg 1)
-        // 0x2345 -> STR R2, address 0x045  (opcode 2 for STR, R2 = reg 2)
-        memory.storeValue(0, 0x1234);  // Instruction at address 0
-        memory.storeValue(1, 0x2345);  // Instruction at address 1
-        memory.storeValue(0x34, 1000); // Data at memory address 0x34 (52 in decimal)
+        // Initialize CPU with all components
+        CPU cpu = new CPU(pc, memory, mar, mbr, ir, gprs, indexRegisters, cc);
 
-        // Display initial memory and register states
-        System.out.println("Initial Memory at 0x34: " + memory.loadValue(0x34));
-        System.out.println("Initial GPR[1]: " + gprs.getGPR(1));
+        // Load instructions and data into memory using decimal values
+        memory.storeValue(6, 4131);  // LDR R0, address 35 (load 1000 into R0)
+        memory.storeValue(7, 8224);  // STR R0, address 36 with the indirect bit set to 0
+        memory.storeValue(35, 1000); // Data at address 35
+        memory.storeValue(36, 500);  // Data at address 36 (will be overwritten)
 
-        // Start CPU Fetch-Decode-Execute cycle
-        for (int i = 0; i < 2; i++) {  // Simulate 2 instructions
-            cpu.fetch();  // Fetch the instruction
+        // Set PC to 6 (to start from the correct instruction address)
+        pc.setPC(6);
+
+        // Display initial state
+        System.out.println("Initial Memory at 35: " + memory.loadValue(35));
+        System.out.println("Initial Memory at 36: " + memory.loadValue(36));
+        System.out.println("Initial GPR[0]: " + gprs.getGPR(0));
+
+        // Run the fetch-decode-execute cycle for 2 instructions (LDR, STR)
+        for (int i = 0; i < 2; i++) {
+            cpu.fetch();  // Fetch instruction
             cpu.decodeAndExecute();  // Decode and execute it
         }
 
-        // Display the state of registers and memory after execution
-        System.out.println("\nAfter execution:");
-        System.out.println("Memory at 0x45: " + memory.loadValue(0x45));
-        System.out.println("GPR[1]: " + gprs.getGPR(1));
-        System.out.println("GPR[2]: " + gprs.getGPR(2));
+        // Display final state
+        System.out.println("\nFinal Memory at 35: " + memory.loadValue(35));  // Should remain 1000
+        System.out.println("Final Memory at 36: " + memory.loadValue(36));  // Should be updated to 1000
+        System.out.println("Final GPR[0]: " + gprs.getGPR(0));  // Should remain 1000
     }
 }

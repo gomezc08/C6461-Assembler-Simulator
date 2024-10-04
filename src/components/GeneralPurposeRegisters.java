@@ -1,6 +1,5 @@
 package components;
 
-// each GPR is 16 bits? or is it 4 bits?
 public class GeneralPurposeRegisters {
     private short[] gprs; // Array to hold the 16-bit values for each GPR
 

@@ -22,6 +22,13 @@ public class ConditionCode {
         this.conditionCode = 0; // All flags are initially 0
     }
 
+    public void updateConditionCodes(int result) {
+        this.setOverflow(result > 32767 || result < -32768); // 16-bit overflow
+        this.setUnderflow(result < 0); // Underflow if result is negative
+        this.setEqual(result == 0); // Equal to zero
+        this.setDivZero(result == 0); // Divide by zero can be contextually set
+    }
+
     // Set Overflow flag
     public void setOverflow(boolean flag) {
         if (flag) {
