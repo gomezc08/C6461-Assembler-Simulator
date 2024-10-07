@@ -1,10 +1,21 @@
 package components;
 
+import Assembler.Assembler;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class Playground {
-    public static void main(String[] args) {
+
+    private CPU cpu;
+    private Memory memory;
+    private ProgramCounter pc;
+
+    public Playground() {
         // Initialize components
-        ProgramCounter pc = new ProgramCounter();
-        Memory memory = new Memory();
+        pc = new ProgramCounter();
+        memory = new Memory();
         MemoryAddressRegister mar = new MemoryAddressRegister();
         MemoryBufferRegister mbr = new MemoryBufferRegister();
         InstructionRegister ir = new InstructionRegister();
@@ -13,31 +24,65 @@ public class Playground {
         ConditionCode cc = new ConditionCode(); // Condition codes
 
         // Initialize CPU with all components
-        CPU cpu = new CPU(pc, memory, mar, mbr, ir, gprs, indexRegisters, cc);
+        cpu = new CPU(pc, memory, mar, mbr, ir, gprs, indexRegisters, cc);
+    }
 
-        // Load instructions and data into memory using decimal values
-        memory.storeValue(6, 4131);  // LDR R0, address 35 (load 1000 into R0)
-        memory.storeValue(7, 8224);  // STR R0, address 36 with the indirect bit set to 0
-        memory.storeValue(35, 1000); // Data at address 35
-        memory.storeValue(36, 500);  // Data at address 36 (will be overwritten)
+    public void assembleAndLoadProgram(String asmFilePath) {
+        try {
+            // Step 1: Assemble the .asm file to generate the .ld file
+            Assembler.run(asmFilePath);  // Static call to run method
 
-        // Set PC to 6 (to start from the correct instruction address)
-        pc.setPC(6);
+            // Step 2: Load the generated .ld file into memory
+            String ldFilePath = "output/LoadFile.ld";  // The assumed output file location
+            loadProgram(ldFilePath);
+        } 
+        
+        catch (IOException e) {
+            System.out.println("Error during assembly: " + e.getMessage());
+        }
+    }
 
-        // Display initial state
-        System.out.println("Initial Memory at 35: " + memory.loadValue(35));
-        System.out.println("Initial Memory at 36: " + memory.loadValue(36));
-        System.out.println("Initial GPR[0]: " + gprs.getGPR(0));
+    public void loadProgram(String filePath) {
+        // Simulate ROM Loader: Load program from file into memory starting at octal 10
+        int address = 010; // Starting address in octal
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Split the line by spaces to separate address and instruction
+                String[] parts = line.split("\\s+");
+                if (parts.length == 2) {
+                    address = Integer.parseInt(parts[0], 8); // Parse address as octal
+                    int instruction = Integer.parseInt(parts[1], 8); // Parse instruction as octal
+                    memory.storeValue(address, instruction);
+                }
+            }
+            System.out.println("Program loaded into memory.");
+        } catch (IOException e) {
+            System.out.println("Error loading program: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Number format exception: " + e.getMessage());
+        }
+    }
+    
 
-        // Run the fetch-decode-execute cycle for 2 instructions (LDR, STR)
-        for (int i = 0; i < 2; i++) {
-            cpu.fetch();  // Fetch instruction
-            cpu.decodeAndExecute();  // Decode and execute it
+    public void run() {
+        // Assemble and load the program (LoadStore.asm) into memory
+        assembleAndLoadProgram("assembly/LoadStore.asm");
+        // Set PC to the starting point of the program (octal 20, for example)
+        pc.setPC(020); // After boot program
+
+        // Run fetch-decode-execute cycle
+        boolean halt = false;
+        while (!halt) {
+            cpu.fetch();  // Fetch the next instruction
+            halt = cpu.decodeAndExecute();  // Decode and execute (returns true if HLT is hit)
         }
 
-        // Display final state
-        System.out.println("\nFinal Memory at 35: " + memory.loadValue(35));  // Should remain 1000
-        System.out.println("Final Memory at 36: " + memory.loadValue(36));  // Should be updated to 1000
-        System.out.println("Final GPR[0]: " + gprs.getGPR(0));  // Should remain 1000
+        System.out.println("Program execution finished.");
+    }
+
+    public static void main(String[] args) {
+        Playground playground = new Playground();
+        playground.run(); // Start the simulation
     }
 }

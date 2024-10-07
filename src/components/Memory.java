@@ -12,7 +12,7 @@ public class Memory {
 
     public Memory() {
         memoryArray = new short[SIZE];
-        resetMemory();
+        resetMemory();      // UPON POWERING UP SYSTEM, ALL ELEMENTS OF MEMORY SHOULD BE SET TO ZERO.
     }
 
     // Resets the entire memory

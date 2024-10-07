@@ -1,5 +1,9 @@
 package components;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class CPU {
     private ProgramCounter pc;
     private Memory memory;
@@ -21,6 +25,41 @@ public class CPU {
         this.cc = cc;
     }
 
+    public void romLoader(String filePath) {
+        try {
+            File file = new File(filePath);
+            Scanner scanner = new Scanner(file);
+            
+            // Boot program starts at octal 10.
+            int memoryAddress = 010; 
+            
+            // Read file line by line
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+
+                // Convert the octal string to a short value for memory
+                // base 8 for octal
+                short instruction = Short.parseShort(line, 8); 
+
+                // Store instruction in memory
+                memory.storeValue(memoryAddress, instruction);
+                memoryAddress++; // Increment memory address for each instruction
+            }
+            
+            scanner.close();
+            System.out.println("ROM loading complete.");
+        } 
+        
+        catch (FileNotFoundException e) {
+            System.out.println("Error: File not found.");
+        } 
+        
+        catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+
     // Fetch the next instruction from memory
     public void fetch() {
         System.out.println("=== FETCH PHASE ===");
@@ -40,7 +79,7 @@ public class CPU {
     }
 
     // Decode and execute the instruction
-    public void decodeAndExecute() {
+    public boolean decodeAndExecute() {
         System.out.println("=== DECODE AND EXECUTE PHASE ===");
         int instruction = ir.getIR(); // Get the instruction from IR
         System.out.println("Instruction to decode: " + instruction);
@@ -61,7 +100,16 @@ public class CPU {
         int effectiveAddress = calculateEffectiveAddress(address, ix, i);
         System.out.println("Effective Address: " + effectiveAddress);
 
+        // Switch based on opcode
         switch (opcode) {
+            case 0x0:
+                if (instruction == 0) {  // Ensure the full instruction is zero for HLT
+                    System.out.println("HLT (Halt) instruction encountered. Halting execution.");
+                    return true;
+                }
+                // Otherwise, handle it as an unknown opcode.
+                System.out.println("Unknown instruction with opcode 0 encountered. Halting due to error.");
+                return true;
             case 0x1: // Load (LDR)
                 loadRegisterFromMemory(reg, effectiveAddress);
                 break;
@@ -72,7 +120,9 @@ public class CPU {
                 memory.handleIllegalOpcode(opcode); // Handle unknown opcode
                 System.out.println("Unknown opcode encountered: " + opcode);
                 break;
-        }
+        }        
+
+        return false; // Continue execution unless HLT is encountered
     }
 
     // Calculate Effective Address (EA)
@@ -113,8 +163,5 @@ public class CPU {
         memory.storeValue(mar.getMAR(), value); // Store the value in memory at MAR address
         cc.updateConditionCodes(value); // Update condition codes based on the stored value
         System.out.println("Stored value " + value + " from GPR[" + reg + "] into memory at address: " + address);
-    }
-
-    
-    
+    }    
 }
