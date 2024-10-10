@@ -10,6 +10,11 @@ public class MachineFaultRegister {
         this.mfr = 0;
     }
 
+    // Handle the machine fault based on the fault message
+    public void triggerFault(String faultMessage) {
+        System.out.println("Machine Fault Triggered: " + faultMessage);
+    }
+
     // Method to set the MFR value (ensures it's within 4-bit range)
     public void setMFR(int value) {
         if (value >= 0 && value <= MAX_VALUE) {

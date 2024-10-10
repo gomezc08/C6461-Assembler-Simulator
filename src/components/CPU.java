@@ -2,7 +2,9 @@ package components;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 public class CPU {
     private ProgramCounter pc;
@@ -13,8 +15,18 @@ public class CPU {
     private GeneralPurposeRegisters gprs;
     private IndexRegisters indexRegisters;
     private ConditionCode cc;
+    private MachineFaultRegister machineFaultRegister;
 
-    public CPU(ProgramCounter pc, Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, InstructionRegister ir, GeneralPurposeRegisters gprs, IndexRegisters indexRegisters, ConditionCode cc) {
+    // Set of valid opcodes for easier error handling.
+    private static final Set<Integer> VALID_OPCODES = new HashSet<>();
+
+    // for now, we are just worried about Load and Store (page 10 of documentation).
+    static {
+        VALID_OPCODES.add(0x1); // LDR
+        VALID_OPCODES.add(0x2); // STR
+    }
+
+    public CPU(ProgramCounter pc, Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, InstructionRegister ir, GeneralPurposeRegisters gprs, IndexRegisters indexRegisters, ConditionCode cc, MachineFaultRegister machineFaultRegister) {
         this.pc = pc;
         this.memory = memory;
         this.mar = mar;
@@ -23,42 +35,31 @@ public class CPU {
         this.gprs = gprs;
         this.indexRegisters = indexRegisters;
         this.cc = cc;
+        this.machineFaultRegister = machineFaultRegister;
     }
 
     public void romLoader(String filePath) {
         try {
             File file = new File(filePath);
             Scanner scanner = new Scanner(file);
-            
-            // Boot program starts at octal 10.
-            int memoryAddress = 010; 
-            
-            // Read file line by line
+
+            int memoryAddress = 010; // Boot program starts at octal 10
+
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-
-                // Convert the octal string to a short value for memory
-                // base 8 for octal
-                short instruction = Short.parseShort(line, 8); 
-
-                // Store instruction in memory
-                memory.storeValue(memoryAddress, instruction);
-                memoryAddress++; // Increment memory address for each instruction
+                short instruction = Short.parseShort(line, 8); // base 8 for octal
+                memory.storeValue(memoryAddress, instruction); // Store instruction in memory
+                memoryAddress++;
             }
-            
+
             scanner.close();
             System.out.println("ROM loading complete.");
-        } 
-        
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.out.println("Error: File not found.");
-        } 
-        
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
-
 
     // Fetch the next instruction from memory
     public void fetch() {
@@ -81,10 +82,18 @@ public class CPU {
     // Decode and execute the instruction
     public boolean decodeAndExecute() {
         System.out.println("=== DECODE AND EXECUTE PHASE ===");
-        int instruction = ir.getIR(); // Get the instruction from IR
+        int instruction = ir.getIR();
         System.out.println("Instruction to decode: " + instruction);
 
-        int opcode = (instruction >> 12) & 0xF; // Extract the opcode (upper 4 bits)
+        int opcode = (instruction >> 12) & 0xF; // Extract opcode (upper 4 bits)
+
+        // Check if the opcode is valid
+        if (!isValidOpcode(opcode)) {
+            System.out.println("Error: Invalid Opcode Detected - Opcode: " + opcode);
+            machineFaultRegister.triggerFault("Invalid Opcode");
+            return true; // Halt on invalid opcode
+        }
+
         int reg = (instruction >> 6) & 0x7; // Extract the register (middle 3 bits)
         int ix = (instruction >> 3) & 0x3; // Extract the index register (2 bits)
         int i = (instruction >> 2) & 0x1; // Extract the indirect bit (1 bit)
@@ -107,7 +116,6 @@ public class CPU {
                     System.out.println("HLT (Halt) instruction encountered. Halting execution.");
                     return true;
                 }
-                // Otherwise, handle it as an unknown opcode.
                 System.out.println("Unknown instruction with opcode 0 encountered. Halting due to error.");
                 return true;
             case 0x1: // Load (LDR)
@@ -120,9 +128,14 @@ public class CPU {
                 memory.handleIllegalOpcode(opcode); // Handle unknown opcode
                 System.out.println("Unknown opcode encountered: " + opcode);
                 break;
-        }        
+        }
 
         return false; // Continue execution unless HLT is encountered
+    }
+
+    // Validate if the opcode is part of the valid set
+    private boolean isValidOpcode(int opcode) {
+        return VALID_OPCODES.contains(opcode);
     }
 
     // Calculate Effective Address (EA)
@@ -163,5 +176,5 @@ public class CPU {
         memory.storeValue(mar.getMAR(), value); // Store the value in memory at MAR address
         cc.updateConditionCodes(value); // Update condition codes based on the stored value
         System.out.println("Stored value " + value + " from GPR[" + reg + "] into memory at address: " + address);
-    }    
+    }
 }
