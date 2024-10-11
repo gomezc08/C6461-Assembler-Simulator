@@ -44,14 +44,7 @@ public class IndexRegisters {
     }
 
     // For debugging: display the values of all index registers
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < indexRegisters.length; i++) {
-            sb.append(String.format("Index Register[%d]: %04X\n", i, indexRegisters[i] & 0xFFFF)); // Display as 4-digit hex
-        }
-        return sb.toString();
-    }
+
 
     public static void main(String[] args) {
         // There are 3 Index Registers, each 16 bits
@@ -66,7 +59,7 @@ public class IndexRegisters {
         System.out.println(ir); // Output: Index Register[0]: 1234, Index Register[1]: 5678, etc.
 
         // Get the value of a specific index register
-        System.out.println("Index Register[2] Value: " + Integer.toHexString(ir.getIndexRegister(2) & 0xFFFF)); // Output: 9ABC
+        System.out.println("Index Register[2] Value: " + ir.getIndexRegister(2)); // Output: 9ABC
 
         // Reset Index Register[1] to 0
         ir.resetIndexRegister(1);

@@ -1,6 +1,6 @@
 package components;
 
-// 16 bits.
+// Program Counter class to simulate a 12-bit PC
 public class ProgramCounter {
     private int pc; 
     private final int MAX_VALUE = 0xFFF; // Maximum value for 12 bits (0xFFF = 4095)
@@ -14,9 +14,7 @@ public class ProgramCounter {
     public void setPC(int value) {
         if (value >= 0 && value <= MAX_VALUE) {
             this.pc = value & MAX_VALUE; // Apply mask to ensure only lower 12 bits are used
-        } 
-        
-        else {
+        } else {
             throw new IllegalArgumentException("Value out of range for 12-bit register");
         }
     }
@@ -42,7 +40,6 @@ public class ProgramCounter {
         return String.format("PC: %d (0x%03X)", this.pc, this.pc);
     }
 
-    
     public static void main(String[] args) {
         ProgramCounter pc = new ProgramCounter();
 
@@ -63,5 +60,4 @@ public class ProgramCounter {
         pc.resetPC();
         System.out.println(pc); // Output: PC: 0 (0x000)
     }
-    
 }

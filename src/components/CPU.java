@@ -63,13 +63,13 @@ public class CPU {
 
     // Fetch the next instruction from memory
     public void fetch() {
-        System.out.println("=== FETCH PHASE ===");
+        System.out.println("\n=== FETCH PHASE ===");
         System.out.println("PC before fetch: " + pc.getPC());
 
         mar.setMAR(pc.getPC()); // Load the address from PC into MAR
         System.out.println("MAR set to: " + mar.getMAR());
 
-        mbr.setMBR(memory.loadValue(mar.getMAR())); // Load instruction from memory into MBR
+        mbr.setMBR((short)memory.loadMemoryValue(mar.getMAR())); // Load instruction from memory into MBR
         System.out.println("Instruction loaded into MBR: " + mbr.getMBR());
 
         ir.setIR(mbr.getMBR()); // Load the instruction from MBR into IR
@@ -81,11 +81,37 @@ public class CPU {
 
     // Decode and execute the instruction
     public boolean decodeAndExecute() {
-        System.out.println("=== DECODE AND EXECUTE PHASE ===");
+        System.out.println("\n=== DECODE AND EXECUTE PHASE ===");
         int instruction = ir.getIR();
         System.out.println("Instruction to decode: " + instruction);
 
-        int opcode = (instruction >> 12) & 0xF; // Extract opcode (upper 4 bits)
+        // turn the instruction into its binary representation.
+        String binaryString = String.format("%16s", Integer.toBinaryString(instruction)).replace(' ', '0');
+        System.out.println("here is the binary: " + binaryString);
+
+        // now grab the components.
+        // Extract components
+        String opcodeStr = binaryString.substring(0, 6);
+        String registerStr = binaryString.substring(6, 8);
+        String ixStr = binaryString.substring(8, 10);
+        String iStr = binaryString.substring(10, 11);
+        String addressStr = binaryString.substring(11);
+
+        // Convert to integers
+        int opcode = Integer.parseInt(opcodeStr, 2);
+        int reg = Integer.parseInt(registerStr, 2);
+        int ix = Integer.parseInt(ixStr, 2);
+        int i = Integer.parseInt(iStr, 2);
+        int address = Integer.parseInt(addressStr, 2);
+
+        // Print results
+        System.out.println("Opcode (bits 0-5): " + opcode);
+        System.out.println("Register (bits 6-7): " + reg);
+        System.out.println("IX (bits 8-9): " + ix);
+        System.out.println("I (bit 10): " + i);
+        System.out.println("Address (bits 11-15): " + address);
+
+        System.out.println("lets load the value from memory cause why not: " + memory.loadMemoryValue(address));
 
         // Check if the opcode is valid
         if (!isValidOpcode(opcode)) {
@@ -93,17 +119,6 @@ public class CPU {
             machineFaultRegister.triggerFault("Invalid Opcode");
             return true; // Halt on invalid opcode
         }
-
-        int reg = (instruction >> 6) & 0x7; // Extract the register (middle 3 bits)
-        int ix = (instruction >> 3) & 0x3; // Extract the index register (2 bits)
-        int i = (instruction >> 2) & 0x1; // Extract the indirect bit (1 bit)
-        int address = instruction & 0xFFF; // Extract the memory address (lower 12 bits)
-
-        System.out.println("Decoded opcode: " + opcode);
-        System.out.println("Decoded register: " + reg);
-        System.out.println("Decoded index register: " + ix);
-        System.out.println("Decoded indirect bit: " + i);
-        System.out.println("Decoded memory address: " + address);
 
         // Calculate Effective Address (EA)
         int effectiveAddress = calculateEffectiveAddress(address, ix, i);
@@ -125,7 +140,7 @@ public class CPU {
                 storeRegisterToMemory(reg, effectiveAddress);
                 break;
             default:
-                memory.handleIllegalOpcode(opcode); // Handle unknown opcode
+                //memory.handleIllegalOpcode(opcode); // Handle unknown opcode
                 System.out.println("Unknown opcode encountered: " + opcode);
                 break;
         }
@@ -150,9 +165,12 @@ public class CPU {
 
         // Indirect Addressing (follow pointer)
         if (i == 1) {
-            mar.setMAR(effectiveAddress); // Set MAR to the effective address
-            effectiveAddress = memory.loadValue(mar.getMAR()); // Follow pointer to indirect address
+            //nvjejcnenj 
+            //mar.setMAR(effectiveAddress); // Set MAR to the effective address
+            effectiveAddress = memory.loadMemoryValue(mar.getMAR()); // Follow pointer to indirect address
             System.out.println("Effective Address after Indirect Addressing: " + effectiveAddress);
+            int x = memory.loadMemoryValue(address);
+            System.out.println("here is my attempt at address: " + memory.loadMemoryValue(x));
         }
 
         return effectiveAddress;
@@ -162,7 +180,7 @@ public class CPU {
     private void loadRegisterFromMemory(int reg, int address) {
         System.out.println("Loading value from memory at address: " + address);
         mar.setMAR(address); // Set MAR to the effective address
-        int value = memory.loadValue(mar.getMAR()); // Load value from memory into MBR
+        int value = memory.loadMemoryValue(mar.getMAR()); // Load value from memory into MBR
         gprs.setGPR(reg, (short) value); // Store the value in the specified register
         cc.updateConditionCodes(value); // Update condition codes based on the loaded value
         System.out.println("Loaded value " + value + " into GPR[" + reg + "]");

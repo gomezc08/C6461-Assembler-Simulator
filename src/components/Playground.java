@@ -44,6 +44,7 @@ public class Playground {
     public void loadProgram(String filePath) {
         // Simulate ROM Loader: Load program from file into memory
         int firstAddress = -1;  // To store the first address
+        int fileLength = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -60,12 +61,13 @@ public class Playground {
                     
                     memory.storeValue(address, instruction); // Store instruction in memory
                 }
+                fileLength++;
             }
             System.out.println("Program loaded into memory.");
             
             // Set the PC to the first instruction address (dynamically)
             if (firstAddress != -1) {
-                pc.setPC(firstAddress);  // Dynamically set PC to first instruction address
+                pc.setPC(fileLength + firstAddress);  // Dynamically set PC to first instruction address
             } else {
                 System.out.println("Error: No instructions found in program file.");
             }
@@ -77,13 +79,38 @@ public class Playground {
         }
     }
     
+    public void simulateUserOperations() {
+        // Step 2: Simulate user playing around with memory and registers.
+        // The user will store values into specific memory locations, then load from those addresses.
+
+        // Store values into memory (addresses 46 and 47 in octal)
+        memory.storeValue(46, 50);   // Store 50 in memory address 46
+        memory.storeValue(47, 100);  // Store 100 in memory address 47
+
+        System.out.println("\n=== SIMULATION PHASE ===");
+        System.out.println("Stored value 50 in memory address 46 (octal)");
+        System.out.println("Stored value 100 in memory address 47 (octal)");
+
+        // Load value from memory address 46 into register 0 (R0)
+        cpu.fetch();  // Simulate fetching the instruction
+        cpu.decodeAndExecute();  // Simulate decoding and executing LDR instruction to load from memory
+
+        // Fetch and execute the next instruction (in this case, loading from 47 into another register)
+        pc.incrementPC();  // Move to the next instruction
+        cpu.fetch();
+        cpu.decodeAndExecute();
+    }
+
     public void run() {
-        // Assemble and load the program (LoadStore.asm) into memory
+        // Step 1: load ROM.
         assembleAndLoadProgram("assembly/LoadStore.asm");
+
+        // octal address = octal 10 + length of boot program + octal 10.
+        pc.setPC(pc.getPC() + 16);      // 46.
     
-        // PC is dynamically set during program load, so no need to set it manually here
-        System.out.println("PROGRAM COUNTER:     " + pc.getPC());
-    
+        // Step 2: Simulate user playing around with memory and stuff beginning at address 46.
+        simulateUserOperations();
+
         // Run fetch-decode-execute cycle
         boolean halt = false;
         while (!halt) {
@@ -93,7 +120,6 @@ public class Playground {
     
         System.out.println("Program execution finished.");
     }
-    
 
     public static void main(String[] args) {
         Playground playground = new Playground();
