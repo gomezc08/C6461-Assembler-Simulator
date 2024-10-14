@@ -1,3 +1,5 @@
+package Assembler;
+
 /*
  * C6461Assembler: This class contains methods for assembling a C6461 assembly source file into machine code. 
  * The assembler follows a two-pass process: 
@@ -509,9 +511,12 @@ public class Assembler {
         System.out.println("<<Finished Running the Assembler (End)>>");
     }
 
+    /* 
     public static void main(String[] args) throws IOException {
         // Sample input file
-        String sourceFile = "assembly/SourceFile.asm";
+        String sourceFile = "assembly/LoadStore.asm";
         run(sourceFile);
     }
+    */
+    
 }
