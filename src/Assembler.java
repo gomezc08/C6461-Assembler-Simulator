@@ -506,7 +506,7 @@ public class Assembler {
         passOne(sourceFile);  
         passTwo(sourceFile);
         writeFiles();
-        System.out.println("<<Finished Running the Assembler>>");
+        System.out.println("<<Finished Running the Assembler (End)>>");
     }
 
     public static void main(String[] args) throws IOException {
