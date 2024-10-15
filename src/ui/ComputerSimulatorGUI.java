@@ -7,8 +7,14 @@ import components.MemoryBufferRegister;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class ComputerSimulatorGUI extends JFrame {
     private JCheckBox[][] gprCheckBoxes, ixrCheckBoxes;
@@ -190,9 +196,9 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue(marValue);
+                mar.setValue((short)marValue);
                 int memoryValue = memory.loadMemoryValue(marValue);
-                mbr.setValue(memoryValue);
+                mbr.setValue((short)memoryValue);
                 updateCheckBoxes(mbrCheckBoxes, memoryValue);
                 printerArea.append("Loaded value " + memoryValue + " from memory address " + marValue + " into MBR\n");
             }
@@ -203,9 +209,9 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int mbrValue = getRegisterValue(mbrCheckBoxes);
-                mbr.setValue(mbrValue);
+                mbr.setValue((short)mbrValue);
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue(marValue);
+                mar.setValue((short)marValue);
                 memory.storeValue(marValue, mbrValue);
                 printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
             }
@@ -216,9 +222,9 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int mbrValue = getRegisterValue(mbrCheckBoxes);
-                mbr.setValue(mbrValue);
+                mbr.setValue((short)mbrValue);
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue(marValue);
+                mar.setValue((short)marValue);
                 memory.storeValue(marValue, mbrValue);
                 mar.increment();
                 updateCheckBoxes(marCheckBoxes, mar.getValue());
@@ -234,15 +240,56 @@ public class ComputerSimulatorGUI extends JFrame {
         });
 
         // Initialize button action
-        initButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Reset all registers and memory if needed
-                resetRegisters();
-                printerArea.append("Initialized all registers and memory.\n");
+        initButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(null);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+                try {
+                    loadROMFile(selectedFile);
+                    System.out.println(" :Loaded ROM file succesfully ");
+                } catch (IOException ex) {
+                    System.out.println("Error loading ROM file: " + ex.getMessage());
+                }
             }
         });
     }
+
+    public void loadROMFile(File file) throws IOException {
+        // Example code to split lines and convert parts to address and data
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ");  // Assuming space separates part0 and part1
+                int part0 = Integer.parseInt(parts[0],8);  // Address part
+                int part1 = Integer.parseInt(parts[1],8);  // Data part
+    
+                // Get the address and data using convertToBitValue
+                int[] result = convertToBitValue(part0, part1);
+                int address = result[0];  // First element is the address
+                int data = result[1];     // Second element is the data
+                memory.storeValue(address, data);
+    
+                // Now do something with address and data (e.g., store in memory, etc.)
+                System.out.println("Address: " + address + ", Data: " + data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+
+// Return both address and data separately
+public int[] convertToBitValue(int part0, int part1) {
+    int address = part0;  // Assign part0 directly as the address
+    int data = part1;     // Assign part1 directly as the data
+
+    // Return both address and data as an array
+    return new int[] {address, data};
+}
+
+
 
     private int getRegisterValue(JCheckBox[] checkBoxes) {
         int value = 0;
@@ -297,7 +344,7 @@ public class ComputerSimulatorGUI extends JFrame {
                 mbrValue |= (1 << (15 - i)); // Corrected to set bits from left to right
             }
         }
-        mbr.setValue(mbrValue);
+        mbr.setValue((short)mbrValue);
     }
 
     private void loadMBRToCheckBoxes() {
