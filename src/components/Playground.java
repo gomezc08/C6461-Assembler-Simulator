@@ -78,7 +78,7 @@ public class Playground {
             System.out.println("Number format exception: " + e.getMessage());
         }
     }
-    
+    /* 
     public void simulateUserOperations() {
         // Step 2: Simulate user playing around with memory and registers.
         // The user will store values into specific memory locations, then load from those addresses.
@@ -125,4 +125,5 @@ public class Playground {
         Playground playground = new Playground();
         playground.run(); // Start the simulation
     }
+        */
 }

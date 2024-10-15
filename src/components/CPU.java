@@ -60,7 +60,7 @@ public class CPU {
             System.out.println("Error: " + e.getMessage());
         }
     }
-
+    /* 
     // Fetch the next instruction from memory
     public void fetch() {
         System.out.println("\n=== FETCH PHASE ===");
@@ -147,6 +147,7 @@ public class CPU {
 
         return false; // Continue execution unless HLT is encountered
     }
+        
 
     // Validate if the opcode is part of the valid set
     private boolean isValidOpcode(int opcode) {
@@ -175,6 +176,7 @@ public class CPU {
 
         return effectiveAddress;
     }
+        
 
     // Load value from memory into the given register
     private void loadRegisterFromMemory(int reg, int address) {
@@ -195,4 +197,5 @@ public class CPU {
         cc.updateConditionCodes(value); // Update condition codes based on the stored value
         System.out.println("Stored value " + value + " from GPR[" + reg + "] into memory at address: " + address);
     }
+        */
 }
