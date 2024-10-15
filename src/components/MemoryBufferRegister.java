@@ -20,7 +20,7 @@ public class MemoryBufferRegister {
     }
 
     // Reset the MBR to 0
-    public void clear() {
+    public void resetMBR() {
         this.mbr = 0;
     }
 
@@ -42,7 +42,7 @@ public class MemoryBufferRegister {
         System.out.println("MBR Value: " + Integer.toHexString(value & 0xFFFF)); // Output: 1234
 
         // Reset the MBR
-        mbr.clear();
+        mbr.resetMBR();
         System.out.println(mbr); // Output: MBR: 0000
     }
 }

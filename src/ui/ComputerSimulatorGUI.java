@@ -4,6 +4,10 @@ import javax.swing.*;
 import components.Memory;
 import components.MemoryAddressRegister;
 import components.MemoryBufferRegister;
+import components.CPU;
+import components.GeneralPurposeRegisters;
+import components.IndexRegisters;
+import components.ProgramCounter;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -11,10 +15,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 public class ComputerSimulatorGUI extends JFrame {
     private JCheckBox[][] gprCheckBoxes, ixrCheckBoxes;
@@ -25,6 +27,10 @@ public class ComputerSimulatorGUI extends JFrame {
     private Memory memory; // Memory object
     private MemoryAddressRegister mar; // Memory Address Register
     private MemoryBufferRegister mbr; // Memory Buffer Register
+    private CPU cpu; // CPU object
+    private GeneralPurposeRegisters gprs; // General Purpose Registers
+    private IndexRegisters ixr; // Index Registers
+    private ProgramCounter pc; // Program Counter
 
     public ComputerSimulatorGUI() {
         setTitle("CSCI 6461 Machine Simulator");
@@ -32,10 +38,14 @@ public class ComputerSimulatorGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Initialize memory, MAR, and MBR
+        // Initialize memory, MAR, MBR, CPU, and registers
         memory = new Memory();
         mar = new MemoryAddressRegister();
         mbr = new MemoryBufferRegister();
+        gprs = new GeneralPurposeRegisters(4); // Assuming 4 general-purpose registers
+        ixr = new IndexRegisters(3); // Assuming 3 index registers
+        pc = new ProgramCounter();
+        cpu = new CPU(memory, mar, mbr, gprs, ixr, pc); // Initialize the CPU
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(new Color(221, 160, 221)); // Set to light purple
@@ -196,16 +206,15 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue((short)marValue);
+                mar.setValue((short) marValue);
                 int memoryValue = memory.loadMemoryValue(marValue);
-                mbr.setValue((short)memoryValue);
+                mbr.setValue((short) memoryValue);
 
                 // CASE 1: Access valid memory.
-                if(marValue > 5) {
+                if (marValue > 5) {
                     updateCheckBoxes(mbrCheckBoxes, memoryValue);
                     printerArea.append("Loaded value " + memoryValue + " from memory address " + marValue + " into MBR\n");
                 }
-
                 // CASE 2: Access invalid memory.
                 else {
                     printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
@@ -218,16 +227,15 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int mbrValue = getRegisterValue(mbrCheckBoxes);
-                mbr.setValue((short)mbrValue);
+                mbr.setValue((short) mbrValue);
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue((short)marValue);
+                mar.setValue((short) marValue);
 
                 // CASE 1: Access valid memory.
-                if(marValue > 5) {
+                if (marValue > 5) {
                     memory.storeValue(marValue, mbrValue);
                     printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
                 }
-
                 // CASE 2: Access invalid memory.
                 else {
                     printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
@@ -240,25 +248,25 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int mbrValue = getRegisterValue(mbrCheckBoxes);
-                mbr.setValue((short)mbrValue);
+                mbr.setValue((short) mbrValue);
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue((short)marValue);
+                mar.setValue((short) marValue);
 
                 // CASE 1: Access valid memory.
-                if(marValue > 5) {
+                if (marValue > 5) {
                     memory.storeValue(marValue, mbrValue);
                     mar.increment();
                     updateCheckBoxes(marCheckBoxes, mar.getValue());
                     printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + " and incremented MAR to " + mar.getValue() + "\n");
                 }
-
                 // CASE 2: Access invalid memory.
                 else {
                     printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
                 }
             }
         });
-        // Additional button actions for Load+
+
+        // Load+ button action
         loadPlusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -274,51 +282,16 @@ public class ComputerSimulatorGUI extends JFrame {
                 File selectedFile = fileChooser.getSelectedFile();
                 printerArea.append("Selected file: " + selectedFile.getName() + "\n");
                 try {
-                    loadROMFile(selectedFile);
-                    printerArea.append("Loaded ROM file succesfully\n");
+                    cpu.loadROMFile(selectedFile);
+                    printerArea.append("Loaded ROM file successfully\n");
                 } 
+                
                 catch (IOException ex) {
-                    printerArea.append("Error loading ROM file: " + ex.getMessage() +"\n");
+                    printerArea.append("Error loading ROM file: " + ex.getMessage() + "\n");
                 }
             }
         });
     }
-
-    public void loadROMFile(File file) throws IOException {
-        // Example code to split lines and convert parts to address and data
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(" ");  // Assuming space separates part0 and part1
-                int part0 = Integer.parseInt(parts[0],8);  // Address part
-                int part1 = Integer.parseInt(parts[1],8);  // Data part
-    
-                // Get the address and data using convertToBitValue
-                int[] result = convertToBitValue(part0, part1);
-                int address = result[0];  // First element is the address
-                int data = result[1];     // Second element is the data
-                memory.storeValue(address, data);
-    
-                // Now do something with address and data (e.g., store in memory, etc.)
-                printerArea.append("Stored value " + data + " from MBR into memory address " + address + " and incremented MAR to " + mar.getValue() + "\n");
-                //System.out.println("Address: " + address + ", Data: " + data);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-
-    // Return both address and data separately
-    public int[] convertToBitValue(int part0, int part1) {
-        int address = part0;  // Assign part0 directly as the address
-        int data = part1;     // Assign part1 directly as the data
-
-        // Return both address and data as an array
-        return new int[] {address, data};
-    }
-
-
 
     private int getRegisterValue(JCheckBox[] checkBoxes) {
         int value = 0;
@@ -346,14 +319,14 @@ public class ComputerSimulatorGUI extends JFrame {
                 checkBox.setBackground(Color.LIGHT_GRAY);
             }
         }
-        
+
         for (JCheckBox[] ixr : ixrCheckBoxes) {
             for (JCheckBox checkBox : ixr) {
                 checkBox.setSelected(false);
                 checkBox.setBackground(Color.LIGHT_GRAY);
             }
         }
-        
+
         JCheckBox[][] allRegisters = {pcCheckBoxes, marCheckBoxes, mbrCheckBoxes, irCheckBoxes, ccCheckBoxes, mfCheckBoxes};
         for (JCheckBox[] register : allRegisters) {
             for (JCheckBox checkBox : register) {
@@ -361,41 +334,9 @@ public class ComputerSimulatorGUI extends JFrame {
                 checkBox.setBackground(Color.LIGHT_GRAY);
             }
         }
-        
+
         memory.resetMemory(); // Clear memory
         printerArea.setText(""); // Clear printer output
-    }
-
-    private void storeMBRFromCheckBoxes() {
-        int mbrValue = 0;
-        for (int i = 0; i < 16; i++) {
-            if (mbrCheckBoxes[i].isSelected()) {
-                mbrValue |= (1 << (15 - i)); // Corrected to set bits from left to right
-            }
-        }
-        mbr.setValue((short)mbrValue);
-    }
-
-    private void loadMBRToCheckBoxes() {
-        int mbrValue = mbr.getValue();
-        for (int i = 0; i < 16; i++) {
-            mbrCheckBoxes[i].setSelected((mbrValue & (1 << (15 - i))) != 0); // Corrected bit order
-        }
-    }
-
-    private void storeMBRInMemoryAndIncrementMAR() {
-        int marValue = mar.getValue();
-        memory.storeValue(marValue, mbr.getValue()); // Store the MBR value at the MAR address
-        printerArea.append("Stored MBR value " + mbr.getValue() + " at memory address " + marValue + "\n");
-        mar.increment(); // Increment the MAR address
-        loadMARToCheckBoxes(); // Update MAR checkboxes
-    }
-
-    private void loadMARToCheckBoxes() {
-        int marValue = mar.getValue();
-        for (int i = 0; i < 12; i++) { // Assuming MAR is 12 bits
-            marCheckBoxes[i].setSelected((marValue & (1 << (11 - i))) != 0); // Corrected bit order
-        }
     }
 
     public static void main(String[] args) {

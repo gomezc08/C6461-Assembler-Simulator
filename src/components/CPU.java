@@ -1,5 +1,55 @@
 package components;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class CPU {
+    private Memory memory; // Memory object
+    private MemoryAddressRegister mar; // Memory Address Register
+    private MemoryBufferRegister mbr; // Memory Buffer Register
+    private GeneralPurposeRegisters gprs; // General Purpose Registers
+    private IndexRegisters ixr; // Index Registers
+    private ProgramCounter pc; // Program Counter
+
+    public CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, 
+               GeneralPurposeRegisters gprs, IndexRegisters ixr, ProgramCounter pc) {
+        this.memory = memory;
+        this.mar = mar;
+        this.mbr = mbr;
+        this.gprs = gprs;
+        this.ixr = ixr;
+        this.pc = pc;
+    }
+
+    public void loadROMFile(File file) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ");  // Assuming space separates address and data
+                int address = Integer.parseInt(parts[0], 8);  // Address part
+                int data = Integer.parseInt(parts[1], 8);     // Data part
+
+                memory.storeValue(address, data);
+            }
+        }
+    }
+
+    public void resetRegisters() {
+        gprs.resetAllGPRs(); // Assuming a method to reset all general-purpose registers
+        ixr.resetAllIndexRegisters(); // Reset all index registers
+        pc.reset(); // Reset the program counter
+        mar.resetMAR(); // Reset memory address register
+        mbr.resetMBR(); // Reset memory buffer register
+    }
+}
+
+
+
+/*
+package components;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
@@ -197,5 +247,7 @@ public class CPU {
         cc.updateConditionCodes(value); // Update condition codes based on the stored value
         System.out.println("Stored value " + value + " from GPR[" + reg + "] into memory at address: " + address);
     }
-        */
+        
 }
+
+*/

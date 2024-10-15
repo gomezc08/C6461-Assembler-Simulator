@@ -30,7 +30,7 @@ public class ProgramCounter {
     }
 
     // Reset the Program Counter to 0
-    public void resetPC() {
+    public void reset() {
         this.pc = 0;
     }
 
@@ -57,7 +57,7 @@ public class ProgramCounter {
         System.out.println(pc); // Output: PC: 0 (0x000)
 
         // Reset the PC
-        pc.resetPC();
+        pc.reset();
         System.out.println(pc); // Output: PC: 0 (0x000)
     }
 }

@@ -5,7 +5,12 @@ import Assembler.Assembler;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
+public class Playground {
+    public static void main(String[] args) {
+        System.out.println("Playground not functional for part 1 of project");
+    }
+}
+/*
 public class Playground {
 
     private CPU cpu;
@@ -77,8 +82,7 @@ public class Playground {
         } catch (NumberFormatException e) {
             System.out.println("Number format exception: " + e.getMessage());
         }
-    }
-    /* 
+    } 
     public void simulateUserOperations() {
         // Step 2: Simulate user playing around with memory and registers.
         // The user will store values into specific memory locations, then load from those addresses.
@@ -125,5 +129,5 @@ public class Playground {
         Playground playground = new Playground();
         playground.run(); // Start the simulation
     }
-        */
 }
+*/
