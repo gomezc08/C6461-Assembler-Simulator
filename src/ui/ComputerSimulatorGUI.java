@@ -199,8 +199,17 @@ public class ComputerSimulatorGUI extends JFrame {
                 mar.setValue((short)marValue);
                 int memoryValue = memory.loadMemoryValue(marValue);
                 mbr.setValue((short)memoryValue);
-                updateCheckBoxes(mbrCheckBoxes, memoryValue);
-                printerArea.append("Loaded value " + memoryValue + " from memory address " + marValue + " into MBR\n");
+
+                // CASE 1: Access valid memory.
+                if(marValue > 5) {
+                    updateCheckBoxes(mbrCheckBoxes, memoryValue);
+                    printerArea.append("Loaded value " + memoryValue + " from memory address " + marValue + " into MBR\n");
+                }
+
+                // CASE 2: Access invalid memory.
+                else {
+                    printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
+                }
             }
         });
 
@@ -212,8 +221,17 @@ public class ComputerSimulatorGUI extends JFrame {
                 mbr.setValue((short)mbrValue);
                 int marValue = getRegisterValue(marCheckBoxes);
                 mar.setValue((short)marValue);
-                memory.storeValue(marValue, mbrValue);
-                printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
+
+                // CASE 1: Access valid memory.
+                if(marValue > 5) {
+                    memory.storeValue(marValue, mbrValue);
+                    printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
+                }
+
+                // CASE 2: Access invalid memory.
+                else {
+                    printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
+                }
             }
         });
 
@@ -225,10 +243,19 @@ public class ComputerSimulatorGUI extends JFrame {
                 mbr.setValue((short)mbrValue);
                 int marValue = getRegisterValue(marCheckBoxes);
                 mar.setValue((short)marValue);
-                memory.storeValue(marValue, mbrValue);
-                mar.increment();
-                updateCheckBoxes(marCheckBoxes, mar.getValue());
-                printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + " and incremented MAR to " + mar.getValue() + "\n");
+
+                // CASE 1: Access valid memory.
+                if(marValue > 5) {
+                    memory.storeValue(marValue, mbrValue);
+                    mar.increment();
+                    updateCheckBoxes(marCheckBoxes, mar.getValue());
+                    printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + " and incremented MAR to " + mar.getValue() + "\n");
+                }
+
+                // CASE 2: Access invalid memory.
+                else {
+                    printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
+                }
             }
         });
         // Additional button actions for Load+
@@ -245,12 +272,13 @@ public class ComputerSimulatorGUI extends JFrame {
             int result = fileChooser.showOpenDialog(null);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
-                System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+                printerArea.append("Selected file: " + selectedFile.getName() + "\n");
                 try {
                     loadROMFile(selectedFile);
-                    System.out.println(" :Loaded ROM file succesfully ");
-                } catch (IOException ex) {
-                    System.out.println("Error loading ROM file: " + ex.getMessage());
+                    printerArea.append("Loaded ROM file succesfully\n");
+                } 
+                catch (IOException ex) {
+                    printerArea.append("Error loading ROM file: " + ex.getMessage() +"\n");
                 }
             }
         });
@@ -272,7 +300,8 @@ public class ComputerSimulatorGUI extends JFrame {
                 memory.storeValue(address, data);
     
                 // Now do something with address and data (e.g., store in memory, etc.)
-                System.out.println("Address: " + address + ", Data: " + data);
+                printerArea.append("Stored value " + data + " from MBR into memory address " + address + " and incremented MAR to " + mar.getValue() + "\n");
+                //System.out.println("Address: " + address + ", Data: " + data);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -280,14 +309,14 @@ public class ComputerSimulatorGUI extends JFrame {
     }
     
 
-// Return both address and data separately
-public int[] convertToBitValue(int part0, int part1) {
-    int address = part0;  // Assign part0 directly as the address
-    int data = part1;     // Assign part1 directly as the data
+    // Return both address and data separately
+    public int[] convertToBitValue(int part0, int part1) {
+        int address = part0;  // Assign part0 directly as the address
+        int data = part1;     // Assign part1 directly as the data
 
-    // Return both address and data as an array
-    return new int[] {address, data};
-}
+        // Return both address and data as an array
+        return new int[] {address, data};
+    }
 
 
 
