@@ -1,7 +1,6 @@
 package ui; 
 
 import javax.swing.*;
-import components.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -10,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 public class FrontendGUI extends JFrame {
-    private MemoryAddressRegister mar; 
     private JCheckBox[][] gprCheckBoxes, ixrCheckBoxes;
     private JCheckBox[] pcCheckBoxes, marCheckBoxes, mbrCheckBoxes, irCheckBoxes, ccCheckBoxes, mfCheckBoxes;
     private JTextArea cacheContentArea, printerArea;
