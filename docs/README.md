@@ -16,7 +16,7 @@ Use this command to compile: `javac -d bin src/components/*.java src/ui/*.java s
 
 
 2. **Run**:
-Use the same command to run: `java -cp bin ui.ComputerSimulatorGUI`
+Use the same command to run: `java -cp bin ui.FrontendGUI`
 
 ### Notes:
 - Make sure the `bin` directory is created in your project root before compiling. If not, create it manually.
