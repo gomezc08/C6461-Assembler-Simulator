@@ -44,10 +44,13 @@ public class MemoryAddressRegister {
     }
 
     public void increment() {
-        if (mar < 4095) { // Example: Max address is 4095 for 12-bit addressing
+        if (mar < MAX_VALUE) { // MAX_VALUE is 4095 for 12-bit
             mar++;
-        } else {
-            throw new IllegalArgumentException("Address overflow");
+        } 
+        
+        else {
+            mar = 0; // Wrap around to 0
+            System.out.println("MAR wrapped around to 0");
         }
     }
 

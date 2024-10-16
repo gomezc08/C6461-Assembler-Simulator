@@ -1,6 +1,7 @@
 package ui; 
 
 import javax.swing.*;
+import components.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -9,11 +10,12 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 public class FrontendGUI extends JFrame {
+    private MemoryAddressRegister mar; 
     private JCheckBox[][] gprCheckBoxes, ixrCheckBoxes;
     private JCheckBox[] pcCheckBoxes, marCheckBoxes, mbrCheckBoxes, irCheckBoxes, ccCheckBoxes, mfCheckBoxes;
     private JTextArea cacheContentArea, printerArea;
     private JButton loadButton, loadPlusButton, storeButton, storePlusButton, initButton;
-    private BackendGUI backend; // Reference to backend
+    private BackendGUI backend; 
 
     public FrontendGUI() {
         setTitle("CSCI 6461 Machine Simulator");
@@ -50,7 +52,7 @@ public class FrontendGUI extends JFrame {
         gbc.weightx = 0.5;
         mainPanel.add(leftPanel, gbc);
 
-        // Right side (PC, MAR, MBR, IR, CC, MFR, Privileged)
+        // Right side (PC, MAR, MBR, IR, CC, MFR)
         JPanel rightPanel = new JPanel(new GridBagLayout());
         rightPanel.setBackground(new Color(221, 160, 221)); // Light purple
         pcCheckBoxes = createCheckBoxes(12); // PC is 12 bits
@@ -186,6 +188,8 @@ public class FrontendGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int marValue = getRegisterValue(marCheckBoxes);
                 backend.loadValue(marValue);
+                updateCheckBoxes(marCheckBoxes, marValue);
+                updateCheckBoxes(mbrCheckBoxes, backend.getMbrValue()); // Update MBR checkboxes
             }
         });
 
@@ -205,17 +209,19 @@ public class FrontendGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int mbrValue = getRegisterValue(mbrCheckBoxes);
                 int marValue = getRegisterValue(marCheckBoxes);
-                backend.storeValue(marValue, mbrValue);
-                // Increment MAR if needed
-                // Implement MAR increment logic here
+                backend.storePlusValue(marValue, mbrValue);
+                
+                // Update MAR checkbox after incrementing in backend
+                int updatedMarValue = backend.getMarValue(); 
+                updateCheckBoxes(marCheckBoxes, updatedMarValue); 
             }
         });
 
-        // Load+ button action (not done yet)
+        // Load+ button action.
         loadPlusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Implement Load+ functionality if needed
+                // Implement Load+ functionality if needed.
             }
         });
 
@@ -239,6 +245,14 @@ public class FrontendGUI extends JFrame {
             }
         }
         return value;
+    }
+
+    private void updateCheckBoxes(JCheckBox[] checkBoxes, int value) {
+        for (int i = 0; i < checkBoxes.length; i++) {
+            boolean isSet = (value & (1 << (checkBoxes.length - 1 - i))) != 0;
+            checkBoxes[i].setSelected(isSet);
+            checkBoxes[i].setBackground(isSet ? Color.YELLOW : Color.LIGHT_GRAY);
+        }
     }
 
     public static void main(String[] args) {
