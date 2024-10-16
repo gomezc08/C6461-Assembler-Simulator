@@ -1,0 +1,56 @@
+Main Components Overview
+    Program Counter (PC):
+        Size: 12 bits
+        Function: Keeps track of the address of the next instruction to be executed. Automatically increments after each instruction fetch.
+    
+    Condition Code (CC):
+        Size: 4 bits
+        Function: Stores the status flags (e.g., Zero, Negative, Overflow, Carry) that result from operations performed by the CPU. This information is critical for decision-making in branch instructions.
+    
+    Instruction Register (IR):
+        Size: 16 bits
+        Function: Holds the current instruction being executed. It is filled by fetching the instruction from memory and decoding it to determine the operation.
+    
+    Memory Address Register (MAR):
+        Size: 12 bits
+        Function: Contains the address of the memory location to be accessed (read or written). It is updated by the PC when fetching instructions or by the CPU when executing load/store operations.
+    
+    Memory Buffer Register (MBR):
+        Size: 16 bits
+        Function: Acts as a buffer to hold data being transferred to or from memory. It temporarily stores data read from memory before it is used by the CPU or data to be written to memory.
+    
+    Machine Fault Register (MFR):
+        Size: 4 bits
+        Function: Stores error codes or status information related to faults detected during execution (e.g., invalid opcodes, memory access violations).
+    
+    General Purpose Registers (GPR):
+        Size: 16 bits each (typically 4 registers, totaling 64 bits)
+        Function: Used for temporary storage of data and operands during computation. The CPU can quickly access these registers for arithmetic and logical operations.
+    
+    Index Registers (IXR):
+        Size: 16 bits each (typically 3 registers)
+        Function: Used for indexed addressing modes. They can modify the effective address during operations, facilitating array manipulation and iteration.
+
+Memory
+    Main Memory:
+        Size: 2048 words, each 16 bits in size.
+        Structure: Implemented as an array of shorts (e.g., short[] memoryArray).
+        Functionality: Responsible for storing instructions and data. Memory locations 0-5 are reserved and cannot be accessed for load or store operations to prevent errors.
+
+For the scope of this project, we will be focusing on the Load and Store instructions.
+
+CPU Class
+    Central to the project, the CPU class interacts with all components and manages their operations.
+    It contains methods for executing instructions, handling load/store operations, and managing the program flow.
+    Includes functionality to load ROM files into memory from specified file paths, ensuring that the instructions follow the expected format.
+
+GUI (FrontendGUI)
+    Purpose: Provides a user-friendly interface for interacting with the CPU simulator.
+    Components:
+        Check Boxes: Represent the bits of the registers (GPRs, IXRs, MAR, MBR, PC, IR, CC, MFR).
+        Text Areas: Display messages and output from the simulator (e.g., printer area for status messages).
+        Buttons: Trigger operations such as loading ROM files, storing and loading values from memory, and initializing the simulator.
+
+    Interaction with Backend:
+        Delegates backend operations to the BackendGUI class, which encapsulates the logic for loading values, storing data, and resetting registers.
+        The GUI responds to user actions, updating the state of the simulator and reflecting changes in the register checkboxes and printer area.
