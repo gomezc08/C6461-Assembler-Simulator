@@ -36,15 +36,19 @@ public class CPU {
         }
     }
 
+    public void store(int address, int value) {
+        mar.setValue((short) address); // Set MAR to the specified address
+        memory.storeValue(mar.getValue(), value); // Store the value in memory at the address
+    }
+
     public void resetRegisters() {
-        gprs.resetAllGPRs(); // Assuming a method to reset all general-purpose registers
+        gprs.resetAllGPRs(); // Reset all general-purpose registers
         ixr.resetAllIndexRegisters(); // Reset all index registers
         pc.reset(); // Reset the program counter
         mar.resetMAR(); // Reset memory address register
         mbr.resetMBR(); // Reset memory buffer register
     }
 }
-
 
 
 /*

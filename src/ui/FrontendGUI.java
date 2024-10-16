@@ -1,51 +1,33 @@
-package ui; // Ensure this matches your package structure
+package ui; 
 
 import javax.swing.*;
-import components.Memory;
-import components.MemoryAddressRegister;
-import components.MemoryBufferRegister;
-import components.CPU;
-import components.GeneralPurposeRegisters;
-import components.IndexRegisters;
-import components.ProgramCounter;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
-public class ComputerSimulatorGUI extends JFrame {
+public class FrontendGUI extends JFrame {
     private JCheckBox[][] gprCheckBoxes, ixrCheckBoxes;
     private JCheckBox[] pcCheckBoxes, marCheckBoxes, mbrCheckBoxes, irCheckBoxes, ccCheckBoxes, mfCheckBoxes;
     private JTextArea cacheContentArea, printerArea;
     private JButton loadButton, loadPlusButton, storeButton, storePlusButton, initButton;
+    private BackendGUI backend; // Reference to backend
 
-    private Memory memory; // Memory object
-    private MemoryAddressRegister mar; // Memory Address Register
-    private MemoryBufferRegister mbr; // Memory Buffer Register
-    private CPU cpu; // CPU object
-    private GeneralPurposeRegisters gprs; // General Purpose Registers
-    private IndexRegisters ixr; // Index Registers
-    private ProgramCounter pc; // Program Counter
-
-    public ComputerSimulatorGUI() {
+    public FrontendGUI() {
         setTitle("CSCI 6461 Machine Simulator");
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Initialize memory, MAR, MBR, CPU, and registers
-        memory = new Memory();
-        mar = new MemoryAddressRegister();
-        mbr = new MemoryBufferRegister();
-        gprs = new GeneralPurposeRegisters(4); // Assuming 4 general-purpose registers
-        ixr = new IndexRegisters(3); // Assuming 3 index registers
-        pc = new ProgramCounter();
-        cpu = new CPU(memory, mar, mbr, gprs, ixr, pc); // Initialize the CPU
+        // Initialize printer area for messages
+        printerArea = new JTextArea(10, 30);
+        printerArea.setEditable(false);
+        printerArea.setBorder(BorderFactory.createTitledBorder("Printer"));
+
+        // Initialize backend
+        backend = new BackendGUI(printerArea);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(new Color(221, 160, 221)); // Set to light purple
@@ -103,9 +85,6 @@ public class ComputerSimulatorGUI extends JFrame {
         cacheContentArea = new JTextArea(10, 30);
         cacheContentArea.setEditable(false);
         cacheContentArea.setBorder(BorderFactory.createTitledBorder("Cache Content"));
-        printerArea = new JTextArea(10, 30);
-        printerArea.setEditable(false);
-        printerArea.setBorder(BorderFactory.createTitledBorder("Printer"));
         lowerPanel.add(new JScrollPane(cacheContentArea));
         lowerPanel.add(new JScrollPane(printerArea));
         gbc.gridy = 2;
@@ -206,19 +185,7 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue((short) marValue);
-                int memoryValue = memory.loadMemoryValue(marValue);
-                mbr.setValue((short) memoryValue);
-
-                // CASE 1: Access valid memory.
-                if (marValue > 5) {
-                    updateCheckBoxes(mbrCheckBoxes, memoryValue);
-                    printerArea.append("Loaded value " + memoryValue + " from memory address " + marValue + " into MBR\n");
-                }
-                // CASE 2: Access invalid memory.
-                else {
-                    printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
-                }
+                backend.loadValue(marValue);
             }
         });
 
@@ -227,19 +194,8 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int mbrValue = getRegisterValue(mbrCheckBoxes);
-                mbr.setValue((short) mbrValue);
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue((short) marValue);
-
-                // CASE 1: Access valid memory.
-                if (marValue > 5) {
-                    memory.storeValue(marValue, mbrValue);
-                    printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
-                }
-                // CASE 2: Access invalid memory.
-                else {
-                    printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
-                }
+                backend.storeValue(marValue, mbrValue);
             }
         });
 
@@ -248,25 +204,14 @@ public class ComputerSimulatorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int mbrValue = getRegisterValue(mbrCheckBoxes);
-                mbr.setValue((short) mbrValue);
                 int marValue = getRegisterValue(marCheckBoxes);
-                mar.setValue((short) marValue);
-
-                // CASE 1: Access valid memory.
-                if (marValue > 5) {
-                    memory.storeValue(marValue, mbrValue);
-                    mar.increment();
-                    updateCheckBoxes(marCheckBoxes, mar.getValue());
-                    printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + " and incremented MAR to " + mar.getValue() + "\n");
-                }
-                // CASE 2: Access invalid memory.
-                else {
-                    printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
-                }
+                backend.storeValue(marValue, mbrValue);
+                // Increment MAR if needed
+                // Implement MAR increment logic here
             }
         });
 
-        // Load+ button action
+        // Load+ button action (not done yet)
         loadPlusButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -281,14 +226,7 @@ public class ComputerSimulatorGUI extends JFrame {
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
                 printerArea.append("Selected file: " + selectedFile.getName() + "\n");
-                try {
-                    cpu.loadROMFile(selectedFile);
-                    printerArea.append("Loaded ROM file successfully\n");
-                } 
-                
-                catch (IOException ex) {
-                    printerArea.append("Error loading ROM file: " + ex.getMessage() + "\n");
-                }
+                backend.loadROMFile(selectedFile);
             }
         });
     }
@@ -303,45 +241,9 @@ public class ComputerSimulatorGUI extends JFrame {
         return value;
     }
 
-    private void updateCheckBoxes(JCheckBox[] checkBoxes, int value) {
-        for (int i = 0; i < checkBoxes.length; i++) {
-            boolean isSet = (value & (1 << (checkBoxes.length - 1 - i))) != 0;
-            checkBoxes[i].setSelected(isSet);
-            checkBoxes[i].setBackground(isSet ? Color.YELLOW : Color.LIGHT_GRAY);
-        }
-    }
-
-    private void resetRegisters() {
-        // Reset all registers and memory states
-        for (JCheckBox[] gpr : gprCheckBoxes) {
-            for (JCheckBox checkBox : gpr) {
-                checkBox.setSelected(false);
-                checkBox.setBackground(Color.LIGHT_GRAY);
-            }
-        }
-
-        for (JCheckBox[] ixr : ixrCheckBoxes) {
-            for (JCheckBox checkBox : ixr) {
-                checkBox.setSelected(false);
-                checkBox.setBackground(Color.LIGHT_GRAY);
-            }
-        }
-
-        JCheckBox[][] allRegisters = {pcCheckBoxes, marCheckBoxes, mbrCheckBoxes, irCheckBoxes, ccCheckBoxes, mfCheckBoxes};
-        for (JCheckBox[] register : allRegisters) {
-            for (JCheckBox checkBox : register) {
-                checkBox.setSelected(false);
-                checkBox.setBackground(Color.LIGHT_GRAY);
-            }
-        }
-
-        memory.resetMemory(); // Clear memory
-        printerArea.setText(""); // Clear printer output
-    }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            ComputerSimulatorGUI gui = new ComputerSimulatorGUI();
+            FrontendGUI gui = new FrontendGUI();
             gui.setVisible(true);
         });
     }
