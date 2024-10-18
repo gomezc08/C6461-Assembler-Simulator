@@ -7,7 +7,7 @@
    Run the following command from outside the `src` directory to compile all the Java files into the `bin` directory: `javac -d bin src/components/*.java src/ui/*.java src/Assembler/*.java`
 
 2. **Run**:
-To run the `ComputerSimulatorGUI` class, use the following command: `java -cp bin ui.FrontendGUI`
+To run the GUI, use the following command: `java -cp bin ui.FrontendGUI`
 
 ### On Mac/Linux:
 1. **Compile**:
