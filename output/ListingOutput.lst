@@ -1,24 +1,24 @@
-                         LOC    8                		;BEGIN AT LOCATION 8
-000010     000012        Data   10               		;PUT 10 AT LOCATION 9
-000011     000003        Data   3                		;PUT 3 AT LOCATION 10
-000012     002000        Data   End              		;PUT 1024 AT LOCATION 11
-000013     000000        Data   0                     
-000014     000014        Data   12                    
-000015     000011        Data   9                     
-000016     000022        Data   18                    
-000017     000014        Data   12                    
-000020     102207        LDX    2,7              		;X2 GETS 3
-000021     025636        JZ     3,2,30                
-000022     160200        MLT    0,2              		; test1
-000023     172400        NOT    1                		; test2
-000024     143103        SRC    2,3,1,0          		; test3
-000025     151001        OUT    2,1              		; test4
-000026     016412        SIR    1,10             		;new test!!!
-000027     003412        LDR    3,0,10           		;R3 GETS 12
-000030     003212        LDR    2,2,10           		;R2 GETS 12
-000031     002652        LDR    1,2,10,1         		;R1 GETS 18
-000032     006000        LDA    0,0,0            		;R0 GETS 0 to set CONDITION CODE
-000033     102110        LDX    1,8              		;X1 GETS 1024
-000034     024100        JZ     0,1,0            		;JUMP TO End IF R0 = 0
+                         LOC    6                		;BEGIN AT LOCATION 8
+000006     000012        Data   10               		;PUT 10 AT LOCATION 9
+000007     000003        Data   3                		;PUT 3 AT LOCATION 10
+000010     002000        Data   End              		;PUT 1024 AT LOCATION 11
+000011     000000        Data   0                     
+000012     000014        Data   12                    
+000013     000011        Data   9                     
+000014     000022        Data   18                    
+000015     000014        Data   12                    
+000016     102207        LDX    2,7              		;X2 GETS 3
+000017     025636        JZ     3,2,30                
+000020     160200        MLT    0,2              		; test1
+000021     172400        NOT    1                		; test2
+000022     143103        SRC    2,3,1,0          		; test3
+000023     151001        OUT    2,1              		; test4
+000024     016412        SIR    1,10             		;new test!!!
+000025     003412        LDR    3,0,10           		;R3 GETS 12
+000026     003212        LDR    2,2,10           		;R2 GETS 12
+000027     002652        LDR    1,2,10,1         		;R1 GETS 18
+000030     006000        LDA    0,0,0            		;R0 GETS 0 to set CONDITION CODE
+000031     102110        LDX    1,8              		;X1 GETS 1024
+000032     024100        JZ     0,1,0            		;JUMP TO End IF R0 = 0
                          LOC    1024                  
 002000     000000 End:   HLT                      		;STOP         

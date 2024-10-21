@@ -17,7 +17,7 @@ class Cache {
 
         for (int i = 0; i < cacheSize; i++) {
             cacheLines.add(new CacheLine());
-            lruList.addFirst(i);  // Add to front, so last element is LRU
+            lruList.addLast(i);  // Add to end, so first element is LRU
         }
     }
 
@@ -84,11 +84,11 @@ class Cache {
 
     private void updateLRU(int index) {
         lruList.remove((Integer) index);
-        lruList.addFirst(index);  // Most recently used goes to the front
+        lruList.addLast(index);  // Most recently used goes to the end
     }
 
     private int loadBlockFromMemory(int address) {
-        int evictIndex = lruList.removeLast();  // Remove and return the LRU index
+        int evictIndex = lruList.removeFirst();  // Remove and return the LRU index
         CacheLine evictLine = cacheLines.get(evictIndex);
 
         if (evictLine.isDirty()) {
@@ -108,7 +108,7 @@ class Cache {
 
         evictLine.setTag(tag);
         evictLine.setDirty(false);
-        lruList.addFirst(evictIndex);  // New block is most recently used
+        lruList.addLast(evictIndex);
 
         System.out.println("Loaded block into cache line " + evictIndex + " with tag: " + tag);
         return evictLine.getBlock()[blockID];
@@ -128,7 +128,7 @@ class Cache {
             CacheLine line = cacheLines.get(i);
             System.out.println("Line " + i + ": Tag = " + line.getTag() + 
                                ", Dirty = " + line.isDirty() + 
-                               ", LRU Order = " + lruList.indexOf(i));
+                               ", LRU Order = " + (cacheSize - 1 - lruList.indexOf(i)));
         }
         System.out.println();
     }

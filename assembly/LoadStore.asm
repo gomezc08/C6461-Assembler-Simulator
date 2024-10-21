@@ -1,5 +1,5 @@
 Label   Opcode  Operand     Comments
-        LOC     8           ;BEGIN AT LOCATION 8
+        LOC     6           ;BEGIN AT LOCATION 8
         Data    10          ;PUT 10 AT LOCATION 9
         Data    3           ;PUT 3 AT LOCATION 10
         Data    End         ;PUT 1024 AT LOCATION 11
@@ -8,7 +8,7 @@ Label   Opcode  Operand     Comments
         Data    9
         Data    18
         Data    12
-        LDX     2,7         ;X2 GETS 3
+        LDX     2,7         ;X2 GETS 3 
         JZ      3,2,30
         MLT     0,2         ; test1
         NOT     1           ; test2

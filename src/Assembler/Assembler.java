@@ -495,7 +495,7 @@ public class Assembler {
         }
         listWriter.close();
 
-        BufferedWriter loadWriter = new BufferedWriter(new FileWriter("output/LoadFile.ld"));
+        BufferedWriter loadWriter = new BufferedWriter(new FileWriter("output/LoadFile2.ld"));
         for (String line : loadFile) {
             loadWriter.write(line);
             loadWriter.newLine();
@@ -511,12 +511,12 @@ public class Assembler {
         System.out.println("<<Finished Running the Assembler (End)>>");
     }
 
-    /* 
+    
     public static void main(String[] args) throws IOException {
         // Sample input file
         String sourceFile = "assembly/LoadStore.asm";
         run(sourceFile);
     }
-    */
+    
     
 }
