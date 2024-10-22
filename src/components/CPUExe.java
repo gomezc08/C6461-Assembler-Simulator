@@ -328,6 +328,25 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
+    // RFS (Return From Subroutine)
+    public boolean executeRFS(String binaryInstruction) {
+        // Extract immediate value from the instruction
+        String immed_str = binaryInstruction.substring(11, 16);  // Immediate value is in the last 5 bits
+        int immed = Integer.parseInt(immed_str, 2);  // Convert immediate field to integer
+
+        // Load the immediate value into GPR[0]
+        gpr.setGPR(0, (short) immed);
+        System.out.println("Loaded immediate value " + immed + " into GPR[0].");
+
+        // Set the PC to the value stored in GPR[3] (return address)
+        int returnAddress = gpr.getGPR(3);
+        pc.setPC(returnAddress);
+        System.out.println("Returning to address " + returnAddress + " from subroutine.");
+
+        return false;  // Continue execution
+    }
+
+
 
     // Helper function for calculating effective address
     private int calculateEffectiveAddress(String ix, String iBit, String address) {

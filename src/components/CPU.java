@@ -121,10 +121,15 @@ public class CPU {
                 System.out.println("JMA");
                 return cpuExe.executeJMA(binaryInstruction);
             
-            // JSR.
+            // JSR: Done!
             case "001110":
                 System.out.println("JSR");
                 return cpuExe.executeJSR(binaryInstruction);
+            
+            // RFS: Done but can't test (dont know about subroutines).
+            case "001111":
+                System.out.println("RFS");
+                return cpuExe.executeRFS(binaryInstruction);
 
             // HLT: Done!
             case "000000":  
