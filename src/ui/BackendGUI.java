@@ -13,6 +13,7 @@ public class BackendGUI {
     private GeneralPurposeRegisters gprs; 
     private IndexRegisters ixr; 
     private ProgramCounter pc; 
+    private ConditionCode cc;
     private JTextArea printerArea; 
 
     public BackendGUI(JTextArea printerArea) {
@@ -23,7 +24,8 @@ public class BackendGUI {
         gprs = new GeneralPurposeRegisters(4); 
         ixr = new IndexRegisters(3); 
         pc = new ProgramCounter();
-        cpu = new CPU(memory, mar, mbr, gprs, ixr, pc);
+        cc = new ConditionCode();
+        cpu = new CPU(memory, mar, mbr, gprs, ixr, pc, cc);
         this.printerArea = printerArea; 
     }
 

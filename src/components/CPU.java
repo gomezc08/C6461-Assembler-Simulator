@@ -16,13 +16,14 @@ public class CPU {
     private MemoryBufferRegister mbr; // Memory Buffer Register
     private CPUExe cpuExe;
 
-    public CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc) {
+    public CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc, ConditionCode cc) {
         this.memory = memory;
         this.mar = mar;
         this.mbr = mbr;
         this.gpr = gpr;  
         this.ixr = ixr;
         this.pc = pc;
+        this.cc = cc;
         this.cpuExe = new CPUExe(memory, gpr, ixr, pc);
     }   
 
@@ -110,6 +111,11 @@ public class CPU {
                 System.out.println("JNE");
                 return cpuExe.executeJNE(binaryInstruction);
             
+            // JCC: Done (not 100% confident on this one).
+            case "001100":
+                System.out.println("JCC");
+                return cpuExe.executeJCC(binaryInstruction, pc, cc);
+
             // HLT: Done!
             case "000000":  
                 return true;  // HLT - Stop execution
@@ -138,15 +144,17 @@ public class CPU {
     }
 
     public static void main(String[] args) {
-        // INITIALIZE COMPONENTS
+        // INITIALIZE.
         Memory memory = new Memory();
         GeneralPurposeRegisters gpr = new GeneralPurposeRegisters(4); // 4 General Purpose Registers
         IndexRegisters ixr = new IndexRegisters(3); // 3 Index Registers
         ProgramCounter pc = new ProgramCounter();
         MemoryAddressRegister mar = new MemoryAddressRegister();
         MemoryBufferRegister mbr = new MemoryBufferRegister();
-        pc.setPC(14); // Starting execution at address 14, based on .asm file
-        CPU cpu = new CPU(memory, mar, mbr, gpr, ixr, pc);
+        ConditionCode cc = new ConditionCode();  // Initialize the condition code object
+    
+        pc.setPC(14);
+        CPU cpu = new CPU(memory, mar, mbr, gpr, ixr, pc, cc); 
         
         try {
             File romFile = new File("output/Kishan.ld");
@@ -167,73 +175,17 @@ public class CPU {
         }
         System.out.println("\n\n");
     
-        // Execute instructions sequentially as per .asm file
-        // Instruction 1: LDR 3,0,10
-        System.out.println("Executing instruction at Address 14 (LDR 3,0,10)");
-        String binaryInstruction1 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decode(binaryInstruction1);  // Decode and execute the instruction
-        System.out.println("GPR[3] after LDR: " + gpr.getGPR(3));
-        System.out.println("\n\n");
-    
-        // Instruction 2: STR 3,0,20
-        System.out.println("Executing instruction at Address 15 (STR 3,0,20)");
-        pc.setPC(cpu.getPc());
-        String binaryInstruction2 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decode(binaryInstruction2);  // Decode and execute the instruction
-        System.out.println("Memory at Address 20 after STR: " + memory.loadMemoryValue(20));
-        System.out.println("\n\n");
-    
-        // Instruction 3: LDR 2,1,20,1
-        System.out.println("Executing instruction at Address 16 (LDR 2,1,20,1)");
-        pc.setPC(cpu.getPc());
-        String binaryInstruction3 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decode(binaryInstruction3);  // Decode and execute the instruction
-        System.out.println("GPR[2] after LDR: " + gpr.getGPR(2));
-        System.out.println("\n\n");
-    
-        // Instruction 4: LDA 1,0,6
-        System.out.println("Executing instruction at Address 17 (LDA 1,0,6)");
-        pc.setPC(cpu.getPc());
-        String binaryInstruction4 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decode(binaryInstruction4);  // Decode and execute the instruction
-        System.out.println("GPR[1] after LDA: " + gpr.getGPR(1));
-        System.out.println("\n\n");
-    
-        // Instruction 5: LDX 1,8
-        System.out.println("Executing instruction at Address 18 (LDX 1,8)");
-        pc.setPC(cpu.getPc());
-        String binaryInstruction5 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decode(binaryInstruction5);  // Decode and execute the instruction
-        System.out.println("IXR[1] after LDX: " + ixr.getIndexRegister(1));
-        System.out.println("\n\n");
-    
-        // Instruction 6: JNE 2,0,20
-        System.out.println("Executing instruction at Address 19 (JNE 2,0,20)");
-        pc.setPC(cpu.getPc());
-        String binaryInstruction6 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decode(binaryInstruction6);  // Decode and execute the instruction
-        System.out.println("\n\n");
-    
-        // Instruction 7: JNE 3,0,18
-        System.out.println("Executing instruction at Address 20 (JNE 3,0,18)");
-        pc.setPC(cpu.getPc());
-        String binaryInstruction7 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decode(binaryInstruction7);  // Decode and execute the instruction
-        System.out.println("\n\n");
-    
-        // Instruction 8: STX 1,20
-        System.out.println("Executing instruction at Address 21 (STX 1,20)");
-        pc.setPC(cpu.getPc());
-        String binaryInstruction8 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decode(binaryInstruction8);  // Decode and execute the instruction
-        System.out.println("Memory at Address 20 after STX: " + memory.loadMemoryValue(20));
+        // Execute CPU instructions
+        cpu.run();
     
         // Final checks
         System.out.println("Final GPR Values:");
         System.out.println(gpr.toString());
-        
+    
         System.out.println("Final Index Register Values:");
         System.out.println(ixr.toString());
-    }
     
+        System.out.println("Final Condition Code Values:");
+        System.out.println(cc.toString());
+    }    
 }

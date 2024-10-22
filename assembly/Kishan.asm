@@ -13,7 +13,6 @@ Label   Opcode  Operand     Comments
         LDR     2,1,20,1    ;GPR[2] = Address[Address[20] + IXR[1]] = Address[12] = 18.
         LDA     1,0,6       ;Load the address 6 into GPR[1]. GPR[1] = 6 for address 6.
         LDX     1,8         ;Load the content at address 8 into IX1. IX1 = Address[8] = 1024.
-        JNE     2,0,20      ; Jump if GPR[2] != 0 to address 20.
-        JNE     3,0,18      ; Jump if GPR[3] != 0 to address 18.
+        JCC     3,0,18      ;Jump if condition code 3 (Equal) is set to address 18
         STX     1,20        ;Store the content of IXR[1] at memory address 20
 End:    HLT                 ;STOP

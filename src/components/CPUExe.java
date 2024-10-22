@@ -229,6 +229,60 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
+    // JCC.
+    public boolean executeJCC(String binaryInstruction, ProgramCounter pc, ConditionCode cc) {
+        // Extract the fields (condition code, index register, indirect bit, address)
+        String conditionCodeStr = binaryInstruction.substring(6, 8);  
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  
+        String address_str = binaryInstruction.substring(11, 16);  
+
+        int conditionCodeIndex = Integer.parseInt(conditionCodeStr, 2);
+        int ix = Integer.parseInt(ix_str, 2);
+        int iBit = Integer.parseInt(iBit_str, 2);
+        int address = Integer.parseInt(address_str, 2);
+
+        // Get the effective address (EA)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);
+        System.out.println("Effective Address (Ea): " + ea);
+
+        // Check the condition based on the condition code index
+        boolean conditionMet = false;
+        switch (conditionCodeIndex) {
+            case 0:
+                conditionMet = cc.isOverflow();
+                System.out.println("Checking Overflow flag: " + conditionMet);
+                break;
+            case 1:
+                conditionMet = cc.isUnderflow();
+                System.out.println("Checking Underflow flag: " + conditionMet);
+                break;
+            case 2:
+                conditionMet = cc.isDivZero();
+                System.out.println("Checking DivZero flag: " + conditionMet);
+                break;
+            case 3:
+                conditionMet = cc.isEqual();
+                System.out.println("Checking Equal flag: " + conditionMet);
+                break;
+            default:
+                System.out.println("Unknown condition code index: " + conditionCodeIndex);
+                return false;
+        }
+
+        // Jump if the condition is met
+        if (conditionMet) {
+            pc.setPC(ea);
+            System.out.println("Condition met, jumping to address: " + ea);
+        } 
+        
+        else {
+            pc.incrementPC();  // Move to next instruction if condition is not met
+            System.out.println("Condition not met, moving to next instruction.");
+        }
+
+        return false;  // Continue execution
+    }
 
 
     // Helper function for calculating effective address
