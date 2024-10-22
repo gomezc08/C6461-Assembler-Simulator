@@ -7,11 +7,12 @@
 000013     000011        Data   9                		;PUT 9 at location 11
 000014     000022        Data   18               		;Extra data at location 12
 000015     000014        Data   12               		;Extra data at location 13
-000016     003412        LDR    3,0,10           		;REG 3 = Contents at address 10 = 12
-000017     005424        STR    3,0,20           		;Store contents of reg 3 at address 20. Memory 20 = 12
-000020     003164        LDR    2,1,20,1         		;GPR[2] = Address[Address[20] + IXR[1]] = Address[12] = 18.
-000021     006406        LDA    1,0,6            		;Load the address 6 into GPR[1]. GPR[1] = 6 for address 6.
-000022     122110        LDX    1,8              		;Load the content at address 8 into IX1. IX1 = Address[8] = 1024.
-000023     031422        JCC    3,0,18           		;Jump if condition code 3 (Equal) is set to address 18
-000024     124124        STX    1,20             		;Store the content of IXR[1] at memory address 20
-000025     000000 End:   HLT                      		;STOP         
+000016     034024        JSR    0,20             		;Jump to address 20 (no indirect bit).
+000017     003412        LDR    3,0,10           		;REG 3 = Contents at address 10 = 12
+000020     005424        STR    3,0,20           		;Store contents of reg 3 at address 20. Memory 20 = 12
+000021     003164        LDR    2,1,20,1         		;GPR[2] = Address[Address[20] + IXR[1]] = Address[12] = 18.
+000022     006406        LDA    1,0,6            		;Load the address 6 into GPR[1]. GPR[1] = 6 for address 6.
+000023     122110        LDX    1,8              		;Load the content at address 8 into IX1. IX1 = Address[8] = 1024.
+000024     031422        JCC    3,0,18           		;Jump if condition code 3 (Equal) is set to address 18
+000025     124124        STX    1,20             		;Store the content of IXR[1] at memory address 20
+000026     000000 End:   HLT                      		;STOP         

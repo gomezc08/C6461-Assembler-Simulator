@@ -284,7 +284,7 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
-    // Add the JMA method in CPUExe
+    // JMA.
     public boolean executeJMA(String binaryInstruction) {
         // Extract the index register, indirect bit, and address from the instruction
         String ix_str = binaryInstruction.substring(8, 10);  
@@ -301,6 +301,33 @@ public class CPUExe {
 
         return false;  // Continue execution
     }
+
+    // JSR.
+    public boolean executeJSR(String binaryInstruction) {
+        // Extract the fields: index register, indirect bit, address
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  
+        String address_str = binaryInstruction.substring(11, 16);  
+
+        int ix = Integer.parseInt(ix_str, 2);
+        int iBit = Integer.parseInt(iBit_str, 2);
+        int address = Integer.parseInt(address_str, 2);
+
+        // Calculate the Effective Address (EA)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+
+        // Step 1: Save the return address (PC + 1) in GPR[3]
+        gpr.setGPR(3, (short) (pc.getPC()));  
+        System.out.println("Saved return address (PC+1) in GPR[3]: " + pc.getPC());
+
+        // Step 2: Set the PC to the EA (jump to the subroutine)
+        pc.setPC(ea);  
+        System.out.println("Jumping to subroutine at address: " + ea);
+
+        return false;  // Continue execution
+    }
+
 
     // Helper function for calculating effective address
     private int calculateEffectiveAddress(String ix, String iBit, String address) {
