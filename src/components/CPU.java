@@ -115,6 +115,11 @@ public class CPU {
             case "001100":
                 System.out.println("JCC");
                 return cpuExe.executeJCC(binaryInstruction, pc, cc);
+            
+            // JMA.
+            case "001101":
+                System.out.println("JMA");
+                return cpuExe.executeJMA(binaryInstruction);
 
             // HLT: Done!
             case "000000":  

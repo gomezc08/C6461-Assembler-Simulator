@@ -284,6 +284,23 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
+    // Add the JMA method in CPUExe
+    public boolean executeJMA(String binaryInstruction) {
+        // Extract the index register, indirect bit, and address from the instruction
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  
+        String address_str = binaryInstruction.substring(11, 16);  
+
+        // Calculate the Effective Address (EA)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+
+        // Set the Program Counter (PC) to the effective address
+        pc.setPC(ea);
+        System.out.println("Jumping to address: " + ea);
+
+        return false;  // Continue execution
+    }
 
     // Helper function for calculating effective address
     private int calculateEffectiveAddress(String ix, String iBit, String address) {
