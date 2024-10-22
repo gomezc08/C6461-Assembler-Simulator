@@ -495,7 +495,7 @@ public class Assembler {
         }
         listWriter.close();
 
-        BufferedWriter loadWriter = new BufferedWriter(new FileWriter("output/LoadFile2.ld"));
+        BufferedWriter loadWriter = new BufferedWriter(new FileWriter("output/Kishan.ld"));
         for (String line : loadFile) {
             loadWriter.write(line);
             loadWriter.newLine();

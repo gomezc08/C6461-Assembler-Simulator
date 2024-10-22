@@ -1,24 +1,13 @@
-                         LOC    6                		;BEGIN AT LOCATION 8
-000006     000012        Data   10               		;PUT 10 AT LOCATION 9
-000007     000003        Data   3                		;PUT 3 AT LOCATION 10
-000010     002000        Data   End              		;PUT 1024 AT LOCATION 11
-000011     000000        Data   0                     
-000012     000014        Data   12                    
-000013     000011        Data   9                     
-000014     000022        Data   18                    
-000015     000014        Data   12                    
-000016     102207        LDX    2,7              		;X2 GETS 3
-000017     025636        JZ     3,2,30                
-000020     160200        MLT    0,2              		; test1
-000021     172400        NOT    1                		; test2
-000022     143103        SRC    2,3,1,0          		; test3
-000023     151001        OUT    2,1              		; test4
-000024     016412        SIR    1,10             		;new test!!!
-000025     003412        LDR    3,0,10           		;R3 GETS 12
-000026     003212        LDR    2,2,10           		;R2 GETS 12
-000027     002652        LDR    1,2,10,1         		;R1 GETS 18
-000030     006000        LDA    0,0,0            		;R0 GETS 0 to set CONDITION CODE
-000031     102110        LDX    1,8              		;X1 GETS 1024
-000032     024100        JZ     0,1,0            		;JUMP TO End IF R0 = 0
-                         LOC    1024                  
-002000     000000 End:   HLT                      		;STOP         
+                         LOC    6                		;BEGIN AT LOCATION 6
+000006     000012        Data   10               		;PUT 10 AT LOCATION 6
+000007     000003        Data   3                		;PUT 3 AT LOCATION 7
+000010     002000        Data   1024             		;PUT 1024 AT LOCATION 8 (converted from 'End' to 1024)
+000011     000000        Data   0                		;PUT 0 at Location 9
+000012     000014        Data   12               		;PUT 12 at location 10
+000013     000011        Data   9                		;PUT 9 at location 11
+000014     000022        Data   18               		;Extra data at location 12
+000015     000014        Data   12               		;Extra data at location 13
+000016     003412        LDR    3,0,10           		;REG 3 = Contents at address 10 = 12
+000017     005424        STR    3,0,20           		;Store contents of reg 3 at address 20 instead of 16
+000020     003006        LDR    2,0,6            		;Reg 2 = contents at address 6 = 10
+000021     000000 End:   HLT                      		;STOP         

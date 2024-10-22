@@ -47,10 +47,11 @@ public class GeneralPurposeRegisters {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < gprs.length; i++) {
-            sb.append(String.format("GPR[%d]: %04X\n", i, gprs[i] & 0xFFFF)); // Display in hex format
+            sb.append(String.format("GPR[%d]: %d\n", i, gprs[i]));  // Display in decimal format
         }
         return sb.toString();
     }
+
 
     public static void main(String[] args) {
         // Assume there are 4 General Purpose Registers

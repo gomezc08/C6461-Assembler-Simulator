@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import Assembler.Assembler;
 
 public class CPU {
     private Memory memory;
@@ -37,6 +38,7 @@ public class CPU {
         }
     }
 
+
     // Main cycle: Fetch-Decode-Execute
     public void run() {
         boolean halt = false;
@@ -48,67 +50,41 @@ public class CPU {
 
     // Fetch the instruction from memory
     private String fetch() {
-        int instruction = memory.loadMemoryValue(pc.getPC());  // Fetch instruction from memory at the current PC
-        pc.incrementPC();  // Increment PC for the next instruction
-        return String.format("%16s", Integer.toBinaryString(instruction)).replace(' ', '0');  // Return 16-bit binary string
+        int instruction = memory.loadMemoryValue(pc.getPC());
+        pc.incrementPC();
+        
+        // Convert the octal instruction to binary, ensuring 16 bits
+        // First convert to a proper binary integer
+        String binaryInstruction = Integer.toBinaryString(instruction);
+        
+        // Pad to 16 bits
+        while (binaryInstruction.length() < 16) {
+            binaryInstruction = "0" + binaryInstruction;
+        }
+        
+        System.out.println("Fetched Instruction (octal): " + Integer.toOctalString(instruction));
+        System.out.println("Fetched Instruction (binary): " + binaryInstruction);
+        
+        return binaryInstruction;
     }
-
 
     // Decode and execute the instruction directly
     private boolean decodeAndExecute(String binaryInstruction) {
         String opcode = binaryInstruction.substring(0, 6);  // Extract opcode (first 6 bits)
+        System.out.print("We will be executing: ");
 
         switch (opcode) {
-            case "000001":  // LDR - Load Register from Memory
+            // LDR: Works!
+            case "000001":  
+                System.out.println("LDR");
                 return executeLoad(binaryInstruction);
-            case "000010":  // STR - Store Register to Memory
+            // STR: Works!
+            case "000010": 
+                System.out.println("STR");
                 return executeStore(binaryInstruction);
-            case "000011":  // LDA - Load Address into Register
-                return executeLoadAddress(binaryInstruction);
-            case "100001":  // LDX - Load Index Register
-                return executeLoadIndex(binaryInstruction);
-            case "101010":  // STX - Store Index Register
-                return executeStoreIndex(binaryInstruction);
-
-            // Transfer instructions
-            case "001010":  // JZ
-            case "001011":  // JNE
-            case "001100":  // JCC
-            case "001101":  // JMA
-            case "001110":  // JSR
-            case "001111":  // RFS
-            case "010000":  // SOB
-            case "010001":  // JGE
-                return executeTransfer(binaryInstruction, opcode);
-
-            // Arithmetic/Logical instructions
-            case "000100":  // AMR - Add Memory to Register
-            case "000101":  // SMR - Subtract Memory from Register
-            case "000110":  // AIR - Add Immediate to Register
-            case "000111":  // SIR - Subtract Immediate from Register
-                return executeArithmetic(binaryInstruction, opcode);
-
-            // Register to Register operations
-            case "111000":  // MLT - Multiply Register
-            case "111001":  // DVD - Divide Register
-            case "111010":  // TRR - Test Registers
-            case "111011":  // AND - Logical AND
-            case "111100":  // ORR - Logical OR
-            case "111101":  // NOT - Logical NOT
-                return executeRegisterToRegister(binaryInstruction, opcode);
-
-            // Shift/Rotate instructions
-            case "110001":  // SRC
-            case "110010":  // RRC
-                return executeShiftRotate(binaryInstruction, opcode);
-
-            // I/O instructions
-            case "110011":  // IN
-            case "110100":  // OUT
-            case "110101":  // CHK
-                return executeIO(binaryInstruction, opcode);
-
-            case "000000":  // HLT - Halt the CPU
+    
+            // HLT: Works!
+            case "000000":  
                 return true;  // Stop execution
 
             default:
@@ -116,62 +92,62 @@ public class CPU {
         }
     }
 
-    // Helper functions for Load/Store operations
     private boolean executeLoad(String binaryInstruction) {
-        String reg = binaryInstruction.substring(6, 8);  // Extract the register bits
-        String ix = binaryInstruction.substring(8, 10);  // Extract the index register bits
-        String iBit = binaryInstruction.substring(10, 11);  // Extract the indirect bit
-        String address = binaryInstruction.substring(11, 16);  // Extract the address bits
+        // extract instructions.
+        String reg_str = binaryInstruction.substring(6, 8);  
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  
+        String address_str = binaryInstruction.substring(11, 16);  
 
-        int ea = calculateEffectiveAddress(ix, iBit, address);  // Calculate effective address
+        int reg = Integer.parseInt(reg_str, 2);
+        int ix = Integer.parseInt(ix_str, 2);
+        int iBit = Integer.parseInt(iBit_str, 2);
+        int address = Integer.parseInt(address_str, 2);
+
+        System.out.println("opcode: " + binaryInstruction.substring(0, 6));  
+        System.out.println("reg: " + reg);
+        System.out.println("ix: " + ix);
+        System.out.println("i: " + iBit);
+        System.out.println("address: " + address);
+    
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  // Calculate effective address
+        System.out.println("Effective Address (Ea): " + ea);
+        
         int value = memory.loadMemoryValue(ea);  // Load the value from memory
-
-        gpr.setGPR(Integer.parseInt(reg, 2), (short) value);  // Set the value into the specified register
+        System.out.println("Value from memory: " + value);
+    
+        gpr.setGPR(reg, (short) value); 
+        System.out.println("Updated GPR[" + reg + "] with value: " + value);
         return false;  // Continue execution
     }
 
     private boolean executeStore(String binaryInstruction) {
-        String reg = binaryInstruction.substring(6, 8);  // Extract the register bits
-        String ix = binaryInstruction.substring(8, 10);  // Extract the index register bits
-        String iBit = binaryInstruction.substring(10, 11);  // Extract the indirect bit
-        String address = binaryInstruction.substring(11, 16);  // Extract the address bits
+        // extract instructions.
+        String reg_str = binaryInstruction.substring(6, 8);  
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  
+        String address_str = binaryInstruction.substring(11, 16); 
 
-        int ea = calculateEffectiveAddress(ix, iBit, address);  // Calculate effective address
-        int value = gpr.getGPR(Integer.parseInt(reg, 2));  // Get the value from the specified register
+        int reg = Integer.parseInt(reg_str, 2);
+        int ix = Integer.parseInt(ix_str, 2);
+        int iBit = Integer.parseInt(iBit_str, 2);
+        int address = Integer.parseInt(address_str, 2);
+
+        System.out.println("opcode: " + binaryInstruction.substring(0, 6));  
+        System.out.println("reg: " + reg);
+        System.out.println("ix: " + ix);
+        System.out.println("i: " + iBit);
+        System.out.println("address: " + address);
+
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+
+        int value = gpr.getGPR(reg); 
+        System.out.println("Value from GPR" + reg + ": "  + value);
 
         memory.storeValue(ea, value);  // Store the value into memory
+        System.out.println("Loaded into memory -> Address: " + address + ", Data: " + value);
         return false;  // Continue execution
-    }
-
-    // More Load/Store operations
-    private boolean executeLoadAddress(String binaryInstruction) {
-        String reg = binaryInstruction.substring(6, 8);  // Extract the register bits
-        String ix = binaryInstruction.substring(8, 10);
-        String iBit = binaryInstruction.substring(10, 11);
-        String address = binaryInstruction.substring(11, 16);
-
-        int ea = calculateEffectiveAddress(ix, iBit, address);  // Calculate effective address
-        gpr.setGPR(Integer.parseInt(reg, 2), (short) ea);  // Load effective address into the register
-        return false;
-    }
-
-    private boolean executeLoadIndex(String binaryInstruction) {
-        String ix = binaryInstruction.substring(6, 8);  // Extract index register bits
-        String iBit = binaryInstruction.substring(8, 9);
-        String address = binaryInstruction.substring(9, 16);
-
-        int ea = calculateEffectiveAddress(ix, iBit, address);
-        ixr.setIndexRegister(Integer.parseInt(ix, 2), (short) memory.loadMemoryValue(ea));  // Load memory into index register
-        return false;
-    }
-
-    private boolean executeStoreIndex(String binaryInstruction) {
-        String ix = binaryInstruction.substring(6, 8);  // Extract index register bits
-        String address = binaryInstruction.substring(8, 16);
-
-        int ea = calculateEffectiveAddress(ix, "0", address);  // Store index register to memory
-        memory.storeValue(ea, ixr.getIndexRegister(Integer.parseInt(ix, 2)));
-        return false;
     }
 
     // Helper function for calculating effective address
@@ -190,193 +166,6 @@ public class CPU {
         return baseAddress;  // Return the calculated effective address
     }
 
-    // Add functions to handle the rest of the instructions (Transfer, Arithmetic, Register-to-Register, Shift/Rotate, I/O, etc.)
-    private boolean executeTransfer(String binaryInstruction, String opcode) {
-        String reg = binaryInstruction.substring(6, 8);  // Extract the register bits
-        String ix = binaryInstruction.substring(8, 10);  // Extract the index register bits
-        String iBit = binaryInstruction.substring(10, 11);  // Extract the indirect bit
-        String address = binaryInstruction.substring(11, 16);  // Extract the address bits
-    
-        int ea = calculateEffectiveAddress(ix, iBit, address);  // Calculate effective address
-        int regValue = gpr.getGPR(Integer.parseInt(reg, 2));  // Get the register value
-    
-        switch (opcode) {
-            case "001010":  // JZ - Jump if Zero
-                if (regValue == 0) pc.setPC(ea);  // If the register is zero, jump
-                break;
-            case "001011":  // JNE - Jump if Not Equal
-                if (regValue != 0) pc.setPC(ea);  // If the register is not zero, jump
-                break;
-            case "001100":  // JCC - Jump if Condition Code
-                if (cc.isOverflow()) pc.setPC(ea);
-                break;
-            case "001101":  // JMA - Jump to Memory Address
-                pc.setPC(ea);  // Unconditional jump to address
-                break;
-            case "001110":  // JSR - Jump to Subroutine
-                gpr.setGPR(3, (short) pc.getPC());  // Store the return address in R3
-                pc.setPC(ea);  // Jump to subroutine
-                break;
-            case "001111":  // RFS - Return from Subroutine
-                pc.setPC(gpr.getGPR(3));  // Return to the address in R3
-                break;
-            case "010000":  // SOB - Subtract One and Branch
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) (regValue - 1));  // Decrement the register
-                if (regValue > 0) pc.setPC(ea);  // If still greater than zero, jump
-                break;
-            case "010001":  // JGE - Jump if Greater or Equal
-                if (regValue >= 0) pc.setPC(ea);  // Jump if the register value is greater than or equal to zero
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown transfer opcode: " + opcode);
-        }
-        return false;
-    }
-    
-
-    private boolean executeArithmetic(String binaryInstruction, String opcode) {
-        String reg = binaryInstruction.substring(6, 8);  // Extract the register bits
-        String ix = binaryInstruction.substring(8, 10);  // Extract the index register bits
-        String iBit = binaryInstruction.substring(10, 11);  // Extract the indirect bit
-        String address = binaryInstruction.substring(11, 16);  // Extract the address bits
-    
-        int ea = calculateEffectiveAddress(ix, iBit, address);  // Calculate effective address
-        int value = memory.loadMemoryValue(ea);  // Load the value from memory
-        int regValue = gpr.getGPR(Integer.parseInt(reg, 2));  // Get the register value
-    
-        switch (opcode) {
-            case "000100":  // AMR - Add Memory to Register
-                int result = regValue + value;
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) result);
-
-                // Update condition codes based on the result
-                cc.setOverflow(result > 32767 || result < -32768);  // Overflow for 16-bit signed integers
-                cc.setUnderflow(result < 0);  // Underflow if result is negative
-                cc.setEqual(result == 0);  // Equal if result is zero
-                break;
-            case "000101":  // SMR - Subtract Memory from Register
-                result = regValue - value;
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) result);
-                cc.updateConditionCodes(result);  // Update condition codes after subtraction
-                break;
-            
-            case "000110":  // AIR - Add Immediate to Register
-                result = regValue + ea;
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) result);
-                cc.updateConditionCodes(result);  // Update condition codes after immediate addition
-                break;
-            
-            case "000111":  // SIR - Subtract Immediate from Register
-                result = regValue - ea;
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) result);
-                cc.updateConditionCodes(result);  // Update condition codes after immediate subtraction
-                break;
-            
-            default:
-                throw new IllegalArgumentException("Unknown arithmetic opcode: " + opcode);
-        }
-        return false;
-    }
-    
-
-    private boolean executeRegisterToRegister(String binaryInstruction, String opcode) {
-        String regX = binaryInstruction.substring(6, 8);  // Extract Rx
-        String regY = binaryInstruction.substring(8, 10);  // Extract Ry
-    
-        int rxValue = gpr.getGPR(Integer.parseInt(regX, 2));  // Get the value of Rx
-        int ryValue = gpr.getGPR(Integer.parseInt(regY, 2));  // Get the value of Ry
-    
-        switch (opcode) {
-            case "111000":  // MLT - Multiply
-                gpr.setGPR(Integer.parseInt(regX, 2), (short) (rxValue * ryValue));
-                break;
-            case "111001":  // DVD - Divide
-                if (ryValue == 0) {
-                    cc.setDivZero(true);  // Set the DivZero flag if attempting to divide by zero
-                } 
-                
-                else {
-                    gpr.setGPR(Integer.parseInt(regX, 2), (short) (rxValue / ryValue));  // Perform division
-                    cc.setDivZero(false);  // Clear the DivZero flag
-                }
-                break;
-            case "111010":  // TRR - Test Register Equality
-                cc.setEqual(rxValue == ryValue);
-                break;
-            case "111011":  // AND
-                gpr.setGPR(Integer.parseInt(regX, 2), (short) (rxValue & ryValue));
-                break;
-            case "111100":  // ORR
-                gpr.setGPR(Integer.parseInt(regX, 2), (short) (rxValue | ryValue));
-                break;
-            case "111101":  // NOT
-                gpr.setGPR(Integer.parseInt(regX, 2), (short) (~rxValue));
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown register-to-register opcode: " + opcode);
-        }
-        return false;
-    }
-    
-
-    private boolean executeShiftRotate(String binaryInstruction, String opcode) {
-        String reg = binaryInstruction.substring(6, 8);  // Extract the register bits
-        String count = binaryInstruction.substring(8, 12);  // Extract the count (number of shifts/rotates)
-        String lr = binaryInstruction.substring(12, 13);  // Left/Right bit
-        String al = binaryInstruction.substring(13, 14);  // Arithmetic/Logical bit
-    
-        int regValue = gpr.getGPR(Integer.parseInt(reg, 2));
-        int shiftCount = Integer.parseInt(count, 2);
-    
-        switch (opcode) {
-            case "110001":  // SRC - Shift Register
-                if (al.equals("1")) {  // Arithmetic shift
-                    regValue = (lr.equals("1")) ? regValue >> shiftCount : regValue << shiftCount;
-                } else {  // Logical shift
-                    regValue = (lr.equals("1")) ? regValue >>> shiftCount : regValue << shiftCount;
-                }
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) regValue);
-                break;
-            case "110010":  // RRC - Rotate Register
-                if (lr.equals("1")) {  // Rotate right
-                    regValue = Integer.rotateRight(regValue, shiftCount);
-                } else {  // Rotate left
-                    regValue = Integer.rotateLeft(regValue, shiftCount);
-                }
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) regValue);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown shift/rotate opcode: " + opcode);
-        }
-
-        // After shift/rotate, update condition codes based on the new register value
-        cc.updateConditionCodes(regValue);
-        return false;
-    }
-    
-
-    private boolean executeIO(String binaryInstruction, String opcode) {
-        String reg = binaryInstruction.substring(6, 8);  // Extract the register bits
-        String devID = binaryInstruction.substring(11, 16);  // Extract the device ID
-    
-        switch (opcode) {
-            case "110011":  // IN - Input to Register
-                // Simulated input device, set a value in the register
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) 1234);  // Example: load the input device value
-                break;
-            case "110100":  // OUT - Output Register to Device
-                // Simulated output device, print register value
-                System.out.println("Output from Register " + reg + ": " + gpr.getGPR(Integer.parseInt(reg, 2)));
-                break;
-            case "110101":  // CHK - Check Device Status
-                // Simulate device status check, set result in the register
-                gpr.setGPR(Integer.parseInt(reg, 2), (short) 1);  // Example: device is ready
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown I/O opcode: " + opcode);
-        }
-        return false;
-    }
 
     public int getPc() {
         return this.pc.getPC(); 
@@ -397,32 +186,67 @@ public class CPU {
     
 
     public static void main(String[] args) {
-        // Initialize memory, registers, and CPU components
+        // INITIALIZE.
         Memory memory = new Memory();
-        GeneralPurposeRegisters gpr = new GeneralPurposeRegisters(4); // Changed to gpr
-        IndexRegisters ixr = new IndexRegisters(3); // Assuming 3 index registers
+        GeneralPurposeRegisters gpr = new GeneralPurposeRegisters(4); // 4 General Purpose Registers
+        IndexRegisters ixr = new IndexRegisters(3); // 3 Index Registers
         ProgramCounter pc = new ProgramCounter();
         MemoryAddressRegister mar = new MemoryAddressRegister();
         MemoryBufferRegister mbr = new MemoryBufferRegister();
     
-        // Load some test values into memory (for simulation purposes)
-        memory.storeValue(0, 0b0000010000100011); // Example instruction in binary
-        memory.storeValue(1, 0b0000100100101010); // Another example instruction
-    
-        // Create the CPU object with the initialized components
         CPU cpu = new CPU(memory, mar, mbr, gpr, ixr, pc);
     
-        // Run the CPU simulation
-        cpu.run();
+        try {
+            File romFile = new File("output/Kishan.ld");
     
-        // Display final register values (for debugging purposes)
+            // Step 1: Assemble the Kishan.asm file...
+            Assembler.run("assembly/Kishan.asm");
+    
+            // Step 2: Load the ROM file into memory.
+            cpu.loadROMFile(romFile);
+    
+            // Print the loaded memory content for debugging.
+            System.out.println("Memory Content after loading the ROM file:");
+            for (int i = 6; i <= 17; i++) {
+                System.out.println("Memory Address " + i + ": " + memory.loadMemoryValue(i));
+            }
+        } catch (IOException e) {
+            System.out.println("Error during assembly: " + e.getMessage());
+        }
+    
+        // step 3: initialize pc (prob gonna need to fix this; we shouldnt be able to hardcode it but for now its okay!)
+        pc.setPC(14);
+
+        // Perform on LDR 3,0,10
+        System.out.println("Executing instruction at Address 14 (LDR 3,0,10)");
+        String binaryInstruction1 = cpu.fetch();  // Fetch the instruction from memory
+        cpu.decodeAndExecute(binaryInstruction1);  // Decode and execute the instruction
+        System.out.println("GPR[3] after LDR: " + gpr.getGPR(3));
+        System.out.println();
+    
+        // Perform on STR 3,0,16
+        System.out.println("Executing instruction at Address 15 (STR 3,0,16)");
+        pc.setPC(cpu.getPc());
+        String binaryInstruction2 = cpu.fetch();  // Fetch the instruction from memory
+        cpu.decodeAndExecute(binaryInstruction2);  // Decode and execute the instruction
+        System.out.println("Memory at Address 16 after STR: " + Integer.toOctalString(memory.loadMemoryValue(16)));
+        System.out.println();
+    
+        // Perform on LDR 2,0,6
+        System.out.println("Executing instruction at Address 16 (LDR 2,0,6)");
+        pc.setPC(cpu.getPc());
+        String binaryInstruction3 = cpu.fetch();  // Fetch the instruction from memory
+        cpu.decodeAndExecute(binaryInstruction3);  // Decode and execute the instruction
+        System.out.println("GPR[2] after LDR: " + gpr.getGPR(2));
+        System.out.println();
+    
+        // Final checks
         System.out.println("Final GPR Values:");
         System.out.println(gpr.toString());
     
         System.out.println("Final Index Register Values:");
         System.out.println(ixr.toString());
     
-        System.out.println("Program Counter: " + cpu.getPc()); // Assuming a getter for PC
+        System.out.println("Program Counter: " + cpu.getPc()); // Display the PC
     }
-    
 }
