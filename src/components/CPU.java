@@ -134,6 +134,12 @@ public class CPU {
             // SOB: Done but not tested properly.
             case "010000":
                 System.out.println("SOB");
+                return cpuExe.executeSOB(binaryInstruction);
+
+            // JGE: Done!
+            case "010001":
+                System.out.println("JGE");
+                return cpuExe.executeJGE(binaryInstruction);
 
             // HLT: Done!
             case "000000":  

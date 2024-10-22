@@ -1,7 +1,18 @@
-                         LOC    6                		; Start at location 6
-000006     000012        Data   10               		; Store 10 at location 6
-000007     000003        Data   3                		; Store 3 at location 7
-000010     000001        Data   1                		; Store 1 at location 8
-000011     003007        LDR    2,0,7            		; Load GPR[2] with the value at memory address 7 (which is 3)
-000012     005011        STR    2,0,9            		; Store the value of GPR[2] at memory address 9 (should be 0)
-000013     000000 End:   HLT                      		; Stop the program
+                         LOC    6                		;BEGIN AT LOCATION 6
+000006     000012        Data   10               		;PUT 10 AT LOCATION 6
+000007     000003        Data   3                		;PUT 3 AT LOCATION 7
+000010     002000        Data   1024             		;PUT 1024 AT LOCATION 8 (converted from 'End' to 1024)
+000011     000000        Data   0                		;PUT 0 at Location 9
+000012     000014        Data   12               		;PUT 12 at location 10
+000013     000011        Data   9                		;PUT 9 at location 11
+000014     000022        Data   18               		;Extra data at location 12
+000015     000014        Data   12               		;Extra data at location 13
+000016     003412        LDR    3,0,10           		;REG 3 = Contents at address 10 = 12
+000017     043424        JGE    3,0,20           		;Jump to address 20 if GPR[3] >= 0
+000020     005424        STR    3,0,20           		;Store contents of reg 3 at address 20. Memory 20 = 12
+000021     003164        LDR    2,1,20,1         		;GPR[2] = Address[Address[20] + IXR[1]] = Address[12] = 18.
+000022     006406        LDA    1,0,6            		;Load the address 6 into GPR[1]. GPR[1] = 6 for address 6.
+000023     122110        LDX    1,8              		;Load the content at address 8 into IX1. IX1 = Address[8] = 1024.
+000024     031422        JCC    3,0,18           		;Jump if condition code 3 (Equal) is set to address 18
+000025     124124        STX    1,20             		;Store the content of IXR[1] at memory address 20
+000026     000000 End:   HLT                      		;STOP         

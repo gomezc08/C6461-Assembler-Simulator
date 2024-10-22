@@ -382,7 +382,39 @@ public class CPUExe {
         return false;  // Continue execution
     }    
 
-
+    // JGE.
+    public boolean executeJGE(String binaryInstruction) {
+        // Extract fields from the binary instruction
+        String reg_str = binaryInstruction.substring(6, 8);  // Register field
+        String ix_str = binaryInstruction.substring(8, 10);  // Index register field
+        String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
+        String address_str = binaryInstruction.substring(11, 16);  // Address field
+    
+        int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
+        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+    
+        // Get the value in the register
+        int regValue = gpr.getGPR(reg);
+        System.out.println("Value in GPR[" + reg + "]: " + regValue);
+        
+        // Calculate Effective Address (EA)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+    
+        // If the register value is greater than or equal to 0, set PC to EA
+        if (regValue >= 0) {
+            pc.setPC(ea);
+            System.out.println("Jumping to address: " + ea + " because GPR[" + reg + "] >= 0");
+        } else {
+            pc.incrementPC();  // Else, increment the PC to the next instruction
+            System.out.println("GPR[" + reg + "] is less than 0, moving to next instruction.");
+        }
+    
+        return false;  // Continue execution
+    }
+    
     // Helper function for calculating effective address
     private int calculateEffectiveAddress(String ix, String iBit, String address) {
         int baseAddress = Integer.parseInt(address, 2);  // Convert address bits to integer

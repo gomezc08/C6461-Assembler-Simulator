@@ -8,8 +8,8 @@ Label   Opcode  Operand     Comments
         Data    9           ;PUT 9 at location 11
         Data    18          ;Extra data at location 12
         Data    12          ;Extra data at location 13
-        JSR     0,20        ;Jump to address 20 (no indirect bit).
         LDR     3,0,10      ;REG 3 = Contents at address 10 = 12
+        JGE     3,0,20      ;Jump to address 20 if GPR[3] >= 0
         STR     3,0,20      ;Store contents of reg 3 at address 20. Memory 20 = 12
         LDR     2,1,20,1    ;GPR[2] = Address[Address[20] + IXR[1]] = Address[12] = 18.
         LDA     1,0,6       ;Load the address 6 into GPR[1]. GPR[1] = 6 for address 6.
