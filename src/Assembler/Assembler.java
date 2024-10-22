@@ -57,7 +57,7 @@ public class Assembler {
         opcodeMap.put("LDR", "000001"); 
         opcodeMap.put("STR", "000010");
         opcodeMap.put("LDA", "000011");
-        opcodeMap.put("LDX", "100001"); 
+        opcodeMap.put("LDX", "101001"); 
         opcodeMap.put("STX", "101010"); 
     
         // Transfer Instructions.

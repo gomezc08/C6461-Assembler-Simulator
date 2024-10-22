@@ -78,10 +78,22 @@ public class CPU {
             case "000001":  
                 System.out.println("LDR");
                 return executeLoad(binaryInstruction);
+
             // STR: Works!
             case "000010": 
                 System.out.println("STR");
                 return executeStore(binaryInstruction);
+
+            // LDA: Works!
+            case "000011":  
+                System.out.println("LDA");
+
+            // LDX: Works!
+            return executeLoadAddress(binaryInstruction);
+                case "101001": 
+                System.out.println("LDX");
+                return executeLoadIndex(binaryInstruction);
+            
     
             // HLT: Works!
             case "000000":  
@@ -118,7 +130,7 @@ public class CPU {
     
         gpr.setGPR(reg, (short) value); 
         System.out.println("Updated GPR[" + reg + "] with value: " + value);
-        return false;  // Continue execution
+        return false;  
     }
 
     private boolean executeStore(String binaryInstruction) {
@@ -147,8 +159,63 @@ public class CPU {
 
         memory.storeValue(ea, value);  // Store the value into memory
         System.out.println("Loaded into memory -> Address: " + address + ", Data: " + value);
+        return false;  
+    }
+
+    private boolean executeLoadAddress(String binaryInstruction) {
+        // Extract the fields (register, index register, indirect bit, address)
+        String reg_str = binaryInstruction.substring(6, 8);  
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  
+        String address_str = binaryInstruction.substring(11, 16);  
+    
+        int reg = Integer.parseInt(reg_str, 2);
+        int ix = Integer.parseInt(ix_str, 2);
+        int iBit = Integer.parseInt(iBit_str, 2);
+        int address = Integer.parseInt(address_str, 2);
+    
+        // Calculate the effective address (same method as LDR/STR)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+    
+        // Store the effective address directly in the register
+        gpr.setGPR(reg, (short) ea); 
+        System.out.println("Updated GPR[" + reg + "] with EA: " + ea);
+    
         return false;  // Continue execution
     }
+
+    private boolean executeLoadIndex(String binaryInstruction) {
+        // Extract fields.
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  // Extract indirect bit
+        String address_str = binaryInstruction.substring(11, 16);  // Correct bits for the address
+    
+        int ix = Integer.parseInt(ix_str, 2);  // Convert IX field to integer
+        int iBit = Integer.parseInt(iBit_str, 2);  // Convert I bit to integer
+        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+    
+        System.out.println("opcode: " + binaryInstruction.substring(0, 6));  
+        System.out.println("ix: " + ix_str);
+        System.out.println("i: " + iBit_str);
+        System.out.println("address: " + address_str);
+    
+        // Calculate Effective Address (EA)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+    
+        // Load value from memory at effective address into the specified index register
+        int value = memory.loadMemoryValue(ea);
+        System.out.println("Value from memory: " + value);
+    
+        // update ixr.
+        ixr.setIndexRegister(ix, (short) value);
+        System.out.println("Updated IXR[" + ix + "] with value: " + value);
+        
+        return false;  // Continue execution
+    }
+       
+    
 
     // Helper function for calculating effective address
     private int calculateEffectiveAddress(String ix, String iBit, String address) {
@@ -171,6 +238,7 @@ public class CPU {
         return this.pc.getPC(); 
     }
     
+    // the following 2 functions are for the backend gui.
     public void store(int address, int value) {
         mar.setValue((short) address); // Set MAR to the specified address
         memory.storeValue(mar.getValue(), value); // Store the value in memory at the address
@@ -213,7 +281,7 @@ public class CPU {
             System.out.println("Error during assembly: " + e.getMessage());
         }
         System.out.println("\n\n");
-
+    
         // Perform on LDR 3,0,10
         System.out.println("Executing instruction at Address 14 (LDR 3,0,10)");
         String binaryInstruction1 = cpu.fetch();  // Fetch the instruction from memory
@@ -237,12 +305,26 @@ public class CPU {
         System.out.println("GPR[2] after LDR: " + gpr.getGPR(2));
         System.out.println("\n\n");
     
+        // Perform on LDA 1,0,6
+        System.out.println("Executing instruction at Address 17 (LDA 1,0,6)");
+        pc.setPC(cpu.getPc());
+        String instruct4 = cpu.fetch();
+        cpu.decode(instruct4);
+        System.out.println("\n\n");
+    
+        // Perform on LDX 1,0,6
+        System.out.println("Executing instruction at Address 18 (LDX 1,8)");
+        pc.setPC(cpu.getPc());
+        String instruct5 = cpu.fetch();
+        cpu.decode(instruct5);
+        System.out.println("\n\n");
+    
         // Final checks
         System.out.println("Final GPR Values:");
         System.out.println(gpr.toString());
     
         System.out.println("Final Index Register Values:");
         System.out.println(ixr.toString());
-    
     }
+     
 }
