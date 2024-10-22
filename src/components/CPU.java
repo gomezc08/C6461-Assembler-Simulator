@@ -6,24 +6,22 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class CPU {
-
     private Memory memory;
-    private GeneralPurposeRegisters gpr;
+    private GeneralPurposeRegisters gpr;  // Consistent name for GPR
     private IndexRegisters ixr;
     private ProgramCounter pc;  // Program Counter
     private ConditionCode cc;
     private MemoryAddressRegister mar; // Memory Address Register
     private MemoryBufferRegister mbr; // Memory Buffer Register
-    private GeneralPurposeRegisters gprs; // General Purpose Registers
 
-    public CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, GeneralPurposeRegisters gprs, IndexRegisters ixr, ProgramCounter pc) {
+    public CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc) {
         this.memory = memory;
         this.mar = mar;
         this.mbr = mbr;
-        this.gprs = gprs;
+        this.gpr = gpr;  
         this.ixr = ixr;
         this.pc = pc;
-    }    
+    }   
 
     // loads rom file.
     public void loadROMFile(File file) throws IOException {
@@ -390,7 +388,7 @@ public class CPU {
     }
 
     public void resetRegisters() {
-        gprs.resetAllGPRs(); // Reset all general-purpose registers
+        gpr.resetAllGPRs(); // Reset all general-purpose registers
         ixr.resetAllIndexRegisters(); // Reset all index registers
         pc.reset(); // Reset the program counter
         mar.resetMAR(); // Reset memory address register
@@ -401,7 +399,7 @@ public class CPU {
     public static void main(String[] args) {
         // Initialize memory, registers, and CPU components
         Memory memory = new Memory();
-        GeneralPurposeRegisters gprs = new GeneralPurposeRegisters(4); // Assuming 4 general-purpose registers
+        GeneralPurposeRegisters gpr = new GeneralPurposeRegisters(4); // Changed to gpr
         IndexRegisters ixr = new IndexRegisters(3); // Assuming 3 index registers
         ProgramCounter pc = new ProgramCounter();
         MemoryAddressRegister mar = new MemoryAddressRegister();
@@ -412,18 +410,19 @@ public class CPU {
         memory.storeValue(1, 0b0000100100101010); // Another example instruction
     
         // Create the CPU object with the initialized components
-        CPU cpu = new CPU(memory, mar, mbr, gprs, ixr, pc);
+        CPU cpu = new CPU(memory, mar, mbr, gpr, ixr, pc);
     
         // Run the CPU simulation
         cpu.run();
     
         // Display final register values (for debugging purposes)
         System.out.println("Final GPR Values:");
-        System.out.println(gprs.toString());
+        System.out.println(gpr.toString());
     
         System.out.println("Final Index Register Values:");
         System.out.println(ixr.toString());
     
         System.out.println("Program Counter: " + cpu.getPc()); // Assuming a getter for PC
-    }    
+    }
+    
 }
