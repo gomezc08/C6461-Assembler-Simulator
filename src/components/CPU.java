@@ -131,6 +131,10 @@ public class CPU {
                 System.out.println("RFS");
                 return cpuExe.executeRFS(binaryInstruction);
 
+            // SOB: Done but not tested properly.
+            case "010000":
+                System.out.println("SOB");
+
             // HLT: Done!
             case "000000":  
                 return true;  // HLT - Stop execution

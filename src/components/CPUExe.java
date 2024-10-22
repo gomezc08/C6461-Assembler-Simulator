@@ -328,7 +328,7 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
-    // RFS (Return From Subroutine)
+    // RFS.
     public boolean executeRFS(String binaryInstruction) {
         // Extract immediate value from the instruction
         String immed_str = binaryInstruction.substring(11, 16);  // Immediate value is in the last 5 bits
@@ -346,6 +346,41 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
+    // SOB.
+    public boolean executeSOB(String binaryInstruction) {
+        // Extract register, index register, indirect bit, and address fields
+        String reg_str = binaryInstruction.substring(6, 8);  
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  
+        String address_str = binaryInstruction.substring(11, 16);  
+    
+        int reg = Integer.parseInt(reg_str, 2);
+        int ix = Integer.parseInt(ix_str, 2);
+        int iBit = Integer.parseInt(iBit_str, 2);
+        int address = Integer.parseInt(address_str, 2);
+    
+        // Get the current value of the register and decrement it by 1
+        int regValue = gpr.getGPR(reg);
+        regValue -= 1;
+        gpr.setGPR(reg, (short) regValue);
+    
+        System.out.println("Decrementing GPR[" + reg + "] to: " + regValue);
+    
+        // Calculate the effective address (EA) if needed
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+    
+        // Check if the register value is greater than 0
+        if (regValue > 0) {
+            pc.setPC(ea);  // Jump to the effective address
+            System.out.println("Register value is greater than 0, jumping to address: " + ea);
+        } else {
+            pc.incrementPC();  // Move to the next instruction
+            System.out.println("Register value is less than or equal to 0, moving to next instruction.");
+        }
+    
+        return false;  // Continue execution
+    }    
 
 
     // Helper function for calculating effective address
