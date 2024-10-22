@@ -159,7 +159,7 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
-    // Add the JZ method in CPUExe
+    // JZ.
     public boolean executeJZ(String binaryInstruction) {
         // Extract the fields (register, index register, indirect bit, address)
         String reg_str = binaryInstruction.substring(6, 8);  
@@ -193,6 +193,42 @@ public class CPUExe {
 
         return false;  // Continue execution
     }
+
+    // JNE.
+    public boolean executeJNE(String binaryInstruction) {
+        // Extract the fields (register, index register, indirect bit, address)
+        String reg_str = binaryInstruction.substring(6, 8);  
+        String ix_str = binaryInstruction.substring(8, 10);  
+        String iBit_str = binaryInstruction.substring(10, 11);  
+        String address_str = binaryInstruction.substring(11, 16);  
+
+        int reg = Integer.parseInt(reg_str, 2);
+        int ix = Integer.parseInt(ix_str, 2);
+        int iBit = Integer.parseInt(iBit_str, 2);
+        int address = Integer.parseInt(address_str, 2);
+
+        // Get the contents of the register
+        int regValue = gpr.getGPR(reg);
+        System.out.println("Value in GPR[" + reg + "]: " + regValue);
+        
+        // Calculate the Effective Address (EA)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+
+        // If the value in the register is NOT zero, jump to the EA, otherwise increment the PC
+        if (regValue != 0) {
+            pc.setPC(ea);  // Update PC to EA
+            System.out.println("Jumping to address: " + ea);
+        } 
+        
+        else {
+            pc.incrementPC();  // Increment PC to next instruction
+            System.out.println("Register is zero, moving to next instruction.");
+        }
+
+        return false;  // Continue execution
+    }
+
 
 
     // Helper function for calculating effective address
