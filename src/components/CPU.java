@@ -23,7 +23,7 @@ public class CPU {
         this.gpr = gpr;  
         this.ixr = ixr;
         this.pc = pc;
-        this.cpuExe = new CPUExe(memory, gpr, ixr);
+        this.cpuExe = new CPUExe(memory, gpr, ixr, pc);
     }   
 
     // loads rom file.
@@ -100,6 +100,11 @@ public class CPU {
                 System.out.println("STX");
                 return cpuExe.executeStoreIndex(binaryInstruction);
 
+            // JZ: Done!
+            case "001010":  
+                System.out.println("JZ");
+
+                return cpuExe.executeJZ(binaryInstruction);
             // HLT: Done!
             case "000000":  
                 return true;  // HLT - Stop execution
@@ -135,7 +140,7 @@ public class CPU {
         ProgramCounter pc = new ProgramCounter();
         MemoryAddressRegister mar = new MemoryAddressRegister();
         MemoryBufferRegister mbr = new MemoryBufferRegister();
-        pc.setPC(14);
+        pc.setPC(14); // Set initial PC
         CPU cpu = new CPU(memory, mar, mbr, gpr, ixr, pc);
     
         try {
@@ -172,12 +177,19 @@ public class CPU {
         System.out.println("Memory at Address 16 after STR: " + Integer.toOctalString(memory.loadMemoryValue(16)));
         System.out.println("\n\n");
     
-        // Perform on LDR 2,0,20
+        // Perform on LDR 2,1,20,1
         System.out.println("Executing instruction at Address 16 (LDR 2,1,20,1)");
         pc.setPC(cpu.getPc());
         String binaryInstruction3 = cpu.fetch();  // Fetch the instruction from memory
         cpu.decode(binaryInstruction3);  // Decode and execute the instruction
         System.out.println("GPR[2] after LDR: " + gpr.getGPR(2));
+        System.out.println("\n\n");
+    
+        // Perform on JZ 2,0,17
+        System.out.println("Executing instruction at Address 17 (JZ 2,0,17)");
+        pc.setPC(cpu.getPc());
+        String binaryInstruction4 = cpu.fetch();  // Fetch the instruction from memory
+        cpu.decode(binaryInstruction4);  // Decode and execute the instruction
         System.out.println("\n\n");
     
         // Perform on LDA 1,0,6
@@ -193,14 +205,14 @@ public class CPU {
         String instruct5 = cpu.fetch();
         cpu.decode(instruct5);
         System.out.println("\n\n");
-
+    
         // Execute STX to store the value of IXR[1] into memory address 20
         System.out.println("Executing instruction at Address 19 (STX 1,20)");
         pc.setPC(cpu.getPc());
         String binaryInstruction5 = cpu.fetch();
         cpu.decode(binaryInstruction5);
         System.out.println("Memory at Address 1044 after STX: " + memory.loadMemoryValue(1044));
-
+    
         // Final checks
         System.out.println("Final GPR Values:");
         System.out.println(gpr.toString());
@@ -208,5 +220,4 @@ public class CPU {
         System.out.println("Final Index Register Values:");
         System.out.println(ixr.toString());
     }
-     
 }
