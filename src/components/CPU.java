@@ -39,12 +39,12 @@ public class CPU {
     }
 
 
-    // Main cycle: Fetch-Decode-Execute
+    // Fetch-Decode-Execute Cycle.
     public void run() {
         boolean halt = false;
         while (!halt) {
             String binaryInstruction = fetch();
-            halt = decodeAndExecute(binaryInstruction);
+            halt = decode(binaryInstruction);
         }
     }
 
@@ -69,7 +69,7 @@ public class CPU {
     }
 
     // Decode and execute the instruction directly
-    private boolean decodeAndExecute(String binaryInstruction) {
+    private boolean decode(String binaryInstruction) {
         String opcode = binaryInstruction.substring(0, 6);  // Extract opcode (first 6 bits)
         System.out.print("We will be executing: ");
 
@@ -183,7 +183,6 @@ public class CPU {
         mar.resetMAR(); // Reset memory address register
         mbr.resetMBR(); // Reset memory buffer register
     }
-    
 
     public static void main(String[] args) {
         // INITIALIZE.
@@ -193,7 +192,7 @@ public class CPU {
         ProgramCounter pc = new ProgramCounter();
         MemoryAddressRegister mar = new MemoryAddressRegister();
         MemoryBufferRegister mbr = new MemoryBufferRegister();
-    
+        pc.setPC(14);
         CPU cpu = new CPU(memory, mar, mbr, gpr, ixr, pc);
     
         try {
@@ -213,32 +212,30 @@ public class CPU {
         } catch (IOException e) {
             System.out.println("Error during assembly: " + e.getMessage());
         }
-    
-        // step 3: initialize pc (prob gonna need to fix this; we shouldnt be able to hardcode it but for now its okay!)
-        pc.setPC(14);
+        System.out.println("\n\n");
 
         // Perform on LDR 3,0,10
         System.out.println("Executing instruction at Address 14 (LDR 3,0,10)");
         String binaryInstruction1 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decodeAndExecute(binaryInstruction1);  // Decode and execute the instruction
+        cpu.decode(binaryInstruction1);  // Decode and execute the instruction
         System.out.println("GPR[3] after LDR: " + gpr.getGPR(3));
-        System.out.println();
+        System.out.println("\n\n");
     
-        // Perform on STR 3,0,16
-        System.out.println("Executing instruction at Address 15 (STR 3,0,16)");
+        // Perform on STR 3,0,20
+        System.out.println("Executing instruction at Address 15 (STR 3,0,20)");
         pc.setPC(cpu.getPc());
         String binaryInstruction2 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decodeAndExecute(binaryInstruction2);  // Decode and execute the instruction
+        cpu.decode(binaryInstruction2);  // Decode and execute the instruction
         System.out.println("Memory at Address 16 after STR: " + Integer.toOctalString(memory.loadMemoryValue(16)));
-        System.out.println();
+        System.out.println("\n\n");
     
-        // Perform on LDR 2,0,6
-        System.out.println("Executing instruction at Address 16 (LDR 2,0,6)");
+        // Perform on LDR 2,0,20
+        System.out.println("Executing instruction at Address 16 (LDR 2,1,20,1)");
         pc.setPC(cpu.getPc());
         String binaryInstruction3 = cpu.fetch();  // Fetch the instruction from memory
-        cpu.decodeAndExecute(binaryInstruction3);  // Decode and execute the instruction
+        cpu.decode(binaryInstruction3);  // Decode and execute the instruction
         System.out.println("GPR[2] after LDR: " + gpr.getGPR(2));
-        System.out.println();
+        System.out.println("\n\n");
     
         // Final checks
         System.out.println("Final GPR Values:");
@@ -247,6 +244,5 @@ public class CPU {
         System.out.println("Final Index Register Values:");
         System.out.println(ixr.toString());
     
-        System.out.println("Program Counter: " + cpu.getPc()); // Display the PC
     }
 }
