@@ -23,7 +23,7 @@ public class BackendGUI {
         gprs = new GeneralPurposeRegisters(4); 
         ixr = new IndexRegisters(3); 
         pc = new ProgramCounter();
-        cpu = new CPU(memory, mar, mbr, gprs, ixr, pc); 
+        cpu = new CPU(memory, mar, mbr, gprs, ixr, pc);
         this.printerArea = printerArea; 
     }
 

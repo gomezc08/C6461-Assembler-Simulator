@@ -1,19 +1,42 @@
 package components;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class CPU {
 
     private Memory memory;
     private GeneralPurposeRegisters gpr;
     private IndexRegisters ixr;
-    private int pc;  // Program Counter
+    private ProgramCounter pc;  // Program Counter
     private ConditionCode cc;
+    private MemoryAddressRegister mar; // Memory Address Register
+    private MemoryBufferRegister mbr; // Memory Buffer Register
+    private GeneralPurposeRegisters gprs; // General Purpose Registers
 
-    public CPU(Memory memory, GeneralPurposeRegisters gpr, IndexRegisters ixr) {
+    public CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, GeneralPurposeRegisters gprs, IndexRegisters ixr, ProgramCounter pc) {
         this.memory = memory;
-        this.gpr = gpr;
+        this.mar = mar;
+        this.mbr = mbr;
+        this.gprs = gprs;
         this.ixr = ixr;
-        this.pc = 0;  // Initialize the Program Counter to 0
-        this.cc = new ConditionCode();
+        this.pc = pc;
+    }    
+
+    // loads rom file.
+    public void loadROMFile(File file) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ");  // Assuming space separates address and data
+                int address = Integer.parseInt(parts[0], 8);  // Address part
+                int data = Integer.parseInt(parts[1], 8);     // Data part
+
+                memory.storeValue(address, data);
+            }
+        }
     }
 
     // Main cycle: Fetch-Decode-Execute
@@ -27,10 +50,11 @@ public class CPU {
 
     // Fetch the instruction from memory
     private String fetch() {
-        int instruction = memory.loadMemoryValue(pc);  // Fetch instruction from memory at PC
-        pc++;  // Increment PC for the next instruction
+        int instruction = memory.loadMemoryValue(pc.getPC());  // Fetch instruction from memory at the current PC
+        pc.incrementPC();  // Increment PC for the next instruction
         return String.format("%16s", Integer.toBinaryString(instruction)).replace(' ', '0');  // Return 16-bit binary string
     }
+
 
     // Decode and execute the instruction directly
     private boolean decodeAndExecute(String binaryInstruction) {
@@ -180,30 +204,30 @@ public class CPU {
     
         switch (opcode) {
             case "001010":  // JZ - Jump if Zero
-                if (regValue == 0) pc = ea;  // If the register is zero, jump
+                if (regValue == 0) pc.setPC(ea);  // If the register is zero, jump
                 break;
             case "001011":  // JNE - Jump if Not Equal
-                if (regValue != 0) pc = ea;  // If the register is not zero, jump
+                if (regValue != 0) pc.setPC(ea);  // If the register is not zero, jump
                 break;
             case "001100":  // JCC - Jump if Condition Code
-                if (cc.isOverflow()) pc = ea;
+                if (cc.isOverflow()) pc.setPC(ea);
                 break;
             case "001101":  // JMA - Jump to Memory Address
-                pc = ea;  // Unconditional jump to address
+                pc.setPC(ea);  // Unconditional jump to address
                 break;
             case "001110":  // JSR - Jump to Subroutine
-                gpr.setGPR(3, (short) pc);  // Store the return address in R3
-                pc = ea;  // Jump to subroutine
+                gpr.setGPR(3, (short) pc.getPC());  // Store the return address in R3
+                pc.setPC(ea);  // Jump to subroutine
                 break;
             case "001111":  // RFS - Return from Subroutine
-                pc = gpr.getGPR(3);  // Return to the address in R3
+                pc.setPC(gpr.getGPR(3));  // Return to the address in R3
                 break;
             case "010000":  // SOB - Subtract One and Branch
                 gpr.setGPR(Integer.parseInt(reg, 2), (short) (regValue - 1));  // Decrement the register
-                if (regValue > 0) pc = ea;  // If still greater than zero, jump
+                if (regValue > 0) pc.setPC(ea);  // If still greater than zero, jump
                 break;
             case "010001":  // JGE - Jump if Greater or Equal
-                if (regValue >= 0) pc = ea;  // Jump if the register value is greater than or equal to zero
+                if (regValue >= 0) pc.setPC(ea);  // Jump if the register value is greater than or equal to zero
                 break;
             default:
                 throw new IllegalArgumentException("Unknown transfer opcode: " + opcode);
@@ -357,34 +381,49 @@ public class CPU {
     }
 
     public int getPc() {
-        return this.pc;
+        return this.pc.getPC(); 
+    }
+    
+    public void store(int address, int value) {
+        mar.setValue((short) address); // Set MAR to the specified address
+        memory.storeValue(mar.getValue(), value); // Store the value in memory at the address
+    }
+
+    public void resetRegisters() {
+        gprs.resetAllGPRs(); // Reset all general-purpose registers
+        ixr.resetAllIndexRegisters(); // Reset all index registers
+        pc.reset(); // Reset the program counter
+        mar.resetMAR(); // Reset memory address register
+        mbr.resetMBR(); // Reset memory buffer register
     }
     
 
     public static void main(String[] args) {
         // Initialize memory, registers, and CPU components
         Memory memory = new Memory();
-        GeneralPurposeRegisters gpr = new GeneralPurposeRegisters(4); // Assuming 4 general-purpose registers
+        GeneralPurposeRegisters gprs = new GeneralPurposeRegisters(4); // Assuming 4 general-purpose registers
         IndexRegisters ixr = new IndexRegisters(3); // Assuming 3 index registers
+        ProgramCounter pc = new ProgramCounter();
+        MemoryAddressRegister mar = new MemoryAddressRegister();
+        MemoryBufferRegister mbr = new MemoryBufferRegister();
     
         // Load some test values into memory (for simulation purposes)
         memory.storeValue(0, 0b0000010000100011); // Example instruction in binary
         memory.storeValue(1, 0b0000100100101010); // Another example instruction
     
         // Create the CPU object with the initialized components
-        CPU cpu = new CPU(memory, gpr, ixr);
+        CPU cpu = new CPU(memory, mar, mbr, gprs, ixr, pc);
     
         // Run the CPU simulation
         cpu.run();
     
         // Display final register values (for debugging purposes)
         System.out.println("Final GPR Values:");
-        System.out.println(gpr.toString());
+        System.out.println(gprs.toString());
     
         System.out.println("Final Index Register Values:");
         System.out.println(ixr.toString());
     
         System.out.println("Program Counter: " + cpu.getPc()); // Assuming a getter for PC
     }    
-    
 }
