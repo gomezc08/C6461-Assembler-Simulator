@@ -28,6 +28,7 @@ public class FrontendGUI extends JFrame {
 
         // Initialize backend
         backend = new BackendGUI(printerArea);
+        backend.setFrontendGUI(this);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(new Color(221, 160, 221)); // Set to light purple
@@ -230,7 +231,7 @@ public class FrontendGUI extends JFrame {
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
                 printerArea.append("Selected file: " + selectedFile.getName() + "\n");
-                backend.loadROMFile(selectedFile);
+                backend.loadExecuteRom(selectedFile);
             }
         });
     }
@@ -253,9 +254,36 @@ public class FrontendGUI extends JFrame {
         }
     }
 
+    public void updateAllRegisters(short[] gprValues, short[] ixrValues, int pcValue, int marValue, int mbrValue) {
+        // Update GPR checkboxes
+        for (int i = 0; i < gprValues.length; i++) {
+            updateCheckBoxes(gprCheckBoxes[i], gprValues[i]);
+        }
+
+        // Update IXR checkboxes
+        System.out.println("here are ixr length: " + ixrValues.length); 
+        for (int i = 0; i < ixrValues.length; i++) {
+            updateCheckBoxes(ixrCheckBoxes[i], ixrValues[i]);
+        }
+            
+
+        // Update other register checkboxes
+        updateCheckBoxes(pcCheckBoxes, pcValue);
+        updateCheckBoxes(marCheckBoxes, marValue);
+        updateCheckBoxes(mbrCheckBoxes, mbrValue);
+        //updateCheckBoxes(ccCheckBoxes, ccValue);
+    }
+
+    // Add a getter for backend
+    public BackendGUI getBackend() {
+        return backend;
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             FrontendGUI gui = new FrontendGUI();
+            BackendGUI backend = gui.getBackend();
+            backend.setFrontendGUI(gui);
             gui.setVisible(true);
         });
     }

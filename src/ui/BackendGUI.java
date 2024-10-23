@@ -15,6 +15,7 @@ public class BackendGUI {
     private ProgramCounter pc; 
     private ConditionCode cc;
     private JTextArea printerArea; 
+    private FrontendGUI frontendGUI;
 
     public BackendGUI(JTextArea printerArea) {
         // Initialize components
@@ -29,11 +30,39 @@ public class BackendGUI {
         this.printerArea = printerArea; 
     }
 
-    // LOAD ROM.
-    public void loadROMFile(File file) {
+    // Load and execute the rom.
+    public void loadExecuteRom(File file) {
         try {
+            // load rom.
             cpu.loadROMFile(file);
             printerArea.append("Loaded ROM file successfully\n");
+
+            // execute it.
+            pc.setPC(14);       // need to find a way to do this dynamically.
+            cpu.run();
+
+            // Final checks
+            System.out.println("Final GPR Values:");
+            System.out.println(gprs.toString());
+        
+            System.out.println("Final Index Register Values:");
+            System.out.println(ixr.toString());
+        
+            System.out.println("Final Condition Code Values:");
+            System.out.println(cc.toString());
+
+            // update the checkboxes for all components in gui.
+            if (frontendGUI != null) {
+                frontendGUI.updateAllRegisters(
+                    getGPRValues(),
+                    getIXRValues(),
+                    getPCValue(),
+                    getMarValue(),
+                    getMbrValue()
+                    //getCCValue()
+                );
+            }
+            
         } 
         catch (IOException ex) {
             printerArea.append("Error loading ROM file: " + ex.getMessage() + "\n");
@@ -86,8 +115,41 @@ public class BackendGUI {
         return mbr.getValue(); 
     }
 
+    public short[] getGPRValues() {
+        short[] gprValues = new short[4];
+        gprValues[0] = gprs.getGPR(0);
+        gprValues[1] = gprs.getGPR(1);
+        gprValues[2] = gprs.getGPR(2);
+        gprValues[3] = gprs.getGPR(3);
+
+        return gprValues;
+    }
+
+    public short[] getIXRValues() {
+        short[] ixrValues = new short[3];
+        ixrValues[0] = ixr.getIndexRegister(0);
+        ixrValues[1] = ixr.getIndexRegister(1);
+        ixrValues[2] = ixr.getIndexRegister(2);
+
+        return ixrValues;
+    }
+
+    public int getPCValue() {
+        return pc.getPC();
+    }
+
+    /* 
+    public int getCCValue() {
+        return cc.getValue();
+    }
+    */
+
     public void resetRegisters() {
         cpu.resetRegisters(); 
         printerArea.append("Registers reset successfully.\n");
+    }
+
+    public void setFrontendGUI(FrontendGUI gui) {
+        this.frontendGUI = gui;
     }
 }
