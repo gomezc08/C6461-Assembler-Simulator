@@ -479,4 +479,46 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
+    // DVD.
+    public boolean executeDVD(String binaryInstruction) {
+        // Extract Rx and Ry fields
+        String rx_str = binaryInstruction.substring(6, 8);  
+        String ry_str = binaryInstruction.substring(8, 10);
+    
+        int rx = Integer.parseInt(rx_str, 2);
+        int ry = Integer.parseInt(ry_str, 2);
+    
+        // Validate Rx and Ry to be 0 or 2, per the instruction definition.
+        if ((rx != 0 && rx != 2) || (ry != 0 && ry != 2)) {
+            throw new IllegalArgumentException("DVD operation can only be performed with Rx and Ry as 0 or 2.");
+        }
+    
+        // Get the contents of the registers Rx and Ry
+        int valueRx = gpr.getGPR(rx);
+        int valueRy = gpr.getGPR(ry);
+
+        System.out.println("here is ry: " +valueRy);
+    
+        // Check for divide by zero
+        if (valueRy == 0) {
+            cc.setDivZero(true);  // Set divide by zero flag
+            System.out.println("Division by zero error during DVD operation.");
+            return false;  // Stop execution due to divide by zero
+        }
+    
+        // Perform division and get quotient and remainder
+        int quotient = valueRx / valueRy;
+        int remainder = valueRx % valueRy;
+    
+        // Store the quotient in Rx and the remainder in Rx+1
+        gpr.setGPR(rx, (short) quotient);
+        gpr.setGPR(rx + 1, (short) remainder);
+    
+        System.out.println("DVD executed: " + valueRx + " / " + valueRy);
+        System.out.println("Quotient (Rx): " + quotient);
+        System.out.println("Remainder (Rx+1): " + remainder);
+    
+        return false;  // Continue execution
+    }    
+
 }

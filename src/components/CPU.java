@@ -141,10 +141,15 @@ public class CPU {
                 System.out.println("JGE");
                 return cpuExe.executeJGE(binaryInstruction);
 
-            // MLT: Done! (this one was so satisfying);
+            // MLT: Done! 
             case "111000":
                 System.out.println("MLT");
                 return cpuExe.executeMLT(binaryInstruction);
+
+            // DVD: Done!
+            case "111001":
+                System.out.println("DVD");
+                return cpuExe.executeDVD(binaryInstruction);
 
             // HLT: Done!
             case "000000":  

@@ -1,13 +1,13 @@
                          LOC    6                		;BEGIN AT LOCATION 6
-000006     000012        Data   10               		;PUT 10 AT LOCATION 6
-000007     000003        Data   3                		;PUT 3 AT LOCATION 7
+000006     000144        Data   100              		;PUT 100 AT LOCATION 6 (numerator for division)
+000007     000000        Data   0                		;PUT 25 AT LOCATION 7 (denominator for division)
 000010     002000        Data   1024             		;PUT 1024 AT LOCATION 8 (converted from 'End' to 1024)
 000011     000000        Data   0                		;PUT 0 at Location 9
 000012     000014        Data   12               		;PUT 12 at location 10
 000013     000011        Data   9                		;PUT 9 at location 11
 000014     000022        Data   18               		;Extra data at location 12
 000015     000014        Data   12               		;Extra data at location 13
-000016     002012        LDR    0,0,10           		;REG 0 = Contents at address 10 = 12
-000017     003152        LDR    2,1,10,1         		;GPR[2] = Address[Address[10] + IXR[1]] = Address[12] = 18.
-000020     160200        MLT    0,2              		;GPR[2] * GPR[3] = 18 * 12 = 216
+000016     002006        LDR    0,0,6            		;REG 0 = Contents at address 6 = 100
+000017     003007        LDR    2,0,7            		;REG 2 = Contents at address 7 = 25
+000020     162200        DVD    0,2              		;REG 0 = 100 / 25 = 4, REG 1 = remainder (0)
 000021     000000 End:   HLT                      		;STOP         
