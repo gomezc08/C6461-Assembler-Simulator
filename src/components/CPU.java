@@ -161,6 +161,16 @@ public class CPU {
                 System.out.println("AND");
                 return cpuExe.executeAND(binaryInstruction);
 
+            // ORR: Done!
+            case "111100":
+                System.out.println("ORR");
+                return cpuExe.executeORR(binaryInstruction);
+
+            // NOT: Done!
+            case "111101":
+                System.out.println("NOT");
+                return cpuExe.executeNOT(binaryInstruction);
+
             // HLT: Done!
             case "000000":  
                 return true;  // HLT - Stop execution

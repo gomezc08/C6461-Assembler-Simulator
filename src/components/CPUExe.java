@@ -548,7 +548,7 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
-    // AND
+    // AND.
     public boolean executeAND(String binaryInstruction) {
         // Extract Rx and Ry fields
         String rx_str = binaryInstruction.substring(6, 8);  
@@ -573,6 +573,51 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
+    // ORR.
+    public boolean executeORR(String binaryInstruction) {
+        // Extract Rx and Ry fields
+        String rx_str = binaryInstruction.substring(6, 8);  
+        String ry_str = binaryInstruction.substring(8, 10);
 
+        int rx = Integer.parseInt(rx_str, 2);
+        int ry = Integer.parseInt(ry_str, 2);
 
+        // Validate Rx and Ry to be within valid range (0-3)
+        if (rx < 0 || rx > 3 || ry < 0 || ry > 3) {
+            throw new IllegalArgumentException("ORR operation requires valid Rx and Ry in range [0, 3].");
+        }
+
+        // Get the contents of the registers Rx and Ry
+        int valueRx = gpr.getGPR(rx);
+        int valueRy = gpr.getGPR(ry);
+
+        // Perform the logical OR operation
+        int result = valueRx | valueRy;
+
+        // Store the result back into Rx
+        gpr.setGPR(rx, (short)result);
+
+        System.out.println("ORR executed: " + valueRx + " | " + valueRy + " = " + result);
+
+        return false; // Continue execution
+    }
+
+    // NOT.
+    public boolean executeNOT(String binaryInstruction) {
+        // Extract Rx field
+        String rx_str = binaryInstruction.substring(6, 8);  
+        int rx = Integer.parseInt(rx_str, 2);
+
+        // Get the value in the Rx register
+        int valueRx = gpr.getGPR(rx);
+
+        // Perform logical NOT on the value of Rx
+        int result = ~valueRx;
+
+        // Store the result back into Rx (handling 16-bit wrapping)
+        gpr.setGPR(rx, (short) result);
+
+        System.out.println("NOT executed on GPR[" + rx + "], value: " + valueRx + " -> " + result);
+        return false; // Continue execution
+    }
 }

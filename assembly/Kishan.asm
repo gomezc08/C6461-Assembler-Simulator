@@ -1,6 +1,6 @@
 Label   Opcode  Operand     Comments
         LOC     6           ;BEGIN AT LOCATION 6
-        Data    12          ;PUT 100 AT LOCATION 6 (numerator for division)
+        Data    170         ;PUT 100 AT LOCATION 6 (numerator for division)
         Data    5           ;PUT 25 AT LOCATION 7 (denominator for division)
         Data    1024        ;PUT 1024 AT LOCATION 8 (converted from 'End' to 1024)
         Data    0           ;PUT 0 at Location 9
