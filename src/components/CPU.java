@@ -24,7 +24,7 @@ public class CPU {
         this.ixr = ixr;
         this.pc = pc;
         this.cc = cc;
-        this.cpuExe = new CPUExe(memory, gpr, ixr, pc);
+        this.cpuExe = new CPUExe(memory, gpr, ixr, pc, cc);
     }   
 
     // loads rom file.
@@ -140,6 +140,11 @@ public class CPU {
             case "010001":
                 System.out.println("JGE");
                 return cpuExe.executeJGE(binaryInstruction);
+
+            // MLT: Done! (this one was so satisfying);
+            case "111000":
+                System.out.println("MLT");
+                return cpuExe.executeMLT(binaryInstruction);
 
             // HLT: Done!
             case "000000":  

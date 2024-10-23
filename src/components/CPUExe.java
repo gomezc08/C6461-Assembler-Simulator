@@ -5,12 +5,27 @@ public class CPUExe {
     private GeneralPurposeRegisters gpr;
     private IndexRegisters ixr;
     private ProgramCounter pc;
+    private ConditionCode cc;
 
-    public CPUExe(Memory memory, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc) {
+    public CPUExe(Memory memory, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc, ConditionCode cc) {
         this.memory = memory;
         this.gpr = gpr;
         this.ixr = ixr;
         this.pc = pc;
+        this.cc = cc;
+    }
+
+    // Helper function for calculating effective address
+    private int calculateEffectiveAddress(String ix, String iBit, String address) {
+        int baseAddress = Integer.parseInt(address, 2);  // Convert address bits to integer
+        if (!ix.equals("00")) {
+            int indexValue = ixr.getIndexRegister(Integer.parseInt(ix, 2));  // Get the index register value
+            baseAddress += indexValue;
+        }
+        if (iBit.equals("1")) {
+            baseAddress = memory.loadMemoryValue(baseAddress);  // Use memory indirection
+        }
+        return baseAddress;
     }
 
     // LDR.
@@ -414,17 +429,54 @@ public class CPUExe {
     
         return false;  // Continue execution
     }
-    
-    // Helper function for calculating effective address
-    private int calculateEffectiveAddress(String ix, String iBit, String address) {
-        int baseAddress = Integer.parseInt(address, 2);  // Convert address bits to integer
-        if (!ix.equals("00")) {
-            int indexValue = ixr.getIndexRegister(Integer.parseInt(ix, 2));  // Get the index register value
-            baseAddress += indexValue;
+
+    // MLT.
+    public boolean executeMLT(String binaryInstruction) {
+        // Extract Rx and Ry fields
+        String rx_str = binaryInstruction.substring(6, 8);  
+        String ry_str = binaryInstruction.substring(8, 10);
+
+        int rx = Integer.parseInt(rx_str, 2);
+        int ry = Integer.parseInt(ry_str, 2);
+
+        // Validate Rx and Ry to be 0 or 2, per the instruction definition.
+        if ((rx != 0 && rx != 2) || (ry != 0 && ry != 2)) {
+            throw new IllegalArgumentException("MLT operation can only be performed with Rx and Ry as 0 or 2.");
         }
-        if (iBit.equals("1")) {
-            baseAddress = memory.loadMemoryValue(baseAddress);  // Use memory indirection
+
+        // Get the contents of the registers Rx and Ry
+        int valueRx = gpr.getGPR(rx);
+        int valueRy = gpr.getGPR(ry);
+
+        // Multiply the values of Rx and Ry
+        long result = (long) valueRx * (long) valueRy; // Use long to handle overflow
+        String result32Bits = String.format("%32s", Long.toBinaryString(result & 0xFFFFFFFFL)).replace(' ', '0');  // Ensure 32 bits
+        System.out.println("32-bit result: " + result32Bits);
+
+        // Split the result into high and low 16-bit parts
+        String highOrderBits = result32Bits.substring(0, 16);
+        String lowOrderBits = result32Bits.substring(16, 32);
+
+        int high = (short) Integer.parseInt(highOrderBits, 2);  // High order bits (as signed 16-bit)
+        int low = (short) Integer.parseInt(lowOrderBits, 2);  // Low order bits (as signed 16-bit)
+
+        // Store the results: Rx holds the high order bits, Rx+1 holds the low order bits
+        gpr.setGPR(rx, (short) high);
+        gpr.setGPR(rx + 1, (short) low);
+
+        // Overflow occurs if the high-order bits exceed 16-bit range
+        if (high != 0) {  // Check if high-order bits are non-zero (indicating overflow)
+            cc.setOverflow(true);  // Set overflow flag
+            System.out.println("Overflow occurred during MLT operation.");
+        } else {
+            cc.setOverflow(false);  // No overflow
         }
-        return baseAddress;
+
+        System.out.println("MLT executed: " + valueRx + " * " + valueRy);
+        System.out.println("High order bits (Rx): " + highOrderBits);
+        System.out.println("Low order bits (Rx+1): " + lowOrderBits);
+
+        return false;  // Continue execution
     }
+
 }
