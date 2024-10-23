@@ -521,4 +521,32 @@ public class CPUExe {
         return false;  // Continue execution
     }    
 
+    // TRR: this one sees if two registers are equal (pretty cool).
+    public boolean executeTRR(String binaryInstruction) {
+        // Extract Rx and Ry fields
+        String rx_str = binaryInstruction.substring(6, 8);
+        String ry_str = binaryInstruction.substring(8, 10);
+
+        int rx = Integer.parseInt(rx_str, 2);
+        int ry = Integer.parseInt(ry_str, 2);
+
+        // Get the contents of the registers Rx and Ry
+        int valueRx = gpr.getGPR(rx);
+        int valueRy = gpr.getGPR(ry);
+
+        // Check if the values in Rx and Ry are equal
+        if (valueRx == valueRy) {
+            cc.setEqual(true);  // Set the Equal flag (bit 3 in condition code)
+            System.out.println("TRR executed: GPR[" + rx + "] == GPR[" + ry + "]");
+        } 
+        else {
+            cc.setEqual(false);  // Clear the Equal flag
+            System.out.println("TRR executed: GPR[" + rx + "] != GPR[" + ry + "]");
+        }
+
+        System.out.println("GPR[" + rx + "] = " + valueRx + ", GPR[" + ry + "] = " + valueRy);
+        return false;  // Continue execution
+    }
+
+
 }

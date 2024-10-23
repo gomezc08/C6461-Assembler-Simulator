@@ -151,6 +151,11 @@ public class CPU {
                 System.out.println("DVD");
                 return cpuExe.executeDVD(binaryInstruction);
 
+            // TRR: Done!
+            case "111010":
+                System.out.println("TRR");
+                return cpuExe.executeTRR(binaryInstruction);
+
             // HLT: Done!
             case "000000":  
                 return true;  // HLT - Stop execution
