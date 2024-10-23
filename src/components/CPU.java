@@ -79,27 +79,27 @@ public class CPU {
             // LDR: Done!
             case "000001":  
                 System.out.println("LDR");
-                return cpuExe.executeLoad(binaryInstruction);
+                return cpuExe.executeLDR(binaryInstruction);
 
             // STR: Done!
             case "000010": 
                 System.out.println("STR");
-                return cpuExe.executeStore(binaryInstruction);
+                return cpuExe.executeSTR(binaryInstruction);
 
             // LDA: Done!
             case "000011":  
                 System.out.println("LDA");
-                return cpuExe.executeLoadAddress(binaryInstruction);
+                return cpuExe.executeLDA(binaryInstruction);
 
             // LDX: Done!
             case "101001": 
                 System.out.println("LDX");
-                return cpuExe.executeLoadIndex(binaryInstruction);
+                return cpuExe.executeLDX(binaryInstruction);
             
             // STX: Done!
             case "101010":  
                 System.out.println("STX");
-                return cpuExe.executeStoreIndex(binaryInstruction);
+                return cpuExe.executeSTX(binaryInstruction);
 
             // JZ: Done!
             case "001010":  

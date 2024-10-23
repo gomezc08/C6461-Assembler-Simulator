@@ -29,7 +29,7 @@ public class CPUExe {
     }
 
     // LDR.
-    public boolean executeLoad(String binaryInstruction) {
+    public boolean executeLDR(String binaryInstruction) {
         // extract instructions.
         String reg_str = binaryInstruction.substring(6, 8);  
         String ix_str = binaryInstruction.substring(8, 10);  
@@ -59,7 +59,7 @@ public class CPUExe {
     }
 
     // STR.
-    public boolean executeStore(String binaryInstruction) {
+    public boolean executeSTR(String binaryInstruction) {
         // extract instructions.
         String reg_str = binaryInstruction.substring(6, 8);  
         String ix_str = binaryInstruction.substring(8, 10);  
@@ -90,7 +90,7 @@ public class CPUExe {
 
 
     // LDA.
-    public boolean executeLoadAddress(String binaryInstruction) {
+    public boolean executeLDA(String binaryInstruction) {
         // Extract the fields (register, index register, indirect bit, address)
         String reg_str = binaryInstruction.substring(6, 8);  
         String ix_str = binaryInstruction.substring(8, 10);  
@@ -114,7 +114,7 @@ public class CPUExe {
     }
 
     // LDX.
-    public boolean executeLoadIndex(String binaryInstruction) {
+    public boolean executeLDX(String binaryInstruction) {
         // Extract fields.
         String ix_str = binaryInstruction.substring(8, 10);  
         String iBit_str = binaryInstruction.substring(10, 11);  // Extract indirect bit
@@ -145,7 +145,7 @@ public class CPUExe {
     }
 
     // STX.
-    public boolean executeStoreIndex(String binaryInstruction) {
+    public boolean executeSTX(String binaryInstruction) {
         // Extract fields.
         String ix_str = binaryInstruction.substring(8, 10);  
         String iBit_str = binaryInstruction.substring(10, 11);  
