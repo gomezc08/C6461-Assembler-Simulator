@@ -548,5 +548,31 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
+    // AND
+    public boolean executeAND(String binaryInstruction) {
+        // Extract Rx and Ry fields
+        String rx_str = binaryInstruction.substring(6, 8);  
+        String ry_str = binaryInstruction.substring(8, 10);
+
+        int rx = Integer.parseInt(rx_str, 2);
+        int ry = Integer.parseInt(ry_str, 2);
+
+        // Get the contents of the registers Rx and Ry
+        int valueRx = gpr.getGPR(rx);
+        int valueRy = gpr.getGPR(ry);
+
+        // Perform the logical AND operation
+        int result = valueRx & valueRy;
+
+        // Store the result in Rx
+        gpr.setGPR(rx, (short)result);
+
+        System.out.println("AND executed: " + valueRx + " AND " + valueRy);
+        System.out.println("Result stored in GPR[" + rx + "]: " + result);
+
+        return false;  // Continue execution
+    }
+
+
 
 }

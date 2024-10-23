@@ -156,6 +156,11 @@ public class CPU {
                 System.out.println("TRR");
                 return cpuExe.executeTRR(binaryInstruction);
 
+            // AND: Done!
+            case "111011":
+                System.out.println("AND");
+                return cpuExe.executeAND(binaryInstruction);
+
             // HLT: Done!
             case "000000":  
                 return true;  // HLT - Stop execution
