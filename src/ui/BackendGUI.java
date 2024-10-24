@@ -2,8 +2,12 @@ package ui;
 
 import components.*;
 import javax.swing.*;
+
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import Assembler.Assembler;
 
 public class BackendGUI {
     private Memory memory; 
@@ -33,8 +37,12 @@ public class BackendGUI {
     // Load and execute the rom.
     public void loadExecuteRom(File file) {
         try {
+            // assemble the asm file.
+            System.out.println("assembly/" + file.getName());
+            Assembler.run("assembly/" + file.getName());
+            
             // load rom.
-            cpu.loadROMFile(file);
+            cpu.loadROMFile(new File("output/output.ld"));
             printerArea.append("Loaded ROM file successfully\n");
 
             // execute it.
@@ -108,8 +116,9 @@ public class BackendGUI {
                 getIXRValues(),
                 getPCValue(),
                 getMarValue(),
-                getMbrValue()
-                //getCCValue()
+                getMbrValue(),
+                getCCValue(),
+                getMfrValues()
             );
         }
     }
@@ -145,11 +154,23 @@ public class BackendGUI {
         return pc.getPC();
     }
 
-    /* 
-    public int getCCValue() {
-        return cc.getValue();
+    
+    public int[] getCCValue() {
+        int[] ccValues = new int[4];
+        ccValues[0] = cc.isOverflow() ? 1 : 0;
+        ccValues[1] = cc.isUnderflow() ? 1 : 0;
+        ccValues[2] = cc.isDivZero() ? 1 : 0;
+        ccValues[3] = cc.isEqual() ? 1 : 0;
+
+        return ccValues;
     }
-    */
+
+    // not implemented yet.
+    public int[] getMfrValues() {
+        int[] mfrValues = new int[4];
+        return mfrValues;
+    }
+    
 
     public void resetRegisters() {
         cpu.resetRegisters(); 

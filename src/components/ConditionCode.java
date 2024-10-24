@@ -102,32 +102,4 @@ public class ConditionCode {
         return String.format("Condition Codes: Overflow=%b, Underflow=%b, DivZero=%b, Equal=%b",
                 isOverflow(), isUnderflow(), isDivZero(), isEqual());
     }
-
-    public static void main(String[] args) {
-        ConditionCode cc = new ConditionCode();
-
-        // Set some flags
-        cc.setOverflow(true);
-        cc.setUnderflow(false);
-        cc.setDivZero(true);
-        cc.setEqual(false);
-
-        // Display condition codes
-        System.out.println(cc);  // Output: Condition Codes: Overflow=true, Underflow=false, DivZero=true, Equal=false
-
-        // Get binary representation of the conditionCode
-        System.out.println("Binary Condition Code: " + cc.getBinaryRepresentation());  // Output: Binary Condition Code: 0000 0101
-
-        // Check individual flags
-        if (cc.isOverflow()) {
-            System.out.println("Overflow occurred!");
-        }
-
-        // Reset all flags
-        cc.reset();
-        System.out.println(cc);  // Output: Condition Codes: Overflow=false, Underflow=false, DivZero=false, Equal=false
-
-        // Get binary representation after reset
-        System.out.println("Binary Condition Code: " + cc.getBinaryRepresentation());  // Output: Binary Condition Code: 0000 0000
-    }
 }

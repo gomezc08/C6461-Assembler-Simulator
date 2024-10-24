@@ -307,24 +307,33 @@ public class FrontendGUI extends JFrame {
         }
     }
 
-    public void updateAllRegisters(short[] gprValues, short[] ixrValues, int pcValue, int marValue, int mbrValue) {
-        // Update GPR checkboxes
+    public void updateAllRegisters(short[] gprValues, short[] ixrValues, int pcValue, int marValue, int mbrValue, int[] ccValues, int[] mfrValues) {
+        // Update GPR checkboxes.
         for (int i = 0; i < gprValues.length; i++) {
             updateCheckBoxes(gprCheckBoxes[i], gprValues[i]);
         }
 
-        // Update IXR checkboxes
-        System.out.println("here are ixr length: " + ixrValues.length); 
+        // Update IXR checkboxes.
         for (int i = 0; i < ixrValues.length; i++) {
             updateCheckBoxes(ixrCheckBoxes[i], ixrValues[i]);
         }
-            
+
+        // Update CC checkboxes manually since they are 4-bit values.
+        for (int i = 0; i < ccValues.length; i++) {
+            ccCheckBoxes[i].setSelected(ccValues[i] == 1);
+            ccCheckBoxes[i].setBackground(ccValues[i] == 1 ? Color.YELLOW : Color.LIGHT_GRAY); // Update color
+        }
+
+        // Update MFR checkboxes manually if needed in the same way.
+        for (int i = 0; i < mfrValues.length; i++) {
+            mfCheckBoxes[i].setSelected(mfrValues[i] == 1);
+            mfCheckBoxes[i].setBackground(mfrValues[i] == 1 ? Color.YELLOW : Color.LIGHT_GRAY); // Update color
+        }
 
         // Update other register checkboxes
         updateCheckBoxes(pcCheckBoxes, pcValue);
         updateCheckBoxes(marCheckBoxes, marValue);
         updateCheckBoxes(mbrCheckBoxes, mbrValue);
-        //updateCheckBoxes(ccCheckBoxes, ccValue);
     }
 
     // Add a getter for backend

@@ -8,9 +8,9 @@ Label   Opcode  Operand     Comments
         Data    9           ;PUT 9 at location 11
         Data    18          ;Extra data at location 12
         Data    12          ;Extra data at location 13
-        LDR     0,0,6       ;REG 0 = Contents at address 6 = 100
+        LDR     0,0,9       ;REG 0 = Contents at address 9 = 0
+        LDR     1,0,6       ;REG 1 = Contents at address 6 = 100
         LDR     2,0,7       ;REG 2 = Contents at address 7 = 25
-        LDR     1,0,9       ;REG 1 = Contents at address 9 = 0
-        DVD     0,1         ;100 / 0: should get div zero overflow flag.
-        AND     0,2         ;REG 0 = 100 / 25 = 4, REG 1 = remainder (0)
+        DVD     2,0         ;100 / 0: should get div zero overflow flag.
+        AND     2,0         ;REG 0 = 100 / 25 = 4, REG 1 = remainder (0)
 End:    HLT                 ;STOP
