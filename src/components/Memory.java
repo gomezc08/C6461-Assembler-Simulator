@@ -32,18 +32,4 @@ public class Memory {
             return 0; // Return 0 if address is out of bounds
         }
     }
-    public static void main(String[] args) {
-        Memory memory = new Memory();
-        int idk = 57472;
-        short s1 = -3212;
-        short s2 = (short) idk; // Properly cast to short within range
-    
-        memory.storeValue(0, s1);
-        memory.storeValue(1, s2);
-    
-        int val1 = memory.loadMemoryValue(0);
-        int val2 = memory.loadMemoryValue(1);
-    
-        System.out.println(val1 + " " + val2); // Should print 62324 and 57472
-    }
 }

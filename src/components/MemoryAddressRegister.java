@@ -59,20 +59,6 @@ public class MemoryAddressRegister {
     public String toString() {
         return String.format("MAR: %03X", mar); // Display as a 3-digit hex value
     }
-
-    public static void main(String[] args) {
-        int largeNumber = 1073741823; // 30-bit number
-        int mask = 0xFFF; // 12-bit mask
-
-        // Apply the mask
-        int maskedNumber = largeNumber & mask;
-
-        // Display the results
-        System.out.println("Original number (decimal): " + largeNumber);
-        System.out.println("Original number (binary): " + Integer.toBinaryString(largeNumber));
-        System.out.println("Masked number (decimal): " + maskedNumber);
-        System.out.println("Masked number (binary): " + Integer.toBinaryString(maskedNumber));
-    }
 }
 
 

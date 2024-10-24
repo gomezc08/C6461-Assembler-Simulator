@@ -51,30 +51,4 @@ public class GeneralPurposeRegisters {
         }
         return sb.toString();
     }
-
-
-    public static void main(String[] args) {
-        // Assume there are 4 General Purpose Registers
-        GeneralPurposeRegisters gprs = new GeneralPurposeRegisters(4);
-
-        // Set values for the GPRs
-        gprs.setGPR(0, (short) 0x1234);
-        gprs.setGPR(1, (short) 0x5678);
-        gprs.setGPR(2, (short) 0x9ABC);
-        gprs.setGPR(3, (short) 0xDEF0);
-
-        // Display the values of the GPRs
-        System.out.println(gprs); // Output: GPR[0]: 1234, GPR[1]: 5678, etc.
-
-        // Get the value of a specific GPR
-        System.out.println("GPR[2] Value: " + Integer.toHexString(gprs.getGPR(2) & 0xFFFF)); // Output: 9ABC
-
-        // Reset GPR[1] to 0
-        gprs.resetGPR(1);
-        System.out.println(gprs); // Output: GPR[1]: 0000
-
-        // Reset all GPRs
-        gprs.resetAllGPRs();
-        System.out.println(gprs); // Output: All GPRs: 0000
-    }
 }

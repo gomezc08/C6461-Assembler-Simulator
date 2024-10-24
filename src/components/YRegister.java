@@ -28,22 +28,4 @@ public class YRegister {
     public String toString() {
         return String.format("Y Register: %04X", yRegister & 0xFFFF);
     }
-    public static void main(String[] args) {
-        // Create an instance of the YRegister class
-        YRegister yRegister = new YRegister();
-
-        // Set the Y register value to a specific 16-bit value (e.g., 0x1234)
-        yRegister.setYRegister((short) 0x1234);
-        System.out.println("After setting Y Register:");
-        System.out.println(yRegister); // Output: Y Register: 1234
-
-        // Get the value of the Y register
-        short yValue = yRegister.getYRegister();
-        System.out.println("Y Register Value: " + Integer.toHexString(yValue & 0xFFFF)); // Output: 1234
-
-        // Reset the Y register to 0
-        yRegister.resetYRegister();
-        System.out.println("After resetting Y Register:");
-        System.out.println(yRegister); // Output: Y Register: 0000
-    }
 }

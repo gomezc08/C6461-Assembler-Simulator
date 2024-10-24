@@ -38,19 +38,4 @@ public class InstructionRegister {
         return String.format("Instruction: %04X, Opcode: %X, Operands: %03X", 
                 instruction & 0xFFFF, getOpcode(), getOperands());
     }
-
-    public static void main(String[] args) {
-        InstructionRegister ir = new InstructionRegister();
-
-        // Example instruction: 0x1234 (opcode: 1, operands: 0x234)
-        short instruction = (short) 0x1234;
-        ir.setIR(instruction);
-
-        // Display the instruction, opcode, and operands
-        System.out.println(ir);  // Output: Instruction: 1234, Opcode: 1, Operands: 234
-
-        // Get individual components
-        System.out.println("Opcode: " + ir.getOpcode());       // Output: 1
-        System.out.println("Operands: " + ir.getOperands());   // Output: 234
-    }
 }

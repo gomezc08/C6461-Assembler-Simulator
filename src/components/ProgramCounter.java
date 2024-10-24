@@ -39,25 +39,4 @@ public class ProgramCounter {
     public String toString() {
         return String.format("PC: %d (0x%03X)", this.pc, this.pc);
     }
-
-    public static void main(String[] args) {
-        ProgramCounter pc = new ProgramCounter();
-
-        // Set and get the value of the Program Counter
-        pc.setPC(1023);
-        System.out.println(pc); // Output: PC: 1023 (0x3FF)
-
-        // Increment the Program Counter
-        pc.incrementPC();
-        System.out.println(pc); // Output: PC: 1024 (0x400)
-
-        // Increment beyond 12 bits to check wrapping
-        pc.setPC(4095); // Set to max value (0xFFF)
-        pc.incrementPC(); // Should wrap around to 0
-        System.out.println(pc); // Output: PC: 0 (0x000)
-
-        // Reset the PC
-        pc.reset();
-        System.out.println(pc); // Output: PC: 0 (0x000)
-    }
 }

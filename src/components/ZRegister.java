@@ -28,23 +28,4 @@ public class ZRegister {
     public String toString() {
         return String.format("Z Register: %04X", zRegister & 0xFFFF);
     }
-
-    public static void main(String[] args) {
-        // Create an instance of the ZRegister class
-        ZRegister zRegister = new ZRegister();
-
-        // Set the Z register value to a specific 16-bit value (e.g., 0x5678)
-        zRegister.setZRegister((short) 0x5678);
-        System.out.println("After setting Z Register:");
-        System.out.println(zRegister); // Output: Z Register: 5678
-
-        // Get the value of the Z register
-        short zValue = zRegister.getZRegister();
-        System.out.println("Z Register Value: " + Integer.toHexString(zValue & 0xFFFF)); // Output: 5678
-
-        // Reset the Z register to 0
-        zRegister.resetZRegister();
-        System.out.println("After resetting Z Register:");
-        System.out.println(zRegister); // Output: Z Register: 0000
-    }
 }

@@ -41,21 +41,4 @@ public class IndexRegisters {
         }
         return sb.toString();
     }
-
-    public static void main(String[] args) {
-        // Testing IndexRegisters
-        IndexRegisters ixr = new IndexRegisters(3); // Assume 3 Index Registers
-
-        // Set values for Index Registers
-        ixr.setIndexRegister(0, (short) 0x1234);
-        ixr.setIndexRegister(1, (short) 0x5678);
-        ixr.setIndexRegister(2, (short) 0x9ABC);
-
-        // Display the values of Index Registers
-        System.out.println(ixr);  // Should print values in hex format
-
-        // Reset all Index Registers
-        ixr.resetAllIndexRegisters();
-        System.out.println(ixr);  // Should print all zeros
-    }
 }

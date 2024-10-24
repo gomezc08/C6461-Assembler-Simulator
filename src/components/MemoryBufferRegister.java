@@ -29,20 +29,4 @@ public class MemoryBufferRegister {
     public String toString() {
         return String.format("MBR: %04X", mbr & 0xFFFF); // Display in 4-digit hex format
     }
-
-    public static void main(String[] args) {
-        MemoryBufferRegister mbr = new MemoryBufferRegister();
-
-        // Set the MBR to a 16-bit value (e.g., 0x1234)
-        mbr.setValue((short) 0x1234);
-        System.out.println(mbr); // Output: MBR: 1234
-
-        // Retrieve the MBR value
-        short value = mbr.getValue();
-        System.out.println("MBR Value: " + Integer.toHexString(value & 0xFFFF)); // Output: 1234
-
-        // Reset the MBR
-        mbr.resetMBR();
-        System.out.println(mbr); // Output: MBR: 0000
-    }
 }
