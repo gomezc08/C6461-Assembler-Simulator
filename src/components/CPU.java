@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import Assembler.Assembler;
 
 public class CPU {
     private Memory memory;
@@ -196,51 +195,5 @@ public class CPU {
         pc.reset(); // Reset the program counter
         mar.resetMAR(); // Reset memory address register
         mbr.resetMBR(); // Reset memory buffer register
-    }
-
-    public static void main(String[] args) {
-        // INITIALIZE.
-        Memory memory = new Memory();
-        GeneralPurposeRegisters gpr = new GeneralPurposeRegisters(4); // 4 General Purpose Registers
-        IndexRegisters ixr = new IndexRegisters(3); // 3 Index Registers
-        ProgramCounter pc = new ProgramCounter();
-        MemoryAddressRegister mar = new MemoryAddressRegister();
-        MemoryBufferRegister mbr = new MemoryBufferRegister();
-        ConditionCode cc = new ConditionCode();  // Initialize the condition code object
-    
-        pc.setPC(14);
-        CPU cpu = new CPU(memory, mar, mbr, gpr, ixr, pc, cc); 
-        
-        try {
-            File romFile = new File("output/Kishan.ld");
-    
-            // Step 1: Assemble the Kishan.asm file...
-            Assembler.run("assembly/Kishan.asm");
-    
-            // Step 2: Load the ROM file into memory.
-            cpu.loadROMFile(romFile);
-    
-            // Print the loaded memory content for debugging.
-            System.out.println("Memory Content after loading the ROM file:");
-            for (int i = 6; i <= 17; i++) {
-                System.out.println("Memory Address " + i + ": " + memory.loadMemoryValue(i));
-            }
-        } catch (IOException e) {
-            System.out.println("Error during assembly: " + e.getMessage());
-        }
-        System.out.println("\n\n");
-    
-        // Execute CPU instructions
-        cpu.run();
-    
-        // Final checks
-        System.out.println("Final GPR Values:");
-        System.out.println(gpr.toString());
-    
-        System.out.println("Final Index Register Values:");
-        System.out.println(ixr.toString());
-    
-        System.out.println("Final Condition Code Values:");
-        System.out.println(cc.toString());
-    }    
+    } 
 }

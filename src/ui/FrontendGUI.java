@@ -113,15 +113,15 @@ public class FrontendGUI extends JFrame {
 
     private JCheckBox createCheckBox() {
         JCheckBox checkBox = new JCheckBox();
-        checkBox.setBackground(Color.LIGHT_GRAY); // Initial background color representing 0
+        checkBox.setBackground(Color.LIGHT_GRAY);
         checkBox.setOpaque(true);
         checkBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (checkBox.isSelected()) {
-                    checkBox.setBackground(Color.YELLOW); // Checked, represents 1
+                    checkBox.setBackground(Color.YELLOW);
                 } else {
-                    checkBox.setBackground(Color.LIGHT_GRAY); // Unchecked, represents 0
+                    checkBox.setBackground(Color.LIGHT_GRAY);
                 }
             }
         });
@@ -152,13 +152,66 @@ public class FrontendGUI extends JFrame {
         gbc.insets = new Insets(2, 5, 2, 5);
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
+        
+        // Add main label (PC:, MAR:, etc.)
         panel.add(new JLabel(label + ":"), gbc);
-        JPanel bitPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        for (JCheckBox checkBox : checkBoxes) {
-            bitPanel.add(checkBox);
+        
+        // Special handling for CC and MFR
+        if (label.equals("CC") || label.equals("MFR")) {
+            JPanel bitPanel = new JPanel(new GridBagLayout());
+            bitPanel.setBackground(Color.WHITE);  // White background
+            GridBagConstraints bitGbc = new GridBagConstraints();
+            bitGbc.anchor = GridBagConstraints.WEST;
+            bitGbc.insets = new Insets(0, 0, 0, 0);
+            
+            // Get labels based on register type
+            String[] labels = label.equals("CC") 
+                ? new String[]{"O", "U", "D", "E"}
+                : new String[]{"M", "OP", "TR", "R"};
+            
+            // Create container for labels and checkboxes
+            JPanel checkboxGroup = new JPanel(new GridBagLayout());
+            checkboxGroup.setBackground(Color.WHITE);
+            
+            // Add labels
+            for (int i = 0; i < labels.length; i++) {
+                JLabel bitLabel = new JLabel(labels[i]);
+                bitLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                GridBagConstraints labelGbc = new GridBagConstraints();
+                labelGbc.gridx = i;
+                labelGbc.gridy = 0;
+                labelGbc.insets = new Insets(0, 5, 0, 5);  // Add some horizontal spacing
+                checkboxGroup.add(bitLabel, labelGbc);
+            }
+            
+            // Add checkboxes
+            for (int i = 0; i < checkBoxes.length; i++) {
+                GridBagConstraints boxGbc = new GridBagConstraints();
+                boxGbc.gridx = i;
+                boxGbc.gridy = 1;
+                boxGbc.insets = new Insets(0, 5, 0, 5);  // Match label spacing
+                checkboxGroup.add(checkBoxes[i], boxGbc);
+            }
+            
+            // Add padding to center the group in the white panel
+            bitPanel.add(Box.createHorizontalStrut(50), bitGbc);  // Left padding
+            bitGbc.gridx = 1;
+            bitPanel.add(checkboxGroup, bitGbc);
+            bitGbc.gridx = 2;
+            bitPanel.add(Box.createHorizontalStrut(50), bitGbc);  // Right padding
+            
+            gbc.gridx = 1;
+            panel.add(bitPanel, gbc);
+        } else {
+            // Original handling for other registers
+            JPanel bitPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            bitPanel.setBackground(Color.WHITE);
+            for (JCheckBox checkBox : checkBoxes) {
+                bitPanel.add(checkBox);
+            }
+            gbc.gridx = 1;
+            panel.add(bitPanel, gbc);
         }
-        gbc.gridx = 1;
-        panel.add(bitPanel, gbc);
     }
 
     private JPanel createControlPanel() {

@@ -38,7 +38,7 @@ public class BackendGUI {
             printerArea.append("Loaded ROM file successfully\n");
 
             // execute it.
-            pc.setPC(14);       // need to find a way to do this dynamically.
+            pc.setPC(14);   // need to find a way to do this dynamically; i set it this value b/c thats how Kishan.ld works.
             cpu.run();
 
             // Final checks
@@ -52,16 +52,7 @@ public class BackendGUI {
             System.out.println(cc.toString());
 
             // update the checkboxes for all components in gui.
-            if (frontendGUI != null) {
-                frontendGUI.updateAllRegisters(
-                    getGPRValues(),
-                    getIXRValues(),
-                    getPCValue(),
-                    getMarValue(),
-                    getMbrValue()
-                    //getCCValue()
-                );
-            }
+            updateGUIFields();
             
         } 
         catch (IOException ex) {
@@ -77,6 +68,7 @@ public class BackendGUI {
         
         if (marValue > 5) {
             printerArea.append("Loaded value " + memoryValue + " from memory address " + marValue + " into MBR\n");
+            updateGUIFields();
         } 
         else {
             printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
@@ -88,6 +80,7 @@ public class BackendGUI {
         if (marValue > 5) {
             cpu.store(marValue, mbrValue);
             printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
+            updateGUIFields();
         } 
         else {
             printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
@@ -100,10 +93,24 @@ public class BackendGUI {
             cpu.store(marValue, mbrValue);
             printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
             mar.increment(); 
+            updateGUIFields();
         } 
         
         else {
             printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
+        }
+    }
+
+    public void updateGUIFields() {
+        if (frontendGUI != null) {
+            frontendGUI.updateAllRegisters(
+                getGPRValues(),
+                getIXRValues(),
+                getPCValue(),
+                getMarValue(),
+                getMbrValue()
+                //getCCValue()
+            );
         }
     }
 
