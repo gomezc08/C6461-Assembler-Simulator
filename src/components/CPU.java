@@ -169,11 +169,26 @@ public class CPU {
             case "111101":
                 System.out.println("NOT");
                 return cpuExe.executeNOT(binaryInstruction);
+            
+            // IN: Done!
+            case "110011":
+                System.out.println("IN");
+                return cpuExe.executeIN(binaryInstruction);
+
+            // OUT: Done!
+            case "110100":
+                System.out.println("OUT");
+                return cpuExe.executeOUT(binaryInstruction);
+
+            // CHK: Done!
+            case "110101":
+                System.out.println("CHK");
+                return cpuExe.executeCHK(binaryInstruction);
 
             // HLT: Done!
             case "000000":  
                 return true;  // HLT - Stop execution
-
+            
             default:
                 throw new IllegalArgumentException("Unknown opcode: " + opcode);
         }

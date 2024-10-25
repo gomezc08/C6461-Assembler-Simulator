@@ -1,5 +1,7 @@
 package components;
 
+import java.util.Scanner;
+
 public class CPUExe {
     private Memory memory;
     private GeneralPurposeRegisters gpr;
@@ -619,5 +621,103 @@ public class CPUExe {
 
         System.out.println("NOT executed on GPR[" + rx + "], value: " + valueRx + " -> " + result);
         return false; // Continue execution
+    }
+
+    // IN.
+    public boolean executeIN(String binaryInstruction) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Extract Rx and DevID fields from the binary instruction
+        String rx_str = binaryInstruction.substring(6, 8);  
+        String devid_str = binaryInstruction.substring(11, 16);
+
+        int rx = Integer.parseInt(rx_str, 2);  // Register to store the input
+        int devid = Integer.parseInt(devid_str, 2);  // Device ID
+
+        // Validate DevID (ensure it's within acceptable range, e.g., 0-3 for this case)
+        if (devid < 0 || devid > 3) {
+            throw new IllegalArgumentException("Invalid Device ID for IN operation. DevID should be between 0 and 3.");
+        }
+
+        // Simulate input based on device ID
+        int input = 0;
+        if (devid == 0) {
+            System.out.print("Enter a number: ");
+            input = scanner.nextInt();
+        } 
+        
+        else {
+            System.out.println("Device ID " + devid + " not supported for IN operation.");
+            return false;  // Unsupported device, continue execution
+        }
+
+        // Store the input in the specified register Rx
+        gpr.setGPR(rx, (short)input);
+
+        // Print execution details for debugging
+        System.out.println("IN executed: Read input " + input + " into GPR[" + rx + "] from Device ID " + devid);
+
+        return false;  // Continue execution
+    }
+
+    // OUT.
+    public boolean executeOUT(String binaryInstruction) {
+        // Extract Rx and DevID fields from the binary instruction
+        String rx_str = binaryInstruction.substring(6, 8);
+        String devid_str = binaryInstruction.substring(11, 16);
+
+        int rx = Integer.parseInt(rx_str, 2);  // Register from which to output
+        int devid = Integer.parseInt(devid_str, 2);  // Device ID
+
+        // Validate DevID (ensure it's within acceptable range, e.g., 0-3 for this case)
+        if (devid < 0 || devid > 3) {
+            throw new IllegalArgumentException("Invalid Device ID for OUT operation. DevID should be between 0 and 3.");
+        }
+
+        // Simulate output based on device ID
+        int output = gpr.getGPR(rx);  // Get the value from the specified register
+
+        if (devid == 0) {
+            // Simulate console output for Device 0
+            System.out.println("Output from GPR[" + rx + "] to Device ID " + devid + ": " + output);
+        } else {
+            System.out.println("Device ID " + devid + " not supported for OUT operation.");
+            return false;  // Unsupported device, continue execution
+        }
+
+        return false;  // Continue execution
+    }
+
+    // CHK.
+    public boolean executeCHK(String binaryInstruction) {
+        // Extract Rx and DevID fields from the binary instruction
+        String rx_str = binaryInstruction.substring(6, 8);
+        String devid_str = binaryInstruction.substring(11, 16);
+
+        int rx = Integer.parseInt(rx_str, 2);  // Register to store the device status
+        int devid = Integer.parseInt(devid_str, 2);  // Device ID
+
+        // Validate DevID (ensure it's within acceptable range, e.g., 0-3 for this case)
+        if (devid < 0 || devid > 3) {
+            throw new IllegalArgumentException("Invalid Device ID for CHK operation. DevID should be between 0 and 3.");
+        }
+
+        // Simulate checking device status based on device ID
+        int deviceStatus = 0; // For simplicity, let's assume the device status is either 1 (available) or 0 (unavailable)
+        if (devid == 0) {
+            // Assume device 0 is always available for this example.
+            deviceStatus = 1;
+        } else {
+            System.out.println("Device ID " + devid + " not supported for CHK operation.");
+            return false;  // Unsupported device, continue execution
+        }
+
+        // Store the device status in the specified register Rx
+        gpr.setGPR(rx, (short)deviceStatus);
+
+        // Print execution details for debugging
+        System.out.println("CHK executed: Checked Device ID " + devid + " and stored status " + deviceStatus + " in GPR[" + rx + "]");
+
+        return false;  // Continue execution
     }
 }
