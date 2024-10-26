@@ -430,6 +430,135 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
+    // AMR.
+    public boolean executeAMR(String binaryInstruction) {
+        // Extract fields from the binary instruction
+        String reg_str = binaryInstruction.substring(6, 8);  // Register field
+        String ix_str = binaryInstruction.substring(8, 10);  // Index register field
+        String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
+        String address_str = binaryInstruction.substring(11, 16);  // Address field
+    
+        int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
+        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+    
+        // Get the value in the register
+        int regValue = gpr.getGPR(reg);
+        System.out.println("Value in GPR[" + reg + "]: " + regValue);
+        
+        // Calculate Effective Address (EA)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+
+        //load the value present in effective address of memroy
+        int value = memory.loadMemoryValue(ea);
+        
+        //add the value from  memory with register
+        int result =  value + regValue ;
+
+        gpr.setGPR( reg, (short) result);
+        return false;  // Continue execution
+    }
+
+    // SMR.
+    public boolean executeSMR(String binaryInstruction) {
+        // Extract fields from the binary instruction
+        String reg_str = binaryInstruction.substring(6, 8);  // Register field
+        String ix_str = binaryInstruction.substring(8, 10);  // Index register field
+        String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
+        String address_str = binaryInstruction.substring(11, 16);  // Address field
+    
+        int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
+        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+    
+        // Get the value in the register
+        int regValue = gpr.getGPR(reg);
+        System.out.println("Value in GPR[" + reg + "]: " + regValue);
+        
+        // Calculate Effective Address (EA)
+        int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Effective Address (Ea): " + ea);
+
+        //load the value present in effective address of memroy
+        int value = memory.loadMemoryValue(ea);
+
+        //substract the value from  memory with register
+        int result =  value - regValue;
+
+        gpr.setGPR( reg, (short) result);
+        return false;  // Continue execution
+    }
+
+    //AIR
+    public boolean executeAIR(String binaryInstruction) {
+
+        // Extract immediate value from the instruction
+        String immed_str = binaryInstruction.substring(11, 16);  // Immediate value is in the last 5 bits
+        int immed = Integer.parseInt(immed_str, 2);  // Convert immediate field to integer
+
+        // Extract fields from the binary instruction
+        String reg_str = binaryInstruction.substring(6, 8);  // Register field
+        int reg = Integer.parseInt(reg_str, 2); 
+    
+        // Get the value in the register
+        int regValue = gpr.getGPR(reg);
+        System.out.println("Value in GPR[" + reg + "]: " + regValue);
+
+        if (immed == 0) {
+            //if immed = 0, do nothing
+            return false;
+        }
+
+        else if (regValue == 0) {
+            //register = 0,load r with immed
+            regValue = immed;
+            return false;
+        }
+        
+        else{
+            int result =  immed + regValue;
+            gpr.setGPR( reg, (short) result);
+            return false;  // Continue execution
+        }
+    }
+        
+
+    //SIR
+    public boolean executeSIR(String binaryInstruction) {
+
+        // Extract immediate value from the instruction
+        String immed_str = binaryInstruction.substring(11, 16);  // Immediate value is in the last 5 bits
+        int immed = Integer.parseInt(immed_str, 2);  // Convert immediate field to integer
+
+        // Extract fields from the binary instruction
+        String reg_str = binaryInstruction.substring(6, 8);  // Register field
+        int reg = Integer.parseInt(reg_str, 2);  
+    
+        // Get the value in the register
+        int regValue = gpr.getGPR(reg);
+        System.out.println("Value in GPR[" + reg + "]: " + regValue);
+        
+        if (immed == 0) {
+            //if immed = 0, do nothing
+            return false;
+        }
+
+        else if (regValue == 0) {
+            //register = 0,load r with -immed
+            regValue = -(immed);
+            return false;
+        }
+        
+        else{
+            int result =   regValue - immed;
+            gpr.setGPR( reg, (short) result);
+            return false;  // Continue execution
+        }
+    }
+
     // MLT.
     public boolean executeMLT(String binaryInstruction) {
         // Extract Rx and Ry fields
