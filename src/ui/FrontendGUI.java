@@ -33,14 +33,14 @@ public class FrontendGUI extends JFrame {
         backend.setFrontendGUI(this);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(221, 160, 221)); // Set to light purple
+        mainPanel.setBackground(new Color(13, 152, 186)); // Set to light purple
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 10, 5, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Left side (GPRs and IXRs)
         JPanel leftPanel = new JPanel(new GridBagLayout());
-        leftPanel.setBackground(new Color(221, 160, 221)); // Light purple
+        leftPanel.setBackground(new Color(13, 152, 186)); // Light purple
         gprPanels = createRegisterPanels(4, 16); // GPR 0-3 are 16 bits each
         ixrPanels = createRegisterPanels(3, 16); // IXR 0-2 are 16 bits each
 
@@ -55,7 +55,7 @@ public class FrontendGUI extends JFrame {
 
         // Right side (PC, MAR, MBR, IR, CC, MFR)
         JPanel rightPanel = new JPanel(new GridBagLayout());
-        rightPanel.setBackground(new Color(221, 160, 221)); // Light purple
+        rightPanel.setBackground(new Color(13, 152, 186)); // Light purple
         pcPanels = createPanels(12); // PC is 12 bits
         marPanels = createPanels(12); // MAR is 12 bits
         mbrPanels = createPanels(16); // MBR is 16 bits

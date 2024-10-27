@@ -95,16 +95,16 @@ public class CPU {
                 return cpuExe.executeAMR(binaryInstruction);
             
             case "000101":  
-                System.out.println("sMR");
-                return cpuExe.executeAMR(binaryInstruction);
+                System.out.println("SMR");
+                return cpuExe.executeSMR(binaryInstruction);
 
             case "000110":  
                 System.out.println("AIR");
-                return cpuExe.executeAMR(binaryInstruction);    
+                return cpuExe.executeAIR(binaryInstruction);    
               
             case "000111":  
                 System.out.println("SIR");
-                return cpuExe.executeAMR(binaryInstruction);    
+                return cpuExe.executeSIR(binaryInstruction);    
 
             // LDX: Done!
             case "101001": 

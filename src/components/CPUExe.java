@@ -1,5 +1,7 @@
 package components;
 
+import java.lang.Math;
+
 public class CPUExe {
     private Memory memory;
     private GeneralPurposeRegisters gpr;
@@ -437,6 +439,8 @@ public class CPUExe {
         String ix_str = binaryInstruction.substring(8, 10);  // Index register field
         String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
         String address_str = binaryInstruction.substring(11, 16);  // Address field
+
+        System.out.println("Address is:" + address_str);
     
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
         int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
@@ -453,11 +457,14 @@ public class CPUExe {
 
         //load the value present in effective address of memroy
         int value = memory.loadMemoryValue(ea);
+        System.out.println("Value from memroy: " + value);
         
         //add the value from  memory with register
         int result =  value + regValue ;
+        System.out.println("The result after adding value from memory with register is:" + result);
 
         gpr.setGPR( reg, (short) result);
+        System.out.println("Updated GPR["+ reg +"] with value"+ result);
         return false;  // Continue execution
     }
 
@@ -484,62 +491,94 @@ public class CPUExe {
 
         //load the value present in effective address of memroy
         int value = memory.loadMemoryValue(ea);
+        System.out.println("Value from memroy: " + value);
 
         //substract the value from  memory with register
-        int result =  value - regValue;
+        int result =  regValue - value;
+        System.out.println("The result after substracting value from memory with register is:" + result);
 
-        gpr.setGPR( reg, (short) result);
+        if(result<0)
+        {
+            //if the result is negatiev, set the underflow to 1
+            cc.setUnderflow(true);
+            System.out.println("underflow occurred during SMR operation.");
+        }
+        else{
+            cc.setUnderflow(false);
+        }
+
+        System.out.println("Updated GPR["+ reg +"] with value"+ result);
+        gpr.setGPR( reg, (short) Math.abs(result));
         return false;  // Continue execution
     }
 
     //AIR
     public boolean executeAIR(String binaryInstruction) {
 
-        // Extract immediate value from the instruction
-        String immed_str = binaryInstruction.substring(11, 16);  // Immediate value is in the last 5 bits
-        int immed = Integer.parseInt(immed_str, 2);  // Convert immediate field to integer
-
-        // Extract fields from the binary instruction
         String reg_str = binaryInstruction.substring(6, 8);  // Register field
-        int reg = Integer.parseInt(reg_str, 2); 
+        String ix_str = binaryInstruction.substring(8, 10);  // Index register field
+        String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
+        String address_str = binaryInstruction.substring(11, 16);  // Immediate Value
+
+        System.out.println("Immed is:" + address_str);
+    
+        int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
+        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        int immed = Integer.parseInt(address_str, 2);  // Convert address field to integer
+
+        //int immed_value = calculateEffectiveAddress(ix_str, iBit_str, immed_str);
     
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
         System.out.println("Value in GPR[" + reg + "]: " + regValue);
 
+        System.out.println("Immediate value is:" +  immed);
+
         if (immed == 0) {
             //if immed = 0, do nothing
-            return false;
         }
 
         else if (regValue == 0) {
-            //register = 0,load r with immed
+            //register = 0,load register with immed
             regValue = immed;
-            return false;
+            int result = regValue;
+
+            System.out.println("After adding"+immed+ "to "+regValue+",we get"+result);
+            gpr.setGPR( reg, (short) result);
         }
         
         else{
             int result =  immed + regValue;
+
+            System.out.println("After adding"+immed+ "to "+regValue+",we get"+result);
             gpr.setGPR( reg, (short) result);
-            return false;  // Continue execution
         }
+        return false;  // Continue execution
     }
         
 
     //SIR
     public boolean executeSIR(String binaryInstruction) {
 
-        // Extract immediate value from the instruction
-        String immed_str = binaryInstruction.substring(11, 16);  // Immediate value is in the last 5 bits
-        int immed = Integer.parseInt(immed_str, 2);  // Convert immediate field to integer
-
-        // Extract fields from the binary instruction
         String reg_str = binaryInstruction.substring(6, 8);  // Register field
-        int reg = Integer.parseInt(reg_str, 2);  
+        String ix_str = binaryInstruction.substring(8, 10);  // Index register field
+        String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
+        String immed_str = binaryInstruction.substring(11, 16);  // Immediate Value
+    
+        int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
+        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        //int immed = Integer.parseInt(immed_str, 2);  // Convert address field to integer 
+
+        int immed = calculateEffectiveAddress(ix_str, iBit_str, immed_str);
+
     
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
         System.out.println("Value in GPR[" + reg + "]: " + regValue);
+        System.out.println("Immediate value is:" + immed);
+
         
         if (immed == 0) {
             //if immed = 0, do nothing
@@ -549,12 +588,24 @@ public class CPUExe {
         else if (regValue == 0) {
             //register = 0,load r with -immed
             regValue = -(immed);
+            cc.setUnderflow(true);
+            gpr.setGPR( reg, (short) Math.abs(regValue));
             return false;
         }
         
         else{
             int result =   regValue - immed;
-            gpr.setGPR( reg, (short) result);
+            System.out.println("After substracting"+immed+ "with "+regValue+",we get:"+result);
+            if(result<0)
+            {
+                //if the result is negative, set the underflow to 1
+                cc.setUnderflow(true);
+                System.out.println("underflow occurred during SIR operation.");
+            }
+            else{
+                cc.setUnderflow(false);
+            }
+            gpr.setGPR( reg, (short) Math.abs(result));
             return false;  // Continue execution
         }
     }
