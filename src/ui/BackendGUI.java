@@ -46,7 +46,7 @@ public class BackendGUI {
             printerArea.append("Loaded ROM file successfully\n");
 
             // execute it.
-            pc.setPC(14);   // need to find a way to do this dynamically; i set it this value b/c thats how Kishan.ld works.
+            pc.setPC(7);   // need to find a way to do this dynamically; i set it this value b/c thats how Kishan.ld works.
             cpu.run();
 
             // Final checks

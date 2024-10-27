@@ -33,14 +33,14 @@ public class FrontendGUI extends JFrame {
         backend.setFrontendGUI(this);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(13, 152, 186)); // Set to light purple
+        mainPanel.setBackground(new Color(96, 139, 193)); // Set to light purple
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 10, 5, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Left side (GPRs and IXRs)
         JPanel leftPanel = new JPanel(new GridBagLayout());
-        leftPanel.setBackground(new Color(13, 152, 186)); // Light purple
+        leftPanel.setBackground(new Color(96, 139, 193)); // Light purple
         gprPanels = createRegisterPanels(4, 16); // GPR 0-3 are 16 bits each
         ixrPanels = createRegisterPanels(3, 16); // IXR 0-2 are 16 bits each
 
@@ -55,7 +55,7 @@ public class FrontendGUI extends JFrame {
 
         // Right side (PC, MAR, MBR, IR, CC, MFR)
         JPanel rightPanel = new JPanel(new GridBagLayout());
-        rightPanel.setBackground(new Color(13, 152, 186)); // Light purple
+        rightPanel.setBackground(new Color(96, 139, 193)); // Light purple
         pcPanels = createPanels(12); // PC is 12 bits
         marPanels = createPanels(12); // MAR is 12 bits
         mbrPanels = createPanels(16); // MBR is 16 bits
@@ -206,7 +206,7 @@ public class FrontendGUI extends JFrame {
 
         public BitPanel() {
             setPreferredSize(new Dimension(20, 20));
-            setBackground(Color.WHITE);
+            setBackground(new Color(203, 220, 235));
             setBorder(BorderFactory.createLineBorder(Color.BLACK));
             addMouseListener(new MouseAdapter() {
                 @Override
@@ -218,12 +218,12 @@ public class FrontendGUI extends JFrame {
 
         public void setBit(boolean value) {
             isSet = value;
-            setBackground(isSet ? Color.YELLOW : Color.WHITE);
+            setBackground(isSet ? Color.YELLOW : new Color(203, 220, 235));
         }
 
         public void toggleBit() {
             isSet = !isSet;
-            setBackground(isSet ? Color.YELLOW : Color.WHITE);
+            setBackground(isSet ? Color.YELLOW : new Color(203, 220, 235));
         }
 
         public boolean isSet() {
@@ -308,7 +308,7 @@ public class FrontendGUI extends JFrame {
         for (int i = 0; i < bitPanels.length; i++) {
             boolean isSet = (value & (1 << (bitPanels.length - 1 - i))) != 0;
             bitPanels[i].setBit(isSet);
-            bitPanels[i].setBackground(isSet ? Color.YELLOW : Color.LIGHT_GRAY);
+            bitPanels[i].setBackground(isSet ? Color.YELLOW : new Color(203, 220, 235));
         }
     }
 
@@ -326,13 +326,13 @@ public class FrontendGUI extends JFrame {
         // Update CC checkboxes manually since they are 4-bit values.
         for (int i = 0; i < ccValues.length; i++) {
             ccPanels[i].setBit(ccValues[i] == 1);
-            ccPanels[i].setBackground(ccValues[i] == 1 ? Color.YELLOW : Color.LIGHT_GRAY); // Update color
+            ccPanels[i].setBackground(ccValues[i] == 1 ? Color.YELLOW : new Color(203, 220, 235)); // Update color
         }
 
         // Update MFR checkboxes manually if needed in the same way.
         for (int i = 0; i < mfrValues.length; i++) {
             mfPanels[i].setBit(mfrValues[i] == 1);
-            mfPanels[i].setBackground(mfrValues[i] == 1 ? Color.YELLOW : Color.LIGHT_GRAY); // Update color
+            mfPanels[i].setBackground(mfrValues[i] == 1 ? Color.YELLOW : new Color(203, 220, 235)); // Update color
         }
 
         // Update other register checkboxes
