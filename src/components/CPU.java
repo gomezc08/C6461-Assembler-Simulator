@@ -90,18 +90,22 @@ public class CPU {
                 System.out.println("LDA");
                 return cpuExe.executeLDA(binaryInstruction);
 
+            // AMR.
              case "000100":  
                 System.out.println("AMR");
                 return cpuExe.executeAMR(binaryInstruction);
             
+            // SMR.
             case "000101":  
                 System.out.println("SMR");
                 return cpuExe.executeSMR(binaryInstruction);
 
+            // AIR: Done!
             case "000110":  
                 System.out.println("AIR");
                 return cpuExe.executeAIR(binaryInstruction);    
               
+            // SIR.
             case "000111":  
                 System.out.println("SIR");
                 return cpuExe.executeSIR(binaryInstruction);    

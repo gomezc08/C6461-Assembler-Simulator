@@ -512,50 +512,30 @@ public class CPUExe {
         return false;  // Continue execution
     }
 
-    //AIR
+    // AIR (Add Immediate to Register)
     public boolean executeAIR(String binaryInstruction) {
 
         String reg_str = binaryInstruction.substring(6, 8);  // Register field
-        String ix_str = binaryInstruction.substring(8, 10);  // Index register field
-        String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
         String address_str = binaryInstruction.substring(11, 16);  // Immediate Value
 
-        System.out.println("Immed is:" + address_str);
-    
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
-        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
-        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
         int immed = Integer.parseInt(address_str, 2);  // Convert address field to integer
 
-        //int immed_value = calculateEffectiveAddress(ix_str, iBit_str, immed_str);
-    
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("Value in GPR[" + reg + "]: " + regValue);
+        System.out.println("Initial value in GPR[" + reg + "]: " + regValue);
+        System.out.println("Immediate value to add: " + immed);
 
-        System.out.println("Immediate value is:" +  immed);
+        // Add the immediate value to the register value
+        int result = regValue + immed;
+        System.out.println("After adding " + immed + " to " + regValue + ", we get " + result);
 
-        if (immed == 0) {
-            //if immed = 0, do nothing
-        }
+        // Store the result back in the register
+        gpr.setGPR(reg, (short) result);
 
-        else if (regValue == 0) {
-            //register = 0,load register with immed
-            regValue = immed;
-            int result = regValue;
-
-            System.out.println("After adding"+immed+ "to "+regValue+",we get"+result);
-            gpr.setGPR( reg, (short) result);
-        }
-        
-        else{
-            int result =  immed + regValue;
-
-            System.out.println("After adding"+immed+ "to "+regValue+",we get"+result);
-            gpr.setGPR( reg, (short) result);
-        }
         return false;  // Continue execution
     }
+
         
 
     //SIR
