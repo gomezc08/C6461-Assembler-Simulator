@@ -53,11 +53,13 @@ public class Cache {
         int blockID = getBlockID(address);
         int tag = getTag(address);
         int wordOffset = blockID;
-
+    
+        // Check if the cache line with the corresponding tag is already present
         for (int i = 0; i < cacheSize; i++) {
             CacheLine line = cacheLines.get(i);
-
-            if (line.getTag() != null && line.getTag() == tag) {  
+            
+            // Cache hit: Update the value in the cache line
+            if (line.getTag() != null && line.getTag() == tag) { 
                 line.setBlock(wordOffset, value);
                 line.setDirty(true);
                 updateLRU(i);
@@ -65,11 +67,11 @@ public class Cache {
                 return;
             }
         }
-
-        System.out.println("Cache miss for address " + address + ". Loading block from memory.");
+    
+        // Cache miss: Load the block into the cache
         loadBlockFromMemory(address);
-        
-        // Write to the newly loaded block
+    
+        // Update the loaded cache line with the new value
         for (int i = 0; i < cacheSize; i++) {
             CacheLine line = cacheLines.get(i);
             if (line.getTag() == tag) {
@@ -81,6 +83,7 @@ public class Cache {
             }
         }
     }
+    
 
     private void updateLRU(int index) {
         lruList.remove((Integer) index);
@@ -90,29 +93,29 @@ public class Cache {
     private int loadBlockFromMemory(int address) {
         int evictIndex = lruList.removeFirst();  // Remove and return the LRU index
         CacheLine evictLine = cacheLines.get(evictIndex);
-
+    
+        // Write back to memory if the evicted line is dirty
         if (evictLine.isDirty()) {
-            System.out.println("Evicting dirty cache line " + evictIndex + ". Writing back to memory.");
             writeBackToMemory(evictLine);
-        } else {
-            System.out.println("Evicting clean cache line " + evictIndex + ".");
         }
-
+    
         int tag = getTag(address);
-        int blockID = getBlockID(address);
-
+        int baseAddress = (address & ~0b111);  // Base address for the block
+    
+        // Load each word in the block from memory
         for (int i = 0; i < blockSize; i++) {
-            int wordAddress = (address & ~0b111) + i;
-            evictLine.getBlock()[i] = memory.loadMemoryValue(wordAddress);
+            int word = memory.loadMemoryValue(baseAddress + i);
+            evictLine.setBlock(i, word);
         }
-
+    
+        // Update cache line metadata
         evictLine.setTag(tag);
         evictLine.setDirty(false);
         lruList.addLast(evictIndex);
-
-        System.out.println("Loaded block into cache line " + evictIndex + " with tag: " + tag);
-        return evictLine.getBlock()[blockID];
+    
+        return evictIndex;
     }
+    
 
     private void writeBackToMemory(CacheLine cacheLine) {
         int tag = cacheLine.getTag();
@@ -122,27 +125,24 @@ public class Cache {
         }
     }
 
-    public void printCacheState() {
-        System.out.println("\nCurrent Cache State:");
-        for (int i = 0; i < cacheSize; i++) {
-            CacheLine line = cacheLines.get(i);
-            System.out.println("Line " + i + ": Tag = " + line.getTag() + 
-                               ", Dirty = " + line.isDirty() + 
-                               ", LRU Order = " + (cacheSize - 1 - lruList.indexOf(i)));
-        }
-        System.out.println();
-    }
-
     public String getCacheStateString() {
         StringBuilder cacheState = new StringBuilder();
+        
+        // For each cache line (0-3)
         for (int i = 0; i < cacheSize; i++) {
+            // Add line prefix (000, 001, 002, 003)
+            cacheState.append(String.format("%03d ", i));
+            
             CacheLine line = cacheLines.get(i);
-            cacheState.append("Line ").append(i)
-                      .append(": Tag = ").append(line.getTag())
-                      .append(", Dirty = ").append(line.isDirty())
-                      .append(", LRU Order = ").append(cacheSize - 1 - lruList.indexOf(i))
-                      .append("\n");
+            int[] block = line.getBlock();
+            
+            // Add each word in the block with proper formatting
+            for (int j = 0; j < blockSize; j++) {
+                cacheState.append(String.format("%06d ", block[j]));
+            }
+            cacheState.append("\n");
         }
+        
         return cacheState.toString();
-    }    
+    }
 }

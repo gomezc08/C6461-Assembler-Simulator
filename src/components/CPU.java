@@ -224,10 +224,8 @@ public class CPU {
         return this.pc.getPC(); 
     }
     
-    // the following 2 functions are for the backend gui.
     public void store(int address, int value) {
-        mar.setValue((short) address); // Set MAR to the specified address
-        memory.storeValue(mar.getValue(), value); // Store the value in memory at the address
+        cache.write(address, value);
     }
 
     public void resetRegisters() {

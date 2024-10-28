@@ -95,6 +95,7 @@ public class FrontendGUI extends JFrame {
         mainPanel.add(lowerPanel, gbc);
 
         initActionListeners();
+        backend.updateCacheDisplay();
     }
 
     private void clearBits() {

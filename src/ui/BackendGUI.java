@@ -80,6 +80,7 @@ public class BackendGUI {
         if (marValue > 5) {
             printerArea.append("Loaded value " + memoryValue + " from memory address " + marValue + " into MBR\n");
             updateGUIFields();
+            updateCacheDisplay();
         } 
         else {
             printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
@@ -178,7 +179,8 @@ public class BackendGUI {
 
     public void updateCacheDisplay() {
         if (frontendGUI != null && cpu.getCache() != null) {
-            frontendGUI.updateCacheContent(cpu.getCache().getCacheStateString());
+            System.out.println("here is the cache crap: " + cpu.getCache().getCacheStateString());
+            frontendGUI.updateCacheContent(cache.getCacheStateString());
         }
     }     
     
