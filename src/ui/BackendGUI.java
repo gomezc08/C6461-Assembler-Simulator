@@ -179,7 +179,6 @@ public class BackendGUI {
 
     public void updateCacheDisplay() {
         if (frontendGUI != null && cpu.getCache() != null) {
-            System.out.println("here is the cache crap: " + cpu.getCache().getCacheStateString());
             frontendGUI.updateCacheContent(cache.getCacheStateString());
         }
     }     

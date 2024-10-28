@@ -21,7 +21,6 @@ public class Cache {
         }
     }
 
-    // Address to block conversion
     public int getBlockID(int address) {
         return address & 0b111;  // Lower 3 bits as block ID
     }
@@ -33,12 +32,12 @@ public class Cache {
     public int read(int address) {
         int blockID = getBlockID(address);
         int tag = getTag(address);
-        int wordOffset = blockID;  
+        int wordOffset = blockID;
 
         for (int i = 0; i < cacheSize; i++) {
             CacheLine line = cacheLines.get(i);
 
-            if (line.getTag() != null && line.getTag() == tag) {  
+            if (line.getTag() != null && line.getTag() == tag) {
                 updateLRU(i);
                 System.out.println("Cache hit at line " + i + " for address " + address);
                 return line.getBlock()[wordOffset];
@@ -53,13 +52,11 @@ public class Cache {
         int blockID = getBlockID(address);
         int tag = getTag(address);
         int wordOffset = blockID;
-    
-        // Check if the cache line with the corresponding tag is already present
+
         for (int i = 0; i < cacheSize; i++) {
             CacheLine line = cacheLines.get(i);
-            
-            // Cache hit: Update the value in the cache line
-            if (line.getTag() != null && line.getTag() == tag) { 
+
+            if (line.getTag() != null && line.getTag() == tag) {
                 line.setBlock(wordOffset, value);
                 line.setDirty(true);
                 updateLRU(i);
@@ -67,11 +64,9 @@ public class Cache {
                 return;
             }
         }
-    
-        // Cache miss: Load the block into the cache
+
         loadBlockFromMemory(address);
-    
-        // Update the loaded cache line with the new value
+
         for (int i = 0; i < cacheSize; i++) {
             CacheLine line = cacheLines.get(i);
             if (line.getTag() == tag) {
@@ -83,7 +78,6 @@ public class Cache {
             }
         }
     }
-    
 
     private void updateLRU(int index) {
         lruList.remove((Integer) index);
@@ -91,29 +85,27 @@ public class Cache {
     }
 
     private int loadBlockFromMemory(int address) {
-        int evictIndex = lruList.removeFirst();  // LRU eviction
+        int evictIndex = lruList.removeFirst();
         CacheLine evictLine = cacheLines.get(evictIndex);
-    
-        // Write back if the line is dirty
+
         if (evictLine.isDirty()) {
             writeBackToMemory(evictLine);
         }
-    
+
         int tag = getTag(address);
         int baseAddress = (address & ~0b111);  // Base address for the block
-    
-        // Load block from memory and update cache line
+
         for (int i = 0; i < blockSize; i++) {
             int word = memory.loadMemoryValue(baseAddress + i);
             evictLine.setBlock(i, word);
         }
-    
-        evictLine.setTag(tag);  // Set the new tag for the line
+
+        evictLine.setTag(tag);  
         evictLine.setDirty(false);
-        lruList.addLast(evictIndex);  // Update LRU
-    
+        lruList.addLast(evictIndex);  
+
         return evictIndex;
-    }    
+    }
 
     private void writeBackToMemory(CacheLine cacheLine) {
         int tag = cacheLine.getTag();
@@ -125,17 +117,17 @@ public class Cache {
 
     public String getCacheStateString() {
         StringBuilder cacheState = new StringBuilder();
-        
+
         for (int i = 0; i < cacheSize; i++) {
             cacheState.append(String.format("%03d ", i));  // Line number
             CacheLine line = cacheLines.get(i);
-            
+
             if (line.getTag() != -1) {  // Valid tag check
                 cacheState.append(String.format("%06d ", line.getTag()));
             } else {
                 cacheState.append("------ ");  // Placeholder for uninitialized line
             }
-    
+
             int[] block = line.getBlock();
             for (int j = 0; j < blockSize; j++) {
                 if (block[j] != -1) {  // Only print initialized data
@@ -146,8 +138,7 @@ public class Cache {
             }
             cacheState.append("\n");
         }
-        
+
         return cacheState.toString();
     }
-    
 }
