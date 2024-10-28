@@ -8,6 +8,9 @@ public class CacheLine {
     public CacheLine() {
         this.tag = -1;  // Initialize with an invalid tag (e.g., -1 for "empty")
         this.block = new int[8];  // Initialize block to hold 8 words
+        for(int i = 0; i < 8; i++) {
+            this.block[i] = -1;
+        }
         this.dirty = false;       // Cache line initially unmodified
     }
 

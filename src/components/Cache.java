@@ -91,10 +91,10 @@ public class Cache {
     }
 
     private int loadBlockFromMemory(int address) {
-        int evictIndex = lruList.removeFirst();  // Remove and return the LRU index
+        int evictIndex = lruList.removeFirst();  // LRU eviction
         CacheLine evictLine = cacheLines.get(evictIndex);
     
-        // Write back to memory if the evicted line is dirty
+        // Write back if the line is dirty
         if (evictLine.isDirty()) {
             writeBackToMemory(evictLine);
         }
@@ -102,20 +102,18 @@ public class Cache {
         int tag = getTag(address);
         int baseAddress = (address & ~0b111);  // Base address for the block
     
-        // Load each word in the block from memory
+        // Load block from memory and update cache line
         for (int i = 0; i < blockSize; i++) {
             int word = memory.loadMemoryValue(baseAddress + i);
             evictLine.setBlock(i, word);
         }
     
-        // Update cache line metadata
-        evictLine.setTag(tag);
+        evictLine.setTag(tag);  // Set the new tag for the line
         evictLine.setDirty(false);
-        lruList.addLast(evictIndex);
+        lruList.addLast(evictIndex);  // Update LRU
     
         return evictIndex;
-    }
-    
+    }    
 
     private void writeBackToMemory(CacheLine cacheLine) {
         int tag = cacheLine.getTag();
@@ -128,21 +126,28 @@ public class Cache {
     public String getCacheStateString() {
         StringBuilder cacheState = new StringBuilder();
         
-        // For each cache line (0-3)
         for (int i = 0; i < cacheSize; i++) {
-            // Add line prefix (000, 001, 002, 003)
-            cacheState.append(String.format("%03d ", i));
-            
+            cacheState.append(String.format("%03d ", i));  // Line number
             CacheLine line = cacheLines.get(i);
-            int[] block = line.getBlock();
             
-            // Add each word in the block with proper formatting
+            if (line.getTag() != -1) {  // Valid tag check
+                cacheState.append(String.format("%06d ", line.getTag()));
+            } else {
+                cacheState.append("------ ");  // Placeholder for uninitialized line
+            }
+    
+            int[] block = line.getBlock();
             for (int j = 0; j < blockSize; j++) {
-                cacheState.append(String.format("%06d ", block[j]));
+                if (block[j] != -1) {  // Only print initialized data
+                    cacheState.append(String.format("%06d ", block[j]));
+                } else {
+                    cacheState.append("------ ");
+                }
             }
             cacheState.append("\n");
         }
         
         return cacheState.toString();
     }
+    
 }
