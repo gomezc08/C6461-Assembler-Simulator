@@ -18,6 +18,7 @@ public class BackendGUI {
     private IndexRegisters ixr; 
     private ProgramCounter pc; 
     private ConditionCode cc;
+    private Cache cache;
     private JTextArea printerArea; 
     private FrontendGUI frontendGUI;
 
@@ -30,7 +31,8 @@ public class BackendGUI {
         ixr = new IndexRegisters(3); 
         pc = new ProgramCounter();
         cc = new ConditionCode();
-        cpu = new CPU(memory, mar, mbr, gprs, ixr, pc, cc);
+        cache = new Cache(memory);
+        cpu = new CPU(memory, mar, mbr, gprs, ixr, pc, cc, cache);
         this.printerArea = printerArea; 
     }
 
@@ -48,18 +50,19 @@ public class BackendGUI {
             // execute it.
             pc.setPC(7);   // need to find a way to do this dynamically; i set it this value b/c thats how Kishan.ld works.
             cpu.run();
-
+            
             // Final checks
             System.out.println("Final GPR Values:");
             System.out.println(gprs.toString());
-        
+            
             System.out.println("Final Index Register Values:");
             System.out.println(ixr.toString());
-        
+            
             System.out.println("Final Condition Code Values:");
             System.out.println(cc.toString());
-
+            
             // update the checkboxes for all components in gui.
+            updateCacheDisplay();
             updateGUIFields();
             
         } 
@@ -89,6 +92,7 @@ public class BackendGUI {
             cpu.store(marValue, mbrValue);
             printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
             updateGUIFields();
+            updateCacheDisplay();
         } 
         else {
             printerArea.append("Memory location " + marValue + " is a reserved memory location.\n");
@@ -102,6 +106,7 @@ public class BackendGUI {
             printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
             mar.increment(); 
             updateGUIFields();
+            updateCacheDisplay();
         } 
         
         else {
@@ -170,6 +175,12 @@ public class BackendGUI {
         int[] mfrValues = new int[4];
         return mfrValues;
     }
+
+    public void updateCacheDisplay() {
+        if (frontendGUI != null && cpu.getCache() != null) {
+            frontendGUI.updateCacheContent(cpu.getCache().getCacheStateString());
+        }
+    }     
     
 
     public void resetRegisters() {

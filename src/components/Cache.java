@@ -3,7 +3,7 @@ package components;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-class Cache {
+public class Cache {
     private ArrayList<CacheLine> cacheLines;
     private int cacheSize = 4;
     private int blockSize = 8;
@@ -132,4 +132,17 @@ class Cache {
         }
         System.out.println();
     }
+
+    public String getCacheStateString() {
+        StringBuilder cacheState = new StringBuilder();
+        for (int i = 0; i < cacheSize; i++) {
+            CacheLine line = cacheLines.get(i);
+            cacheState.append("Line ").append(i)
+                      .append(": Tag = ").append(line.getTag())
+                      .append(", Dirty = ").append(line.isDirty())
+                      .append(", LRU Order = ").append(cacheSize - 1 - lruList.indexOf(i))
+                      .append("\n");
+        }
+        return cacheState.toString();
+    }    
 }

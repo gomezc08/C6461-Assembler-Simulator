@@ -341,6 +341,10 @@ public class FrontendGUI extends JFrame {
         update(mbrPanels, mbrValue);
     }
 
+    public void updateCacheContent(String cacheContent) {
+        cacheContentArea.setText(cacheContent);
+    }    
+
     // Add a getter for backend
     public BackendGUI getBackend() {
         return backend;

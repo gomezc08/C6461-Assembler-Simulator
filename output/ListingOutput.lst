@@ -1,7 +1,12 @@
-                         LOC    6                		; BEGIN AT LOCATION 6
-000006     000252        Data   170              		; PUT 170 AT LOCATION 6
-000007     002006        LDR    0,0,6            		; LOAD VALUE 170 FROM MEMORY LOCATION 6 INTO GPR[0]
-000010     016000        SIR    0,0,15           		; SUBTRACT IMMEDIATE VALUE 15 FROM GPR[0] (170 - 15 = 155)
-000011     016000        SIR    0,0,200          		; SUBTRACT IMMEDIATE VALUE 200 FROM GPR[0] (155 - 200 = -45, expect underflow)
-000012     016000        SIR    0,0,0            		; IMMEDIATE VALUE 0, SHOULD DO NOTHING
-000013     000000 End:   HLT                      		; STOP        
+                         LOC    6                		;BEGIN AT LOCATION 6
+000006     000252        Data   170              		;PUT 100 AT LOCATION 6 (numerator for division)
+000007     000062        Data   50               		;PUT 25 AT LOCATION 7 (denominator for division)
+000010     002000        Data   1024             		;PUT 1024 AT LOCATION 8 (converted from 'End' to 1024)
+000011     000000        Data   0                		;PUT 0 at Location 9
+000012     000014        Data   12               		;PUT 12 at location 10
+000013     000011        Data   9                		;PUT 9 at location 11
+000014     000022        Data   18               		;Extra data at location 12
+000015     000014        Data   12               		;Extra data at location 13
+000016     002006        LDR    0,0,6            		; LOAD VALUE 170 FROM MEMORY LOCATION 6 INTO GPR[0]
+000017     012007        SMR    0,0,7            		; SUBTRACT MEMORY VALUE AT LOCATION 7 (50) FROM GPR[0] (170 - 50)
+000020     000000 End:   HLT                      		;STOP         

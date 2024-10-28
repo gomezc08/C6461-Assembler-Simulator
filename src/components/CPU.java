@@ -14,8 +14,9 @@ public class CPU {
     private MemoryAddressRegister mar; // Memory Address Register
     private MemoryBufferRegister mbr; // Memory Buffer Register
     private CPUExe cpuExe;
+    private Cache cache;
 
-    public CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc, ConditionCode cc) {
+    public CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc, ConditionCode cc, Cache cac) {
         this.memory = memory;
         this.mar = mar;
         this.mbr = mbr;
@@ -24,6 +25,7 @@ public class CPU {
         this.pc = pc;
         this.cc = cc;
         this.cpuExe = new CPUExe(memory, gpr, ixr, pc, cc);
+        this.cache = cac;
     }   
 
     // loads rom file.
@@ -39,6 +41,10 @@ public class CPU {
             }
         }
     }
+
+    public Cache getCache() {
+        return this.cache;
+    }    
 
     // Fetch-Decode-Execute Cycle.
     public void run() {
