@@ -52,7 +52,6 @@ public class CPU {
         while (!halt) {
             String binaryInstruction = fetch();
             halt = decode(binaryInstruction);
-            System.out.println("hello");
         }
     }
 
