@@ -148,38 +148,34 @@ public class Assembler {
         miscellaneous.add("HLT");
         miscellaneous.add("TRAP");
     }
-
+    
+    // Pass One: Populate the label table and determine code location.
     private static void passOne(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line = reader.readLine();    // initialize to first line to ignore the headers.
-    
+
         // OUTER LOOP: reading each line of source file.
         while ((line = reader.readLine()) != null) {
             String[] parts = line.split("\\s+");
-    
+
             // Handle LOC: change the current address before processing labels or instructions
             if (parts[1].equalsIgnoreCase("LOC")) {
                 currentAddress = Integer.parseInt(parts[2]);
             }
-    
+
             // Handling labels: add to labelTable.
-            if (parts.length > 1) {
-                String label = parts[0];
-                if (label.endsWith(":")) {
-                    // Remove colon for consistency
-                    label = label.substring(0, label.length() - 1);
-                }
+            if (parts.length > 0 && parts[0].endsWith(":")) {
+                String label = parts[0].substring(0, parts[0].length() - 1);
                 labelTable.put(label, currentAddress);
             }
-    
+
             // Handling Instructions: increment address.
-            if (isInstruction(parts)) {
+            else if (isInstruction(parts)) {
                 currentAddress++;
             }
         }
         reader.close();
     }
-    
 
     // Pass Two: Convert to machine code and generate load/listing files.
     private static void passTwo(String fileName) throws IOException {
@@ -265,11 +261,11 @@ public class Assembler {
     // Resolves the operand as either a label or a direct value, handling comma-separated operands.
     // Example: 3,0,10
     private static String getOperandValue(String opcode, String operand) {
-        // Define instruction fields
+        // define instruction fields.
         int register = 0;
         int indexRegister = 0;
         int address = 0;
-        int indirectBit = 0;
+        int indirectBit = 0;  
         int registerX = 0;
         int registerY = 0;
         int count = 0;
@@ -277,9 +273,9 @@ public class Assembler {
         int A_L = 0;
         int devID = 0;
         int trapCode;
-    
+
         StringBuilder output = new StringBuilder();
-    
+        
         String opcodeBinary = "";
         String registerBinary = "";
         String indexRegisterBinary = "";
@@ -293,162 +289,163 @@ public class Assembler {
         String countBinary = "";
         String devIDBinary = "";
         String trapCodeBinary = "";
-    
-        // Split the operand by commas
+
+        // Split the operand by commas.
         String[] parts = operand.split(",");
-    
-        // CASE 1: Memory to Memory Instruction
-        if (memoryToMemory.contains(opcode)) {
-            try {
-                if (opcode.equals("LDR") || opcode.equals("STR") || opcode.equals("LDA") || opcode.equals("JZ") || opcode.equals("JNE") || opcode.equals("SOB") || opcode.equals("JGE") || opcode.equals("JCC") || opcode.equals("AMR") || opcode.equals("SMR")) {
-                    if (parts.length >= 3) {
-                        register = Integer.parseInt(parts[0]);
-                        indexRegister = Integer.parseInt(parts[1]);
-                        address = resolveAddress(parts[2]);
-                        if (parts.length > 3) indirectBit = Integer.parseInt(parts[3]);
-                    } else {
-                        throw new IllegalArgumentException("Insufficient operands for " + opcode);
-                    }
-                } else if (opcode.equals("LDX") || opcode.equals("STX") || opcode.equals("JMA") || opcode.equals("JSR")) {
-                    if (parts.length >= 2) {
-                        indexRegister = Integer.parseInt(parts[0]);
-                        address = resolveAddress(parts[1]);
-                        if (parts.length > 2) indirectBit = Integer.parseInt(parts[2]);
-                    } else {
-                        throw new IllegalArgumentException("Insufficient operands for " + opcode);
-                    }
-                } else if (opcode.equals("AIR") || opcode.equals("SIR")) {
-                    if (parts.length >= 2) {
-                        register = Integer.parseInt(parts[0]);
-                        address = Integer.parseInt(parts[1]);
-                    } else {
-                        throw new IllegalArgumentException("Insufficient operands for " + opcode);
-                    }
-                } else if (opcode.equals("RFS")) {
-                    if (parts.length >= 1) {
-                        address = Integer.parseInt(parts[0]);
-                    } else {
-                        throw new IllegalArgumentException("Insufficient operands for " + opcode);
-                    }
+        
+        // CASE 1: Memory to Memory Instruction.
+        if(memoryToMemory.contains(opcode)) {
+            // Case a: r, x, address[,I].
+            if (opcode.equals("LDR") || opcode.equals("STR") || opcode.equals("LDA") || opcode.equals("JZ") || opcode.equals("JNE") || opcode.equals("SOB") || opcode.equals("JGE") || opcode.equals("JCC") || opcode.equals("AMR") || opcode.equals("SMR")) {
+                register = Integer.parseInt(parts[0]);
+                indexRegister = Integer.parseInt(parts[1]);
+                address = Integer.parseInt(parts[2]);
+
+                // Indirect bit.
+                if (parts.length > 3) {
+                    indirectBit = Integer.parseInt(parts[3]);  
                 }
-    
-                opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
-                registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');
-                indexRegisterBinary = String.format("%2s", Integer.toBinaryString(indexRegister)).replace(' ', '0');
-                indirectBitBinary = Integer.toBinaryString(indirectBit);
-                addressBinary = String.format("%5s", Integer.toBinaryString(address)).replace(' ', '0');
-    
-                output.append(opcodeBinary).append(registerBinary).append(indexRegisterBinary)
-                      .append(indirectBitBinary).append(addressBinary);
-    
-                binaryString = output.toString();
-                return binaryToOctal(binaryString);
-    
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid operand for " + opcode + ": " + operand, e);
+            } 
+
+            // Case b: x, address[,I].
+            else if (opcode.equals("LDX") || opcode.equals("STX") || opcode.equals("JMA") || opcode.equals("JSR") || opcode.equals("JMA")) {
+                indexRegister = Integer.parseInt(parts[0]);
+                address = Integer.parseInt(parts[1]);
+
+                // Indirect bit.
+                if (parts.length > 2) {
+                    indirectBit = Integer.parseInt(parts[2]);
+                }
             }
+
+            // Case c: r, immed.
+            else if(opcode.equals("AIR") || opcode.equals("SIR")) {
+                register = Integer.parseInt(parts[0]);
+                address = (Integer.parseInt(parts[1]));
+            }
+
+            // Case d: Immed.
+            else if(opcode.equals("RFS")) {
+                address = Integer.parseInt(parts[0]);
+            }
+
+            // Compute binary.
+            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
+            registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');
+            indexRegisterBinary = String.format("%2s", Integer.toBinaryString(indexRegister)).replace(' ', '0');
+            indirectBitBinary = Integer.toBinaryString(indirectBit);
+            addressBinary = String.format("%5s", Integer.toBinaryString(address)).replace(' ', '0');
+            
+            // Combine all parts into a single 16-bit instruction
+            output.append(opcodeBinary);
+            output.append(registerBinary);
+            output.append(indexRegisterBinary);
+            output.append(indirectBitBinary);
+            output.append(addressBinary);
+
+            // After creating the binary string
+            binaryString = output.toString();
+            return binaryToOctal(binaryString);
         }
-    
-        // CASE 2: Register to Register Instructions
-        else if (registerToRegister.contains(opcode)) {
-            if (parts.length >= 1) {
-                registerX = Integer.parseInt(parts[0]);
-                if (parts.length > 1) registerY = Integer.parseInt(parts[1]);
-            } else {
-                throw new IllegalArgumentException("Insufficient operands for " + opcode);
+        
+
+        // CASE 2: Register to Register Instructions.
+        else if(registerToRegister.contains(opcode)) {
+            // case a: rx.
+            registerX = Integer.parseInt(parts[0]);
+            
+            // case b: ry.
+            if(parts.length > 1) {
+                registerY = Integer.parseInt(parts[1]);
             }
-    
+
+            // Compute binary.
             opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
             registerXBinary = String.format("%2s", Integer.toBinaryString(registerX)).replace(' ', '0');
             registerYBinary = String.format("%2s", Integer.toBinaryString(registerY)).replace(' ', '0');
-    
-            output.append(opcodeBinary).append(registerXBinary).append(registerYBinary).append("000000");
-    
+
+            // Combine all parts into a single 16-bit instruction.
+            output.append(opcodeBinary);
+            output.append(registerXBinary);
+            output.append(registerYBinary);
+            output.append("000000");    // unused bits.
+
             binaryString = output.toString();
             return binaryToOctal(binaryString);
         }
-    
-        // CASE 3: Shift and Rotate Instructions
-        else if (shiftRotate.contains(opcode)) {
-            if (parts.length >= 4) {
-                register = Integer.parseInt(parts[0]);
-                count = Integer.parseInt(parts[1]);
-                L_R = Integer.parseInt(parts[2]);
-                A_L = Integer.parseInt(parts[3]);
-            } else {
-                throw new IllegalArgumentException("Insufficient operands for " + opcode);
-            }
-    
-            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
-            registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');
-            A_LBinary = Integer.toBinaryString(A_L);
-            L_RBinary = Integer.toBinaryString(L_R);
-            countBinary = String.format("%4s", Integer.toBinaryString(count)).replace(' ', '0');
-    
-            output.append(opcodeBinary).append(registerBinary).append(A_LBinary)
-                  .append(L_RBinary).append("00").append(countBinary);
-    
+
+        // CASE 3: Shift and Rotate Instructions.
+        else if(shiftRotate.contains(opcode)) {
+            register = Integer.parseInt(parts[0]);
+            count = Integer.parseInt(parts[1]);
+            L_R = Integer.parseInt(parts[2]);
+            A_L = Integer.parseInt(parts[3]);
+
+            // Compute binary.
+            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
+            registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');   // 2 bits.
+            A_LBinary = Integer.toBinaryString(A_L);     // 1 bit.
+            L_RBinary = Integer.toBinaryString(L_R);     // 1 bit.
+            countBinary = String.format("%4s", Integer.toBinaryString(count)).replace(' ', '0');     // 4 bits.
+
+            // Combine all parts into a single 16-bit instruction.
+            output.append(opcodeBinary);
+            output.append(registerBinary);
+            output.append(A_LBinary);
+            output.append(L_RBinary);
+            output.append("00");    // unused bits.
+            output.append(countBinary);
+
             binaryString = output.toString();
             return binaryToOctal(binaryString);
         }
-    
-        // CASE 4: I/O Instructions
-        else if (inputOutput.contains(opcode)) {
-            if (parts.length >= 2) {
-                register = Integer.parseInt(parts[0]);
-                devID = Integer.parseInt(parts[1]);
-            } else {
-                throw new IllegalArgumentException("Insufficient operands for " + opcode);
-            }
-    
-            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
-            registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');
-            devIDBinary = String.format("%5s", Integer.toBinaryString(devID)).replace(' ', '0');
-    
-            output.append(opcodeBinary).append(registerBinary).append("000").append(devIDBinary);
-    
+
+        // CASE 4: I/O Instructions.
+        else if(inputOutput.contains(opcode)) {
+            register = Integer.parseInt(parts[0]);
+            devID = Integer.parseInt(parts[1]);
+
+            // Compute binary.
+            opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
+            registerBinary = String.format("%2s", Integer.toBinaryString(register)).replace(' ', '0');   // 2 bits.
+            devIDBinary = String.format("%5s", Integer.toBinaryString(devID)).replace(' ', '0');   // 5 bits.
+
+            // Combine all parts into a single 16-bit instruction.
+            output.append(opcodeBinary);
+            output.append(registerBinary);
+            output.append("000");    // unused bits.
+            output.append(devIDBinary);
+
             binaryString = output.toString();
             return binaryToOctal(binaryString);
         }
-    
-        // CASE 5: Miscellaneous Instructions (like HLT and TRAP)
-        else if (miscellaneous.contains(opcode)) {
-            if (opcode.equals("TRAP") && parts.length >= 1) {
+
+        // CASE 5: Miscellaneous Instructions.
+        else if(miscellaneous.contains(opcode)) {
+            // TRAP.
+            if(opcode.contains("TRAP")) {
                 trapCode = Integer.parseInt(parts[0]);
-                opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");
-                trapCodeBinary = String.format("%4s", Integer.toBinaryString(trapCode)).replace(' ', '0');
-                output.append(opcodeBinary).append("000000").append(trapCodeBinary);
-            } else if (opcode.equals("HLT")) {
-                return "000000";  // HLT has no operands, direct return
-            } else {
-                throw new IllegalArgumentException("Invalid operand count for " + opcode);
+
+                // Compute binary.
+                opcodeBinary = opcodeMap.getOrDefault(opcode, "000000");     // 6 bits.
+                trapCodeBinary = String.format("%4s", Integer.toBinaryString(trapCode)).replace(' ', '0');     // 4 bits.
+
+                // Combine all parts into a single 16-bit instruction.
+                output.append(opcodeBinary);
+                output.append("000000");    // unused bits.
+                output.append(trapCodeBinary);
+
+                binaryString = output.toString();
+                return binaryToOctal(binaryString);
             }
-    
-            binaryString = output.toString();
-            return binaryToOctal(binaryString);
+
+            //HLT.
+            return "000000";
         }
-    
-        // Default case if opcode is unrecognized
+
+        // CASE 6: Default.
         return "";
     }
-    
-    // Helper function to resolve operand as either a direct integer or a label
-    private static int resolveAddress(String part) {
-        try {
-            // First, try parsing the part as an integer literal
-            return Integer.parseInt(part);
-        } catch (NumberFormatException e) {
-            // If parsing fails, check if it's a label in labelTable
-            if (labelTable.containsKey(part)) {
-                return labelTable.get(part);
-            } else {
-                throw new IllegalArgumentException("Label not found in labelTable: " + part);
-            }
-        }
-    }
-    
-    
-    
 
     private static String binaryToOctal(String binaryString) {
         // Convert to octal

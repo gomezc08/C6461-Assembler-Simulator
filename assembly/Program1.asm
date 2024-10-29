@@ -10,14 +10,14 @@ READ_LOOP   IN          2,0             ; Input character from keyboard
             STR         2,0,1           ; Store character in memory at R1
             AIR         1,1             ; Increment memory address for next number
             SIR         0,1             ; Decrement count in R0
-            JNZ         READ_LOOP       ; Loop until all numbers are read
+            JNE         0,0,READ_LOOP   ; Continue loop if register 0 is not zero
             LDA         0,0,20          ; Reload count in R0
             LDA         1,0,DATA_NUMS   ; Reset memory address in R1
 PRINT_LOOP  LDR         2,0,1           ; Load number from memory into R2
             OUT         2,1             ; Output number to console
             AIR         1,1             ; Move to next address
             SIR         0,1             ; Decrement count
-            JNZ         PRINT_LOOP      ; Continue if not done
+            JNE         0,0,PRINT_LOOP  ; Continue if not done
 GET_TARGET  IN          3,0             ; Read target number
             STR         3,0,TARGET_NUM  ; Store target number in TARGET_NUM
             LDA         0,0,20          ; Reload count in R0
@@ -30,7 +30,7 @@ FIND_CLOSE  LDR         2,0,1           ; Load number for comparison
             STR         4,0,CLOSEST_DIF ; Update smallest difference
 SKIP_UPDATE AIR         1,1             ; Move to next memory location
             SIR         0,1             ; Decrement count
-            JNZ         FIND_CLOSE      ; Continue if not done
+            JNE         0,0,FIND_CLOSE  ; Continue if not done
             LDR         2,0,TARGET_NUM  ; Load target number into R2
             OUT         2,1             ; Print target number
             LDR         2,0,CLOSEST_NUM ; Load closest number into R2
