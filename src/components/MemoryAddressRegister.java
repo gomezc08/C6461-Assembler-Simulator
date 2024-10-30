@@ -43,9 +43,9 @@ public class MemoryAddressRegister {
         this.mar = 0;
     }
 
-    public void increment() {
+    public void increment(int mar_value) {
         if (mar < MAX_VALUE) { // MAX_VALUE is 4095 for 12-bit
-            mar++;
+            this.mar = mar_value+1;
         } 
         
         else {

@@ -239,7 +239,6 @@ public class FrontendGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int marValue = getRegisterValue(marPanels);
                 backend.loadValue(marValue);
-                update(marPanels, marValue);
                 update(mbrPanels, backend.getMbrValue()); // Update MBR checkboxes
             }
         });

@@ -74,7 +74,9 @@ public class BackendGUI {
     // LOAD.
     public void loadValue(int marValue) {
         mar.setValue((short) marValue);
-        int memoryValue = memory.loadMemoryValue(marValue);
+        int address = mar.getValue();
+        int memoryValue = memory.loadMemoryValue(address);
+        System.out.println("Mar is"+mar+"and Memory value is"+ memoryValue);
         mbr.setValue((short) memoryValue);
         
         if (marValue > 5) {
@@ -92,7 +94,6 @@ public class BackendGUI {
         if (marValue > 5) {
             cpu.store(marValue, mbrValue);
             printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
-            updateGUIFields();
             updateCacheDisplay();
         } 
         else {
@@ -105,8 +106,7 @@ public class BackendGUI {
         if (marValue > 5) {
             cpu.store(marValue, mbrValue);
             printerArea.append("Stored value " + mbrValue + " from MBR into memory address " + marValue + "\n");
-            mar.increment(); 
-            updateGUIFields();
+            mar.increment(marValue); 
             updateCacheDisplay();
         } 
         

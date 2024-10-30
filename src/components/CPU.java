@@ -225,6 +225,7 @@ public class CPU {
     }
     
     public void store(int address, int value) {
+        memory.storeValue(address, value);
         cache.write(address, value);
     }
 
