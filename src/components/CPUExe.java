@@ -68,6 +68,7 @@ public class CPUExe {
         int iBit = Integer.parseInt(iBit_str, 2);
         int address = Integer.parseInt(address_str, 2);
 
+
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
 
         int value = gpr.getGPR(reg); 
@@ -161,18 +162,15 @@ public class CPUExe {
 
         // Get the contents of the register
         int regValue = gpr.getGPR(reg);
+        System.out.println("reg val: " + regValue);
         
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
 
-        // If the value in the register is zero, jump to the EA, otherwise increment the PC
+        // If the value in the register is zero, jump to the EA, otherwise we just continue.
         if (regValue == 0) {
             pc.setPC(ea);  // Update PC to EA
         } 
-        
-        else {
-            pc.incrementPC();  // Increment PC to next instruction
-        }
 
         return false;  // Continue execution
     }
@@ -200,10 +198,6 @@ public class CPUExe {
         if (regValue != 0) {
             pc.setPC(ea);  // Update PC to EA
         } 
-        
-        else {
-            pc.incrementPC();  // Increment PC to next instruction
-        }
 
         return false;  // Continue execution
     }
@@ -247,10 +241,6 @@ public class CPUExe {
         if (conditionMet) {
             pc.setPC(ea);
         } 
-        
-        else {
-            pc.incrementPC();  // Move to next instruction if condition is not met
-        }
 
         return false;  // Continue execution
     }
@@ -443,10 +433,10 @@ public class CPUExe {
     // AIR (Add Immediate to Register)
     public boolean executeAIR(String binaryInstruction) {
         String reg_str = binaryInstruction.substring(6, 8);  // Register field
-        String address_str = binaryInstruction.substring(11, 16);  // Immediate Value
+        String offset_str = binaryInstruction.substring(11, 16);  // Immediate Value
 
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
-        int immed = Integer.parseInt(address_str, 2);  // Convert address field to integer
+        int immed = Integer.parseInt(offset_str, 2);  // Convert address field to integer
 
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
@@ -800,5 +790,9 @@ public class CPUExe {
 
         System.out.println("CHK executed: Stored device status " + deviceStatus + " in GPR[" + rx + "] for Device ID " + devid);
         return false;  // Continue execution
+    }
+
+    public boolean executeHLT() {
+        return true;
     }
 }

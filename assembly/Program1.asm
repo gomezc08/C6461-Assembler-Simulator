@@ -1,39 +1,38 @@
 Label       Opcode      Operand         Comments
-            LOC         6               ; BEGIN AT LOCATION 6
-            Data        0               ; DataNum: Placeholder for numbers, first in sequence
-            Data        0               ; Target: Target number input by user
-            Data        0               ; Closest: Closest number to the target
-            Data        65535           ; Diff: Initial large difference value
-            LDA         0,0,20          ; R0 = 20 (count of numbers)
-            LDA         1,0,6           ; Load start address of DataNum into R1
-            IN          2,0             ; Input character from keyboard
-            STR         2,0,1           ; Store character in memory at R1
-            AIR         1,1             ; Increment memory address for next number
-            SIR         0,1             ; Decrement count in R0
-            JNE         0,0,12          ; Jump back to IN if R0 != 0 (address 13)
-            LDA         0,0,20          ; Reload count in R0
-            LDA         1,0,6           ; Reset memory address in R1
-            LDR         2,0,1           ; Load number from memory into R2
-            OUT         2,1             ; Output number to console
-            AIR         1,1             ; Move to next address
-            SIR         0,1             ; Decrement count
-            JNE         0,0,20          ; Jump back to LDR if R0 != 0 (address 20)
-            IN          3,0             ; Read target number
-            STR         3,0,7           ; Store target number in Target
-            LDA         0,0,20          ; Reload count in R0
-            LDA         1,0,6           ; Reset start address in R1
-            LDR         2,0,1           ; Load number for comparison
-            SIR         4,3             ; Calculate abs difference: |R2 - R3|
-            AIR         4,0             ; Convert to absolute if needed
-            JGE         4,0,28          ; Skip update if R4 >= Diff (address 28)
-            STR         2,0,8           ; Update closest number in Closest
-            STR         4,0,9           ; Update smallest difference in Diff
-            AIR         1,1             ; Move to next memory location
-            SIR         0,1             ; Decrement count
-            JNE         0,0,25          ; Jump back to LDR if R0 != 0 (address 25)
-            LDR         2,0,7           ; Load target number into R2
-            OUT         2,1             ; Print target number
-            LDR         2,0,8           ; Load closest number into R2
-            OUT         2,1             ; Print closest number
-            LOC         1024            ; Program termination
-End:        HLT                         ; STOP
+            LOC         6               ; Start storing numbers at location 6
+            Data        0               ; 6. Reserve 20 locations for our numbers
+            Data        0               ; 7. Reserve 20 locations for our numbers
+            Data        0               ; 8. Reserve 20 locations for our numbers
+            Data        0               ; 9. Reserve 20 locations for our numbers
+            Data        0               ; 10. Reserve 20 locations for our numbers
+            Data        0               ; 11. Reserve 20 locations for our numbers
+            Data        0               ; 12. Reserve 20 locations for our numbers
+            Data        0               ; 13. Reserve 20 locations for our numbers
+            Data        0               ; 14. Reserve 20 locations for our numbers
+            Data        0               ; 15. Reserve 20 locations for our numbers
+            Data        0               ; 16. Reserve 20 locations for our numbers
+            Data        0               ; 17. Reserve 20 locations for our numbers
+            Data        0               ; 18. Reserve 20 locations for our numbers
+            Data        0               ; 19. Reserve 20 locations for our numbers
+            Data        0               ; 20. Reserve 20 locations for our numbers
+            Data        0               ; 21. Reserve 20 locations for our numbers
+            Data        0               ; 22. Reserve 20 locations for our numbers
+            Data        0               ; 23. Reserve 20 locations for our numbers
+            Data        0               ; 24. Reserve 20 locations for our numbers
+            Data        0               ; 25. Reserve 20 locations for our numbers
+            Data        20              ; 26. i = 19,18,17,..,0.
+            Data        6               ; 27. memory = 6,7,8,...,25.
+            Data        32              ; 28. memory = end.
+LOOP1:      LDR         0,0,26          ; 29. TREATING R0 as i. R0 = 19 at first.
+            LDR         1,0,27          ; 30. TREATING R1 as where in memory we are.. R1 = 6
+            IN          2,0             ; 31. R2 = User input.
+            OUT         2,1             ; 32. output it.
+            STR         2,0,27,1        ; 33. store whatever user typed in into memory[i]
+            SIR         0,1             ; 34. R0 -= 1
+            AIR         1,1             ; 35. R1 += 1
+            STR         0,0,26          ; 36. update memory 26.
+            STR         1,0,27          ; 37. update memory 27.
+            JNE         0,1,LOOP1       ; 38. If R0 (i) is NOT 0, jump back to start of loop.
+            IN          3,0             ; 39. special number will be stored in R3 the whole time.
+            LOC         1024            ; End program section
+End:        HLT                         ; Stop execution

@@ -1,7 +1,37 @@
-                         LOC    6                		; BEGIN AT LOCATION 6
-000006     000012        Data   10               		; Memory location 6 = 10
-000007     000024        Data   20               		; address 7 = 20
-000010     000000        Data   0                		; address 8 = 0
-000011     003006        LDR    2,0,6            		; R2 gets address 6 = 10
-000012     002007        LDR    0,0,7            		; R0 = 20
-000013     000000        HLT    ;                		; Stop program
+                         LOC    6                		; Start storing numbers at location 6
+000006     000000        Data   0                		; 6. Reserve 20 locations for our numbers
+000007     000000        Data   0                		; 7. Reserve 20 locations for our numbers
+000010     000000        Data   0                		; 8. Reserve 20 locations for our numbers
+000011     000000        Data   0                		; 9. Reserve 20 locations for our numbers
+000012     000000        Data   0                		; 10. Reserve 20 locations for our numbers
+000013     000000        Data   0                		; 11. Reserve 20 locations for our numbers
+000014     000000        Data   0                		; 12. Reserve 20 locations for our numbers
+000015     000000        Data   0                		; 13. Reserve 20 locations for our numbers
+000016     000000        Data   0                		; 14. Reserve 20 locations for our numbers
+000017     000000        Data   0                		; 15. Reserve 20 locations for our numbers
+000020     000000        Data   0                		; 16. Reserve 20 locations for our numbers
+000021     000000        Data   0                		; 17. Reserve 20 locations for our numbers
+000022     000000        Data   0                		; 18. Reserve 20 locations for our numbers
+000023     000000        Data   0                		; 19. Reserve 20 locations for our numbers
+000024     000000        Data   0                		; 20. Reserve 20 locations for our numbers
+000025     000000        Data   0                		; 21. Reserve 20 locations for our numbers
+000026     000000        Data   0                		; 22. Reserve 20 locations for our numbers
+000027     000000        Data   0                		; 23. Reserve 20 locations for our numbers
+000030     000000        Data   0                		; 24. Reserve 20 locations for our numbers
+000031     000000        Data   0                		; 25. Reserve 20 locations for our numbers
+000032     000024        Data   20               		; 26. i = 19,18,17,..,0.
+000033     000006        Data   6                		; 27. memory = 6,7,8,...,25.
+000034     000040        Data   32               		; 28. memory = end.
+000035     002032        LDR    0,0,26           		; 29. TREATING R0 as i. R0 = 19 at first.
+000036     002433        LDR    1,0,27           		; 30. TREATING R1 as where in memory we are.. R1 = 6
+000037     147000        IN     2,0              		; 31. R2 = User input.
+000040     151001        OUT    2,1              		; 32. output it.
+000041     005073        STR    2,0,27,1         		; 33. store whatever user typed in into memory[i]
+000042     016001        SIR    0,1              		; 34. R0 -= 1
+000043     014401        AIR    1,1              		; 35. R1 += 1
+000044     004032        STR    0,0,26           		; 36. update memory 26.
+000045     004433        STR    1,0,27           		; 37. update memory 27.
+000046     026136        JNE    0,1,LOOP1        		; 38. If R0 (i) is NOT 0, jump back to start of loop.
+000047     147400        IN     3,0              		; 39. special number will be stored in R3 the whole time.
+                         LOC    1024             		; End program section
+002000     000000        HLT    ;                		; Stop execution

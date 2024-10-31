@@ -166,6 +166,11 @@ public class Assembler {
                 currentAddress = Integer.parseInt(parts[2]);
                 startAssigned = true;
             }
+
+            // incrementing address.
+            if(parts.length > 0 && (isInstruction(parts) || parts[1].equalsIgnoreCase("Data"))) {
+                currentAddress++;
+            }
     
             // Handling labels: add to labelTable.
             if (parts.length > 0 && parts[0].endsWith(":")) {
@@ -173,15 +178,6 @@ public class Assembler {
                 labelTable.put(label, currentAddress);
                 System.out.println("Label added to table: " + label + " at address " + currentAddress);
     
-                // Check if the label line also contains an instruction
-                if (parts.length > 1 && isInstruction(parts)) {
-                    currentAddress++;  // Increment for the instruction on the same line
-                }
-            }
-    
-            // Handling Instructions: increment address.
-            else if (isInstruction(parts)) {
-                currentAddress++;
             }
         }
         reader.close();
