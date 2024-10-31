@@ -48,7 +48,7 @@ public class BackendGUI {
             printerArea.append("Loaded ROM file successfully\n");
 
             // execute it.
-            pc.setPC(8);
+            pc.setPC(Assembler.getStartAddress());    // pc = first real instruction address - 1
             cpu.run();
                         
             // update the checkboxes for all components in gui.

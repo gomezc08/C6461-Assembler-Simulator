@@ -50,6 +50,8 @@ public class Assembler {
     private static Set<String> inputOutput = new HashSet<>();
     private static Set<String> miscellaneous = new HashSet<>();
     private static String rowFormat = "%-10s %-13s %-6s %-16s %5s";
+    private static int startAddress = 0;
+    private static int hltAddress = 0;
 
     // initialize opcodeMap.
     static {
@@ -152,14 +154,17 @@ public class Assembler {
     private static void passOne(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line = reader.readLine();    // initialize to first line to ignore the headers.
+        boolean startAssigned = false;
     
         // OUTER LOOP: reading each line of source file.
         while ((line = reader.readLine()) != null) {
             String[] parts = line.split("\\s+");
     
             // Handle LOC: change the current address before processing labels or instructions
-            if (parts[1].equalsIgnoreCase("LOC")) {
+            if (parts[1].equalsIgnoreCase("LOC") && startAssigned == false) {
+                startAddress = Integer.parseInt(parts[2]);
                 currentAddress = Integer.parseInt(parts[2]);
+                startAssigned = true;
             }
     
             // Handling labels: add to labelTable.
@@ -269,6 +274,7 @@ public class Assembler {
             }
 
             else if(parts[1].equalsIgnoreCase("HLT")) {
+                hltAddress = currentAddress;
                 String currentAddressOctal = String.format("%06o", currentAddress);
                 listingFile.add(String.format("%-10s %s %-6s %-24s %-16s", currentAddressOctal, "000000", parts[0], parts[1], comment));
                 loadFile.add(String.format("%06o %s", currentAddress, "000000"));
@@ -520,6 +526,14 @@ public class Assembler {
             loadWriter.newLine();
         }
         loadWriter.close();
+    }
+
+    public static int getStartAddress() {
+        return startAddress;
+    }
+
+    public static int getHltAddress() {
+        return hltAddress;
     }
 
     public static void run(String sourceFile) throws IOException {

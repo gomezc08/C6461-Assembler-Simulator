@@ -1,6 +1,40 @@
                          LOC    6                		; BEGIN AT LOCATION 6
-000006     000012        Data   10               		; Memory location 6 = 10
-000007     000024        Data   20               		; Placeholder for a single data value
-000010     003006        LDR    2,0,6            		; R2 gets address 6 = 10
-000011     002007        LDR    0,0,7            		; R0 = 20
-000012     000000        HLT    ;                		; Stop program
+000006     000000        Data   0                		; 6. Placeholder for numbers
+000007     000000        Data   0                		; 7. Target number input by user
+000010     000000        Data   0                		; 8. Closest number to the target
+000011     177777        Data   65535            		; 9. Initial large difference value
+000012     006024        LDA    0,0,20           		; 10. Load 20 (count of numbers) into R0
+000013     006406        LDA    1,0,6            		; 11. Load start address of DataNum into R1
+000014     147000        IN     2,0              		; 12. Read number from keyboard into R2
+000015     005001        STR    2,0,1            		; 13. Store number in memory at R1 address
+000016     014401        AIR    1,1              		; 14. Increment R1 to point to next memory address
+000017     016001        SIR    0,1              		; 15. Decrement count in R0
+000020     026010        JNE    0,0,ReadLoop     		; 16. If R0 != 0, repeat until all 20 numbers are read
+000021     006024        LDA    0,0,20           		; 17. Reload count (20) into R0
+000022     006406        LDA    1,0,6            		; 18. Reset R1 to start address of DataNum
+000023     003001        LDR    2,0,1            		; 19. Load number from memory into R2
+000024     151001        OUT    2,1              		; 20. Output number to console printer
+000025     014401        AIR    1,1              		; 21. Move to next memory address
+000026     016001        SIR    0,1              		; 22. Decrement count in R0
+000027     026017        JNE    0,0,PrintLoop    		; 23. Repeat if R0 != 0
+000030     147400        IN     3,0              		; 24. Read target number into R3
+000031     005406        STR    3,0,Target       		; 25. Store target number in Target memory location
+000032     006024        LDA    0,0,20           		; 26. Reload count (20) into R0
+000033     006406        LDA    1,0,6            		; 27. Reset R1 to start address of DataNum
+000034     003001        LDR    2,0,1            		; 28. Load number from memory into R2
+000035     036003        SIR    4,3              		; 29. Calculate difference (R2 - R3), store in R4
+000036     106034        JGE    4,0,SkipAbs      		; 30. If R4 >= 0, skip absolute value calculation
+000037     032001        AIR    4,1              		; 31. Convert to positive (abs), only if R4 < 0
+000040     006406        LDR    5,0,Diff         		; 32. Load current smallest difference from Diff
+000041     0431240       JGE    4,5,NextNum      		; 33. If R4 >= Diff, skip updating closest
+000042     005006        STR    2,0,Closest      		; 34. Update Closest with current number
+000043     012006        STR    4,0,Diff         		; 35. Update Diff with new smallest difference
+000044     014401        AIR    1,1              		; 36. Move to next memory location in DataNum
+000045     016001        SIR    0,1              		; 37. Decrement count in R0
+000046     026030        JNE    0,0,FindLoop     		; 38. Repeat if R0 != 0
+000047     003006        LDR    2,0,Target       		; 39. Load target number from memory into R2
+000050     151001        OUT    2,1              		; 40. Output target number
+000051     003006        LDR    2,0,Closest      		; 41. Load closest number from memory into R2
+000052     151001        OUT    2,1              		; 42. Output closest number
+                         LOC    1024             		; 43. Set end location for program
+002000     000000        HLT    ;                		; 44. Stop execution

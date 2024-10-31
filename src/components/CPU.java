@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import Assembler.Assembler;
+
 public class CPU {
     private Memory memory;
     private GeneralPurposeRegisters gpr;  // Consistent name for GPR
@@ -58,7 +60,6 @@ public class CPU {
     // Fetch the instruction from memory
     private String fetch() {
         int instruction = memory.loadMemoryValue(pc.getPC());
-        System.out.println("here is the instruction: " + instruction);
         pc.incrementPC();
         
         // Convert the octal instruction to binary, ensuring 16 bits
@@ -79,11 +80,9 @@ public class CPU {
     // Decode and execute the instruction directly
     private boolean decode(String binaryInstruction) {
         String opcode = binaryInstruction.substring(0, 6);  // Extract opcode (first 6 bits)
-
         switch (opcode) {
             // LDR: Done!
             case "000001":  
-            System.out.println("is this being read?");
                 return cpuExe.executeLDR(binaryInstruction);
 
             // STR: Done!
@@ -186,9 +185,15 @@ public class CPU {
             case "110101":
                 return cpuExe.executeCHK(binaryInstruction);
 
-            // HLT: Done!
+            // HLT + Data: Done!
             case "000000":  
-                return true;  // HLT - Stop execution
+                // HLT.
+                if(Assembler.getHltAddress() == pc.getPC()) {
+                    return true;
+                }
+
+                // data.
+                return false;
 
             default:
                 throw new IllegalArgumentException("Unknown opcode: " + opcode);
