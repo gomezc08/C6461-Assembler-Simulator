@@ -43,21 +43,13 @@ public class CPUExe {
         int ix = Integer.parseInt(ix_str, 2);
         int iBit = Integer.parseInt(iBit_str, 2);
         int address = Integer.parseInt(address_str, 2);
-
-        System.out.println("opcode: " + binaryInstruction.substring(0, 6));  
-        System.out.println("reg: " + reg);
-        System.out.println("ix: " + ix);
-        System.out.println("i: " + iBit);
-        System.out.println("address: " + address);
     
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  // Calculate effective address
-        System.out.println("Effective Address (Ea): " + ea);
         
         int value = memory.loadMemoryValue(ea);  // Load the value from memory
-        System.out.println("Value from memory: " + value);
     
         gpr.setGPR(reg, (short) value); 
-        System.out.println("Updated GPR[" + reg + "] with value: " + value);
+        System.out.println("did we set gpr right from reg " + reg + " : " + gpr.getGPR(reg));
         return false;  
     }
 
@@ -74,20 +66,11 @@ public class CPUExe {
         int iBit = Integer.parseInt(iBit_str, 2);
         int address = Integer.parseInt(address_str, 2);
 
-        System.out.println("opcode: " + binaryInstruction.substring(0, 6));  
-        System.out.println("reg: " + reg);
-        System.out.println("ix: " + ix);
-        System.out.println("i: " + iBit);
-        System.out.println("address: " + address);
-
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
 
         int value = gpr.getGPR(reg); 
-        System.out.println("Value from GPR" + reg + ": "  + value);
 
         memory.storeValue(ea, value);  // Store the value into memory
-        System.out.println("Loaded into memory -> Address: " + address + ", Data: " + value);
         return false;  
     }
 
@@ -107,11 +90,9 @@ public class CPUExe {
     
         // Calculate the effective address (same method as LDR/STR)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
     
         // Store the effective address directly in the register
         gpr.setGPR(reg, (short) ea); 
-        System.out.println("Updated GPR[" + reg + "] with EA: " + ea);
     
         return false;  // Continue execution
     }
@@ -127,22 +108,14 @@ public class CPUExe {
         int iBit = Integer.parseInt(iBit_str, 2);  // Convert I bit to integer
         int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
     
-        System.out.println("opcode: " + binaryInstruction.substring(0, 6));  
-        System.out.println("ix: " + ix_str);
-        System.out.println("i: " + iBit_str);
-        System.out.println("address: " + address_str);
-    
         // Calculate Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
     
         // Load value from memory at effective address into the specified index register
         int value = memory.loadMemoryValue(ea);
-        System.out.println("Value from memory: " + value);
     
         // update ixr.
         ixr.setIndexRegister(ix, (short) value);
-        System.out.println("Updated IXR[" + ix + "] with value: " + value);
         
         return false;  // Continue execution
     }
@@ -158,21 +131,13 @@ public class CPUExe {
         int iBit = Integer.parseInt(iBit_str, 2);  // Convert I bit to integer
         int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
     
-        System.out.println("opcode: " + binaryInstruction.substring(0, 6));  
-        System.out.println("ix: " + ix);
-        System.out.println("i: " + iBit);
-        System.out.println("address: " + address);
-    
         // Calculate Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
     
         // Get the value from the Index Register (IX) and store it in memory at the EA
         int value = ixr.getIndexRegister(ix);
-        System.out.println("Value from IXR[" + ix + "]: " + value);
     
         memory.storeValue(ea, value);  // Store the value in memory
-        System.out.println("Stored in memory -> Address: " + ea + ", Data: " + value);
         
         return false;  // Continue execution
     }
@@ -192,21 +157,17 @@ public class CPUExe {
 
         // Get the contents of the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("Value in GPR[" + reg + "]: " + regValue);
         
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
 
         // If the value in the register is zero, jump to the EA, otherwise increment the PC
         if (regValue == 0) {
             pc.setPC(ea);  // Update PC to EA
-            System.out.println("Jumping to address: " + ea);
         } 
         
         else {
             pc.incrementPC();  // Increment PC to next instruction
-            System.out.println("Register not zero, moving to next instruction.");
         }
 
         return false;  // Continue execution
@@ -227,21 +188,17 @@ public class CPUExe {
 
         // Get the contents of the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("Value in GPR[" + reg + "]: " + regValue);
         
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
 
         // If the value in the register is NOT zero, jump to the EA, otherwise increment the PC
         if (regValue != 0) {
             pc.setPC(ea);  // Update PC to EA
-            System.out.println("Jumping to address: " + ea);
         } 
         
         else {
             pc.incrementPC();  // Increment PC to next instruction
-            System.out.println("Register is zero, moving to next instruction.");
         }
 
         return false;  // Continue execution
@@ -262,41 +219,33 @@ public class CPUExe {
 
         // Get the effective address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);
-        System.out.println("Effective Address (Ea): " + ea);
 
         // Check the condition based on the condition code index
         boolean conditionMet = false;
         switch (conditionCodeIndex) {
             case 0:
                 conditionMet = cc.isOverflow();
-                System.out.println("Checking Overflow flag: " + conditionMet);
                 break;
             case 1:
                 conditionMet = cc.isUnderflow();
-                System.out.println("Checking Underflow flag: " + conditionMet);
                 break;
             case 2:
                 conditionMet = cc.isDivZero();
-                System.out.println("Checking DivZero flag: " + conditionMet);
                 break;
             case 3:
                 conditionMet = cc.isEqual();
-                System.out.println("Checking Equal flag: " + conditionMet);
                 break;
             default:
-                System.out.println("Unknown condition code index: " + conditionCodeIndex);
                 return false;
         }
 
         // Jump if the condition is met
         if (conditionMet) {
             pc.setPC(ea);
-            System.out.println("Condition met, jumping to address: " + ea);
         } 
         
         else {
             pc.incrementPC();  // Move to next instruction if condition is not met
-            System.out.println("Condition not met, moving to next instruction.");
         }
 
         return false;  // Continue execution
@@ -311,11 +260,9 @@ public class CPUExe {
 
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
 
         // Set the Program Counter (PC) to the effective address
         pc.setPC(ea);
-        System.out.println("Jumping to address: " + ea);
 
         return false;  // Continue execution
     }
@@ -333,15 +280,12 @@ public class CPUExe {
 
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
 
         // Step 1: Save the return address (PC + 1) in GPR[3]
         gpr.setGPR(3, (short) (pc.getPC()));  
-        System.out.println("Saved return address (PC+1) in GPR[3]: " + pc.getPC());
 
         // Step 2: Set the PC to the EA (jump to the subroutine)
         pc.setPC(ea);  
-        System.out.println("Jumping to subroutine at address: " + ea);
 
         return false;  // Continue execution
     }
@@ -354,12 +298,10 @@ public class CPUExe {
 
         // Load the immediate value into GPR[0]
         gpr.setGPR(0, (short) immed);
-        System.out.println("Loaded immediate value " + immed + " into GPR[0].");
 
         // Set the PC to the value stored in GPR[3] (return address)
         int returnAddress = gpr.getGPR(3);
         pc.setPC(returnAddress);
-        System.out.println("Returning to address " + returnAddress + " from subroutine.");
 
         return false;  // Continue execution
     }
@@ -382,19 +324,17 @@ public class CPUExe {
         regValue -= 1;
         gpr.setGPR(reg, (short) regValue);
     
-        System.out.println("Decrementing GPR[" + reg + "] to: " + regValue);
     
         // Calculate the effective address (EA) if needed
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
     
         // Check if the register value is greater than 0
         if (regValue > 0) {
             pc.setPC(ea);  // Jump to the effective address
-            System.out.println("Register value is greater than 0, jumping to address: " + ea);
-        } else {
+        } 
+        
+        else {
             pc.incrementPC();  // Move to the next instruction
-            System.out.println("Register value is less than or equal to 0, moving to next instruction.");
         }
     
         return false;  // Continue execution
@@ -415,19 +355,16 @@ public class CPUExe {
     
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("Value in GPR[" + reg + "]: " + regValue);
         
         // Calculate Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
     
         // If the register value is greater than or equal to 0, set PC to EA
         if (regValue >= 0) {
             pc.setPC(ea);
-            System.out.println("Jumping to address: " + ea + " because GPR[" + reg + "] >= 0");
-        } else {
+        } 
+        else {
             pc.incrementPC();  // Else, increment the PC to the next instruction
-            System.out.println("GPR[" + reg + "] is less than 0, moving to next instruction.");
         }
     
         return false;  // Continue execution
@@ -440,8 +377,6 @@ public class CPUExe {
         String ix_str = binaryInstruction.substring(8, 10);  // Index register field
         String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
         String address_str = binaryInstruction.substring(11, 16);  // Address field
-
-        System.out.println("Address is:" + address_str);
     
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
         int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
@@ -450,22 +385,17 @@ public class CPUExe {
     
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("Value in GPR[" + reg + "]: " + regValue);
         
         // Calculate Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
 
         //load the value present in effective address of memroy
         int value = memory.loadMemoryValue(ea);
-        System.out.println("Value from memroy: " + value);
         
         //add the value from  memory with register
         int result =  value + regValue ;
-        System.out.println("The result after adding value from memory with register is:" + result);
 
         gpr.setGPR( reg, (short) result);
-        System.out.println("Updated GPR["+ reg +"] with value"+ result);
         return false;  // Continue execution
     }
 
@@ -484,38 +414,30 @@ public class CPUExe {
     
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("Value in GPR[" + reg + "]: " + regValue);
         
         // Calculate Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("Effective Address (Ea): " + ea);
 
         //load the value present in effective address of memroy
         int value = memory.loadMemoryValue(ea);
-        System.out.println("Value from memroy: " + value);
 
         //substract the value from  memory with register
         int result =  regValue - value;
-        System.out.println("The result after substracting value from memory with register is:" + result);
 
-        if(result<0)
-        {
+        if(result < 0) {
             //if the result is negatiev, set the underflow to 1
             cc.setUnderflow(true);
-            System.out.println("underflow occurred during SMR operation.");
         }
-        else{
+        else {
             cc.setUnderflow(false);
         }
 
-        System.out.println("Updated GPR["+ reg +"] with value"+ result);
         gpr.setGPR( reg, (short) Math.abs(result));
         return false;  // Continue execution
     }
 
     // AIR (Add Immediate to Register)
     public boolean executeAIR(String binaryInstruction) {
-
         String reg_str = binaryInstruction.substring(6, 8);  // Register field
         String address_str = binaryInstruction.substring(11, 16);  // Immediate Value
 
@@ -524,12 +446,9 @@ public class CPUExe {
 
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("Initial value in GPR[" + reg + "]: " + regValue);
-        System.out.println("Immediate value to add: " + immed);
 
         // Add the immediate value to the register value
         int result = regValue + immed;
-        System.out.println("After adding " + immed + " to " + regValue + ", we get " + result);
 
         // Store the result back in the register
         gpr.setGPR(reg, (short) result);
@@ -541,7 +460,6 @@ public class CPUExe {
 
     //SIR
     public boolean executeSIR(String binaryInstruction) {
-
         String reg_str = binaryInstruction.substring(6, 8);  // Register field
         String ix_str = binaryInstruction.substring(8, 10);  // Index register field
         String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
@@ -554,15 +472,11 @@ public class CPUExe {
 
         int immed = calculateEffectiveAddress(ix_str, iBit_str, immed_str);
 
-    
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("Value in GPR[" + reg + "]: " + regValue);
-        System.out.println("Immediate value is:" + immed);
-
         
+        // do nothing if immed is 0.
         if (immed == 0) {
-            //if immed = 0, do nothing
             return false;
         }
 
@@ -574,21 +488,17 @@ public class CPUExe {
             return false;
         }
         
-        else{
-            int result =   regValue - immed;
-            System.out.println("After substracting"+immed+ "with "+regValue+",we get:"+result);
-            if(result<0)
-            {
-                //if the result is negative, set the underflow to 1
-                cc.setUnderflow(true);
-                System.out.println("underflow occurred during SIR operation.");
-            }
-            else{
-                cc.setUnderflow(false);
-            }
-            gpr.setGPR( reg, (short) Math.abs(result));
-            return false;  // Continue execution
+        int result =   regValue - immed;
+        if(result < 0) {
+            //if the result is negative, set the underflow to 1
+            cc.setUnderflow(true);
         }
+
+        else {
+            cc.setUnderflow(false);
+        }
+        gpr.setGPR( reg, (short) Math.abs(result));
+        return false;  // Continue execution
     }
 
     // MLT.
@@ -612,7 +522,6 @@ public class CPUExe {
         // Multiply the values of Rx and Ry
         long result = (long) valueRx * (long) valueRy; // Use long to handle overflow
         String result32Bits = String.format("%32s", Long.toBinaryString(result & 0xFFFFFFFFL)).replace(' ', '0');  // Ensure 32 bits
-        System.out.println("32-bit result: " + result32Bits);
 
         // Split the result into high and low 16-bit parts
         String highOrderBits = result32Bits.substring(0, 16);
@@ -628,14 +537,10 @@ public class CPUExe {
         // Overflow occurs if the high-order bits exceed 16-bit range
         if (high != 0) {  // Check if high-order bits are non-zero (indicating overflow)
             cc.setOverflow(true);  // Set overflow flag
-            System.out.println("Overflow occurred during MLT operation.");
-        } else {
+        } 
+        else {
             cc.setOverflow(false);  // No overflow
         }
-
-        System.out.println("MLT executed: " + valueRx + " * " + valueRy);
-        System.out.println("High order bits (Rx): " + highOrderBits);
-        System.out.println("Low order bits (Rx+1): " + lowOrderBits);
 
         return false;  // Continue execution
     }
@@ -657,13 +562,10 @@ public class CPUExe {
         // Get the contents of the registers Rx and Ry
         int valueRx = gpr.getGPR(rx);
         int valueRy = gpr.getGPR(ry);
-
-        System.out.println("here is ry: " +valueRy);
     
         // Check for divide by zero
         if (valueRy == 0) {
             cc.setDivZero(true);  // Set divide by zero flag
-            System.out.println("Division by zero error during DVD operation.");
             return false;  // Stop execution due to divide by zero
         }
     
@@ -674,10 +576,6 @@ public class CPUExe {
         // Store the quotient in Rx and the remainder in Rx+1
         gpr.setGPR(rx, (short) quotient);
         gpr.setGPR(rx + 1, (short) remainder);
-    
-        System.out.println("DVD executed: " + valueRx + " / " + valueRy);
-        System.out.println("Quotient (Rx): " + quotient);
-        System.out.println("Remainder (Rx+1): " + remainder);
     
         return false;  // Continue execution
     }    
@@ -698,14 +596,11 @@ public class CPUExe {
         // Check if the values in Rx and Ry are equal
         if (valueRx == valueRy) {
             cc.setEqual(true);  // Set the Equal flag (bit 3 in condition code)
-            System.out.println("TRR executed: GPR[" + rx + "] == GPR[" + ry + "]");
         } 
         else {
             cc.setEqual(false);  // Clear the Equal flag
-            System.out.println("TRR executed: GPR[" + rx + "] != GPR[" + ry + "]");
         }
 
-        System.out.println("GPR[" + rx + "] = " + valueRx + ", GPR[" + ry + "] = " + valueRy);
         return false;  // Continue execution
     }
 
@@ -727,9 +622,6 @@ public class CPUExe {
 
         // Store the result in Rx
         gpr.setGPR(rx, (short)result);
-
-        System.out.println("AND executed: " + valueRx + " AND " + valueRy);
-        System.out.println("Result stored in GPR[" + rx + "]: " + result);
 
         return false;  // Continue execution
     }
@@ -758,8 +650,6 @@ public class CPUExe {
         // Store the result back into Rx
         gpr.setGPR(rx, (short)result);
 
-        System.out.println("ORR executed: " + valueRx + " | " + valueRy + " = " + result);
-
         return false; // Continue execution
     }
 
@@ -778,7 +668,6 @@ public class CPUExe {
         // Store the result back into Rx (handling 16-bit wrapping)
         gpr.setGPR(rx, (short) result);
 
-        System.out.println("NOT executed on GPR[" + rx + "], value: " + valueRx + " -> " + result);
         return false; // Continue execution
     }
 
@@ -793,31 +682,44 @@ public class CPUExe {
         int rx = Integer.parseInt(rx_str, 2);  // Register to store the input
         int devid = Integer.parseInt(devid_str, 2);  // Device ID
 
-        // Validate DevID (ensure it's within acceptable range, e.g., 0-3 for this case)
-        if (devid < 0 || devid > 3) {
-            throw new IllegalArgumentException("Invalid Device ID for IN operation. DevID should be between 0 and 3.");
-        }
-
         // Simulate input based on device ID
         int input = 0;
-        if (devid == 0) {
-            System.out.print("Enter a number: ");
-            input = scanner.nextInt();
+        // Console Keyboard (the more general case).
+        if (devid == 0) {  
+            while (true) {
+                System.out.print("Enter a number: ");
+                if (scanner.hasNextInt()) {
+                    int tempInput = scanner.nextInt();
+                    if (tempInput >= 0 && tempInput <= 65535) {
+                        input = tempInput;
+                        break;
+                    } else {
+                        System.out.println("Error: Number must be between 0 and 65535.");
+                    }
+                } else {
+                    System.out.println("Error: Invalid input. Please enter a whole number.");
+                    scanner.next(); 
+                }
+            }
+        } 
+        // Card Reader (assuming functionality).
+        else if (devid == 2) {  
+            // Placeholder: implement card reader input if supported
+            System.out.println("Simulated input from Card Reader (Device ID 2).");
+            input = 12345;  // Example fixed input for testing purposes
         } 
         
         else {
             System.out.println("Device ID " + devid + " not supported for IN operation.");
-            return false;  // Unsupported device, continue execution
+            return false;  
         }
 
         // Store the input in the specified register Rx
         gpr.setGPR(rx, (short)input);
 
-        // Print execution details for debugging
-        System.out.println("IN executed: Read input " + input + " into GPR[" + rx + "] from Device ID " + devid);
-
         return false;  // Continue execution
     }
+
 
     // OUT.
     public boolean executeOUT(String binaryInstruction) {
@@ -828,20 +730,30 @@ public class CPUExe {
         int rx = Integer.parseInt(rx_str, 2);  // Register from which to output
         int devid = Integer.parseInt(devid_str, 2);  // Device ID
 
-        // Validate DevID (ensure it's within acceptable range, e.g., 0-3 for this case)
-        if (devid < 0 || devid > 3) {
-            throw new IllegalArgumentException("Invalid Device ID for OUT operation. DevID should be between 0 and 3.");
-        }
+        // Get the value from the specified register
+        int output = gpr.getGPR(rx);  
 
-        // Simulate output based on device ID
-        int output = gpr.getGPR(rx);  // Get the value from the specified register
+        switch (devid) {
+            case 0:
+                System.out.println("Error: OUT operation not supported for Console Keyboard (Device ID 0).");
+                break;
 
-        if (devid == 0) {
-            // Simulate console output for Device 0
-            System.out.println("Output from GPR[" + rx + "] to Device ID " + devid + ": " + output);
-        } else {
-            System.out.println("Device ID " + devid + " not supported for OUT operation.");
-            return false;  // Unsupported device, continue execution
+            case 1:
+                // Valid output to Console Printer
+                System.out.println("Output from GPR[" + rx + "] to Console Printer (Device ID 1): " + output);
+                break;
+
+            case 2:
+                System.out.println("Error: OUT operation not supported for Card Reader (Device ID 2).");
+                break;
+
+            default:
+                if (devid >= 3 && devid <= 31) {
+                    System.out.println("Error: OUT operation not supported for Device ID " + devid + ".");
+                } else {
+                    throw new IllegalArgumentException("Invalid Device ID for OUT operation. DevID should be between 0 and 31.");
+                }
+                break;
         }
 
         return false;  // Continue execution
@@ -856,17 +768,25 @@ public class CPUExe {
         int rx = Integer.parseInt(rx_str, 2);  // Register to store the device status
         int devid = Integer.parseInt(devid_str, 2);  // Device ID
 
-        // Validate DevID (ensure it's within acceptable range, e.g., 0-3 for this case)
-        if (devid < 0 || devid > 3) {
-            throw new IllegalArgumentException("Invalid Device ID for CHK operation. DevID should be between 0 and 3.");
-        }
-
         // Simulate checking device status based on device ID
-        int deviceStatus = 0; // For simplicity, let's assume the device status is either 1 (available) or 0 (unavailable)
-        if (devid == 0) {
-            // Assume device 0 is always available for this example.
-            deviceStatus = 1;
-        } else {
+        int deviceStatus = 0;
+
+        // Console Keyboard.
+        if (devid == 0) {  
+            deviceStatus = 1;  
+        } 
+
+        // Console Printer
+        else if (devid == 1) {  
+            deviceStatus = 1;  
+        } 
+
+        // Card Reader
+        else if (devid == 2) {  
+            deviceStatus = 1; 
+        } 
+
+        else {
             System.out.println("Device ID " + devid + " not supported for CHK operation.");
             return false;  // Unsupported device, continue execution
         }
@@ -874,9 +794,7 @@ public class CPUExe {
         // Store the device status in the specified register Rx
         gpr.setGPR(rx, (short)deviceStatus);
 
-        // Print execution details for debugging
-        System.out.println("CHK executed: Checked Device ID " + devid + " and stored status " + deviceStatus + " in GPR[" + rx + "]");
-
+        System.out.println("CHK executed: Stored device status " + deviceStatus + " in GPR[" + rx + "] for Device ID " + devid);
         return false;  // Continue execution
     }
 }

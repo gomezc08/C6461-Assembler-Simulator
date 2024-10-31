@@ -39,12 +39,12 @@ public class Cache {
 
             if (line.getTag() != null && line.getTag() == tag) {
                 updateLRU(i);
-                System.out.println("Cache hit at line " + i + " for address " + address);
+                //System.out.println("Cache hit at line " + i + " for address " + address);
                 return line.getBlock()[wordOffset];
             }
         }
 
-        System.out.println("Cache miss for address " + address + ". Fetching from memory.");
+        //System.out.println("Cache miss for address " + address + ". Fetching from memory.");
         return loadBlockFromMemory(address);
     }
 
@@ -60,7 +60,7 @@ public class Cache {
                 line.setBlock(wordOffset, value);
                 line.setDirty(true);
                 updateLRU(i);
-                System.out.println("Cache hit! Data written to address " + address);
+                //System.out.println("Cache hit! Data written to address " + address);
                 return;
             }
         }
@@ -73,7 +73,7 @@ public class Cache {
                 line.setBlock(wordOffset, value);
                 line.setDirty(true);
                 updateLRU(i);
-                System.out.println("Data written to newly loaded block at address " + address);
+                //System.out.println("Data written to newly loaded block at address " + address);
                 return;
             }
         }

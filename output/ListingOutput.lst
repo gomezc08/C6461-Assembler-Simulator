@@ -1,38 +1,6 @@
                          LOC    6                		; BEGIN AT LOCATION 6
-000006     000000        Data   0                		; DataNum: Placeholder for numbers, first in sequence
-000007     000000        Data   0                		; Target: Target number input by user
-000010     000000        Data   0                		; Closest: Closest number to the target
-000011     177777        Data   65535            		; Diff: Initial large difference value
-000012     006024        LDA    0,0,20           		; R0 = 20 (count of numbers)
-000013     006406        LDA    1,0,6            		; Load start address of DataNum into R1
-000014     147000        IN     2,0              		; Input character from keyboard
-000015     005001        STR    2,0,1            		; Store character in memory at R1
-000016     014401        AIR    1,1              		; Increment memory address for next number
-000017     016001        SIR    0,1              		; Decrement count in R0
-000020     026014        JNE    0,0,12           		; Jump back to IN if R0 != 0 (address 13)
-000021     006024        LDA    0,0,20           		; Reload count in R0
-000022     006406        LDA    1,0,6            		; Reset memory address in R1
-000023     003001        LDR    2,0,1            		; Load number from memory into R2
-000024     151001        OUT    2,1              		; Output number to console
-000025     014401        AIR    1,1              		; Move to next address
-000026     016001        SIR    0,1              		; Decrement count
-000027     026024        JNE    0,0,20           		; Jump back to LDR if R0 != 0 (address 20)
-000030     147400        IN     3,0              		; Read target number
-000031     005407        STR    3,0,7            		; Store target number in Target
-000032     006024        LDA    0,0,20           		; Reload count in R0
-000033     006406        LDA    1,0,6            		; Reset start address in R1
-000034     003001        LDR    2,0,1            		; Load number for comparison
-000035     036003        SIR    4,3              		; Calculate abs difference: |R2 - R3|
-000036     032000        AIR    4,0              		; Convert to absolute if needed
-000037     106034        JGE    4,0,28           		; Skip update if R4 >= Diff (address 28)
-000040     005010        STR    2,0,8            		; Update closest number in Closest
-000041     012011        STR    4,0,9            		; Update smallest difference in Diff
-000042     014401        AIR    1,1              		; Move to next memory location
-000043     016001        SIR    0,1              		; Decrement count
-000044     026031        JNE    0,0,25           		; Jump back to LDR if R0 != 0 (address 25)
-000045     003007        LDR    2,0,7            		; Load target number into R2
-000046     151001        OUT    2,1              		; Print target number
-000047     003010        LDR    2,0,8            		; Load closest number into R2
-000050     151001        OUT    2,1              		; Print closest number
-                         LOC    1024             		; Program termination
-002000     000000 End:   HLT                      		; STOP        
+000006     000012        Data   10               		; Memory location 6 = 10
+000007     000024        Data   20               		; Placeholder for a single data value
+000010     003006        LDR    2,0,6            		; R2 gets address 6 = 10
+000011     002007        LDR    0,0,7            		; R0 = 20
+000012     000000        HLT    ;                		; Stop program

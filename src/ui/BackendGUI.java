@@ -48,23 +48,12 @@ public class BackendGUI {
             printerArea.append("Loaded ROM file successfully\n");
 
             // execute it.
-            pc.setPC(10);   // need to find a way to do this dynamically; i set it this value b/c thats how Kishan.ld works.
+            pc.setPC(8);
             cpu.run();
-            
-            // Final checks
-            System.out.println("Final GPR Values:");
-            System.out.println(gprs.toString());
-            
-            System.out.println("Final Index Register Values:");
-            System.out.println(ixr.toString());
-            
-            System.out.println("Final Condition Code Values:");
-            System.out.println(cc.toString());
-            
+                        
             // update the checkboxes for all components in gui.
-            updateCacheDisplay();
             updateGUIFields();
-            
+            updateCacheDisplay();
         } 
         catch (IOException ex) {
             printerArea.append("Error loading ROM file: " + ex.getMessage() + "\n");

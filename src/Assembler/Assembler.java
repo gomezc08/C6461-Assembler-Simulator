@@ -149,26 +149,31 @@ public class Assembler {
         miscellaneous.add("TRAP");
     }
     
-    // Pass One: Populate the label table and determine code location.
     private static void passOne(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line = reader.readLine();    // initialize to first line to ignore the headers.
-
+    
         // OUTER LOOP: reading each line of source file.
         while ((line = reader.readLine()) != null) {
             String[] parts = line.split("\\s+");
-
+    
             // Handle LOC: change the current address before processing labels or instructions
             if (parts[1].equalsIgnoreCase("LOC")) {
                 currentAddress = Integer.parseInt(parts[2]);
             }
-
+    
             // Handling labels: add to labelTable.
             if (parts.length > 0 && parts[0].endsWith(":")) {
                 String label = parts[0].substring(0, parts[0].length() - 1);
                 labelTable.put(label, currentAddress);
+                System.out.println("Label added to table: " + label + " at address " + currentAddress);
+    
+                // Check if the label line also contains an instruction
+                if (parts.length > 1 && isInstruction(parts)) {
+                    currentAddress++;  // Increment for the instruction on the same line
+                }
             }
-
+    
             // Handling Instructions: increment address.
             else if (isInstruction(parts)) {
                 currentAddress++;
@@ -176,6 +181,7 @@ public class Assembler {
         }
         reader.close();
     }
+    
 
     // Pass Two: Convert to machine code and generate load/listing files.
     private static void passTwo(String fileName) throws IOException {
@@ -231,8 +237,21 @@ public class Assembler {
                 if (machineCodeStr != null) {
                     // Calculate the operand value
                     String operandValue = "";
-                    if (parts.length > 2) { // Ensure there is an operand
-                        operandValue = getOperandValue(opcode, parts[2]); // Handle operands
+                    // Ensure there is an operand
+                    if (parts.length > 2) { 
+                        // ensure we are passing valid strings.
+                        StringBuilder operand = new StringBuilder();
+                        String[] operand_labels = parts[2].split(","); 
+                        for(String s : operand_labels) {
+                            if(labelTable.containsKey(s)) {
+                                operand.append(labelTable.get(s) + ",");
+                            }
+                            else {
+                                operand.append(s + ",");
+                            }
+                        }
+                        operand.deleteCharAt(operand.length()-1);
+                        operandValue = getOperandValue(opcode, operand.toString()); // Handle operands
                     }
 
                     String currentAddressOctal = String.format("%06o", currentAddress);
@@ -261,6 +280,7 @@ public class Assembler {
     // Resolves the operand as either a label or a direct value, handling comma-separated operands.
     // Example: 3,0,10
     private static String getOperandValue(String opcode, String operand) {
+        //System.out.println("In getOperandValue, opcode: " + opcode + ", operand: " + operand);
         // define instruction fields.
         int register = 0;
         int indexRegister = 0;
@@ -473,15 +493,14 @@ public class Assembler {
 
     // Determines if the line contains a valid instruction
     private static boolean isInstruction(String[] parts) {
-        // Ensure there are enough parts to process
         if (parts.length > 1) {
             // Check for assembler directives (LOC, Data)
             if (parts[1].equalsIgnoreCase("LOC") || parts[1].equalsIgnoreCase("Data")) {
-                return false; // Not an instruction, but a directive
+                return false; 
             }
 
             // Check if the first part is a label or an empty string (ignore if true)
-            return !parts[0].endsWith(":") && parts.length > 1; // Check that there is a proper opcode in parts[1]
+            return true; // Check that there is a proper opcode in parts[1]
         }
         return false;
     }
@@ -512,11 +531,11 @@ public class Assembler {
     }
 
     
+    /* 
     public static void main(String[] args) throws IOException {
         // Sample input file
-        String sourceFile = "assembly/LoadStore.asm";
+        String sourceFile = "assembly/Program1new.asm";
         run(sourceFile);
     }
-    
-    
+        */
 }
