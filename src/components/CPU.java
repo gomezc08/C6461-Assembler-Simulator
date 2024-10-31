@@ -26,8 +26,8 @@ public class CPU {
         this.ixr = ixr;
         this.pc = pc;
         this.cc = cc;
-        this.cpuExe = new CPUExe(memory, gpr, ixr, pc, cc);
         this.cache = cac;
+        this.cpuExe = new CPUExe(memory, gpr, ixr, pc, cc, cac);
     }   
 
     // loads rom file.

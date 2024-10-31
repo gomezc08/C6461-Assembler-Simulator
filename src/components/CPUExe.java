@@ -9,13 +9,15 @@ public class CPUExe {
     private IndexRegisters ixr;
     private ProgramCounter pc;
     private ConditionCode cc;
+    private Cache cache;
 
-    public CPUExe(Memory memory, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc, ConditionCode cc) {
+    public CPUExe(Memory memory, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc, ConditionCode cc, Cache c) {
         this.memory = memory;
         this.gpr = gpr;
         this.ixr = ixr;
         this.pc = pc;
         this.cc = cc;
+        this.cache = c;
     }
 
     // Helper function for calculating effective address
@@ -49,7 +51,7 @@ public class CPUExe {
         int value = memory.loadMemoryValue(ea);  // Load the value from memory
     
         gpr.setGPR(reg, (short) value); 
-        System.out.println("did we set gpr right from reg " + reg + " : " + gpr.getGPR(reg));
+        cache.write(ea, value);
         return false;  
     }
 
@@ -71,6 +73,7 @@ public class CPUExe {
         int value = gpr.getGPR(reg); 
 
         memory.storeValue(ea, value);  // Store the value into memory
+        cache.write(ea, value);
         return false;  
     }
 
@@ -138,6 +141,7 @@ public class CPUExe {
         int value = ixr.getIndexRegister(ix);
     
         memory.storeValue(ea, value);  // Store the value in memory
+        cache.write(ea, value);
         
         return false;  // Continue execution
     }
