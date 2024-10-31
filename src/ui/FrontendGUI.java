@@ -161,6 +161,14 @@ public class FrontendGUI extends JFrame {
             }
             gbc.gridx = 1;
             panel.add(bitPanel, gbc);
+
+            final int index = i;
+
+            // Add individual clear button for each register
+            JButton clearButton = new JButton("Clear " + labelPrefix + " " + index);
+            clearButton.addActionListener(e -> clearRegisterBits(panels[index]));
+            gbc.gridx = 2;
+            panel.add(clearButton, gbc);
         }
     }
 
@@ -179,6 +187,11 @@ public class FrontendGUI extends JFrame {
         }
         gbc.gridx = 1;
         panel.add(bitPanel, gbc);
+
+        JButton clearButton = new JButton("Clear " + label);
+        clearButton.addActionListener(e -> clearRegisterBits(panels));
+        gbc.gridx = 2;
+        panel.add(clearButton, gbc);
     }
 
     private JPanel createControlPanel() {
@@ -190,7 +203,7 @@ public class FrontendGUI extends JFrame {
         storeButton = new JButton("Store");
         storePlusButton = new JButton("Store+");
         initButton = new JButton("Initialize");
-        clearButton = new JButton("Clear"); // Add Clear button
+        clearButton = new JButton("Clear All"); // Add Clear button
 
         controlPanel.add(loadButton);
         controlPanel.add(loadPlusButton);
@@ -292,6 +305,13 @@ public class FrontendGUI extends JFrame {
                 backend.loadExecuteRom(selectedFile);
             }
         });
+    }
+
+        // Method to clear bits in individual register
+    private void clearRegisterBits(BitPanel[] panels) {
+        for (BitPanel panel : panels) {
+            panel.setBit(false); // Reset the bit to 0
+        }
     }
 
     private int getRegisterValue(BitPanel[] bitPanels) {
