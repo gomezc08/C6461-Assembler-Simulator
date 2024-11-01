@@ -83,12 +83,10 @@ public class CPU {
         switch (opcode) {
             // LDR: Done!
             case "000001":  
-                System.out.println("LDR");
                 return cpuExe.executeLDR(binaryInstruction);
 
             // STR: Done!
             case "000010": 
-                System.out.println("STR");
                 return cpuExe.executeSTR(binaryInstruction);
 
             // LDA: Done!
@@ -105,12 +103,10 @@ public class CPU {
 
             // AIR: Done!
             case "000110":  
-                System.out.println("AIR");
                 return cpuExe.executeAIR(binaryInstruction);    
               
             // SIR: Not Done.
             case "000111":      
-                System.out.println("SIR");
                 return cpuExe.executeSIR(binaryInstruction);    
 
             // LDX: Done!
@@ -127,7 +123,6 @@ public class CPU {
             
             // JNE: Done!
             case "001011":
-                System.out.println("JNE");
                 return cpuExe.executeJNE(binaryInstruction);
             
             // JCC: Done (not 100% confident on this one).
@@ -181,7 +176,6 @@ public class CPU {
 
             // IN: Done!
             case "110011":
-                System.out.println("IN");
                 return cpuExe.executeIN(binaryInstruction);
 
             // OUT: Done!
