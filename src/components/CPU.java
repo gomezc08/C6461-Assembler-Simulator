@@ -65,6 +65,7 @@ public class CPU {
         // Convert the octal instruction to binary, ensuring 16 bits
         // First convert to a proper binary integer
         String binaryInstruction = Integer.toBinaryString(instruction);
+        System.out.println("bin: " + binaryInstruction);
         
         // Pad to 16 bits
         while (binaryInstruction.length() < 16) {
@@ -79,6 +80,7 @@ public class CPU {
 
     // Decode and execute the instruction directly
     private boolean decode(String binaryInstruction) {
+        System.out.println("here is binary: " + binaryInstruction);
         String opcode = binaryInstruction.substring(0, 6);  // Extract opcode (first 6 bits)
         switch (opcode) {
             // LDR: Done!
