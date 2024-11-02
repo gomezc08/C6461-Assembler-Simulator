@@ -1,11 +1,11 @@
-; R0 - Index for storing input values (starting at address 100)
-; R1 - Counter (number of values to read)
+; R0 - Temporary register for holding and updating the storage address
+; R1 - Counter for the number of values to read
 ; R2 - Current input value
-; R3 - Target value
-; R4 - Smallest difference found so far
-; R5 - Closest number found
+; R3 - Target value (not currently used)
+; R4 - Smallest difference found so far (not currently used)
+; R5 - Closest number found (not currently used)
 
-                         LOC    100              		; Start at lower address
+                         LOC    100              		; Start data storage at address 100
 000144     000024        Data   20               		; Start of numbers storage (20 words)
 000145     000012        Data   10                    
 000146     000036        Data   30                    
@@ -27,22 +27,26 @@
 000166     000000        Data   0                     
 
                          LOC    6                     
-000006     000024        Data   20                    
-000007     000000        Data   0                     
-000010     000144        Data   100                   
+000006     000024        Data   20               		; Counter for number of values to read
+000007     000000        Data   0                		; Target value placeholder (not used here)
+000010     000144        Data   100              		; Holds current address for data storage
 
-000011     122110        LDX    1,TEMP           		; IX1 gets 100
-000012     006000        LDA    0,0,0            		; Initialize R0 for offset
+000011     122110        LDX    1,CURR_ADDR      		; Load starting address (100) into IX1
+000012     002406        LDR    1,0,COUNT        		; Load count (20) into R1
+
 000013     147000        IN     2,0              		; Get input into R2
-000014     005100        STR    2,1,0            		; Store R2 at memory[0 + IX1]
-000015     002100        LDR    0,1,0            		; Load current IX1 value into R0
-000016     014001        AIR    0,1              		; Increment it
-000017     124001        STX    0,1,0            		; Store incremented value back to IX1
-000020     003406        LDR    3,0,COUNT        		; Get count
-000021     017401        SIR    3,1              		; Decrement count
-000022     005406        STR    3,0,COUNT        		; Save count
-000023     027413        JNE    3,0,RDLOOP       		; Loop if count not zero
-000024     05027777      JZ     0,1,End               
+000014     005100        STR    2,1,0            		; Store input at the address pointed by IX1
+
+000015     002010        LDR    0,0,CURR_ADDR    		; Load current storage address into R0
+000016     014001        AIR    0,1              		; Increment R0 to move to the next storage address
+000017     004010        STR    0,0,CURR_ADDR    		; Store the updated address back to CURR_ADDR
+000020     122110        LDX    1,CURR_ADDR      		; Update IX1 with the new address for the next loop
+
+000021     016401        SIR    1,1              		; Decrement R1 (count)
+000022     004406        STR    1,0,COUNT        		; Save the updated count back to COUNT
+
+000023     026413        JNE    1,0,RDLOOP       		; Loop if count is not zero
+000024     05027777      JZ     0,1,End          		; Jump to End if count reaches zero
 
                          LOC    4095                  
 007777     000000        HLT                     		; Stop
