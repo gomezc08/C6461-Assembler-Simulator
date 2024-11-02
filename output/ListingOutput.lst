@@ -1,37 +1,81 @@
-                         LOC    6                		; Start storing numbers at location 6
-000006     000000        Data   0                		; 6. Reserve 20 locations for our numbers
-000007     000000        Data   0                		; 7. Reserve 20 locations for our numbers
-000010     000000        Data   0                		; 8. Reserve 20 locations for our numbers
-000011     000000        Data   0                		; 9. Reserve 20 locations for our numbers
-000012     000000        Data   0                		; 10. Reserve 20 locations for our numbers
-000013     000000        Data   0                		; 11. Reserve 20 locations for our numbers
-000014     000000        Data   0                		; 12. Reserve 20 locations for our numbers
-000015     000000        Data   0                		; 13. Reserve 20 locations for our numbers
-000016     000000        Data   0                		; 14. Reserve 20 locations for our numbers
-000017     000000        Data   0                		; 15. Reserve 20 locations for our numbers
-000020     000000        Data   0                		; 16. Reserve 20 locations for our numbers
-000021     000000        Data   0                		; 17. Reserve 20 locations for our numbers
-000022     000000        Data   0                		; 18. Reserve 20 locations for our numbers
-000023     000000        Data   0                		; 19. Reserve 20 locations for our numbers
-000024     000000        Data   0                		; 20. Reserve 20 locations for our numbers
-000025     000000        Data   0                		; 21. Reserve 20 locations for our numbers
-000026     000000        Data   0                		; 22. Reserve 20 locations for our numbers
-000027     000000        Data   0                		; 23. Reserve 20 locations for our numbers
-000030     000000        Data   0                		; 24. Reserve 20 locations for our numbers
-000031     000000        Data   0                		; 25. Reserve 20 locations for our numbers
-000032     000024        Data   20               		; 26. i = 19,18,17,..,0.
-000033     000006        Data   6                		; 27. memory = 6,7,8,...,25.
-000034     000040        Data   32               		; 28. memory = end.
-000035     002032        LDR    0,0,26           		; 29. TREATING R0 as i. R0 = 19 at first.
-000036     002433        LDR    1,0,27           		; 30. TREATING R1 as where in memory we are.. R1 = 6
-000037     147000        IN     2,0              		; 31. R2 = User input.
-000040     151001        OUT    2,1              		; 32. output it.
-000041     005073        STR    2,0,27,1         		; 33. store whatever user typed in into memory[i]
-000042     016001        SIR    0,1              		; 34. R0 -= 1
-000043     014401        AIR    1,1              		; 35. R1 += 1
-000044     004032        STR    0,0,26           		; 36. update memory 26.
-000045     004433        STR    1,0,27           		; 37. update memory 27.
-000046     026136        JNE    0,1,LOOP1        		; 38. If R0 (i) is NOT 0, jump back to start of loop.
-000047     147400        IN     3,0              		; 39. special number will be stored in R3 the whole time.
-                         LOC    1024             		; End program section
-002000     000000        HLT    ;                		; Stop execution
+; R0 - Current input/working number
+; R1 - Used for difference calculation
+; R2 - Smallest difference found so far
+; R3 - Closest number found
+
+                         LOC    20               		; Start at lower address
+000024     000024        Data   20               		; Number of values to read
+000025     000000        Data   0                		; Start of numbers storage (20 words)
+000026     000000        Data   0                     
+000027     000000        Data   0                     
+000030     000000        Data   0                     
+000031     000000        Data   0                     
+000032     000000        Data   0                     
+000033     000000        Data   0                     
+000034     000000        Data   0                     
+000035     000000        Data   0                     
+000036     000000        Data   0                     
+000037     000000        Data   0                     
+000040     000000        Data   0                     
+000041     000000        Data   0                     
+000042     000000        Data   0                     
+000043     000000        Data   0                     
+000044     000000        Data   0                     
+000045     000000        Data   0                     
+000046     000000        Data   0                     
+000047     000000        Data   0                     
+000050     000000        Data   0                     
+000051     000000        Data   0                		; Target number to compare against
+000052     001274        Data   700              		; Initial large difference value
+000053     000000        Data   0                		; Closest number found
+
+; Main program
+000054     002024        LDR    0,0,COUNT        		; Load counter
+000055     122100        LDX    1,0              		; Initialize X1 to 0
+
+; Read numbers loop
+000056     147400        IN     3,0              		; Read from keyboard
+000057     005525        STR    3,1,ARRAY        		; Store in array
+000060     014401        AIR    1,1              		; Increment index
+000061     014037        AIR    0,-1             		; Decrement counter (use AIR with negative)
+000062     054056        JNE    0,0,RDLOOP       		; Jump if not zero
+
+; Print the numbers
+000063     002024        LDR    0,0,COUNT        		; Reset counter
+000064     122100        LDX    1,0              		; Reset index
+000065     003525        LDR    3,1,ARRAY        		; Load number
+000066     151401        OUT    3,1              		; Print it
+000067     014401        AIR    1,1              		; Increment index
+000070     100065        SOB    0,0,PRLOOP       		; Loop for all numbers
+
+; Get target
+000071     147400        IN     3,0              		; Read target
+000072     013051        STR    3,0,TARGET       		; Store it
+000073     151401        OUT    3,1              		; Echo target
+
+; Find closest
+000074     122100        LDX    1,0              		; Reset index
+000075     002024        LDR    0,0,COUNT        		; Reset counter
+000076     006052        LDR    2,0,MINDIF       		; Load initial difference
+
+000077     002525        LDR    1,1,ARRAY        		; Load current number
+000100     007051        LDR    3,0,TARGET       		; Load target
+000101     025051        SMR    1,0,TARGET       		; Subtract target
+000102     212105        JGE    1,0,CHKDIF       		; If positive, check it
+000103     172400        NOT    1                		; Make positive
+000104     014401        AIR    1,1              		; Add 1
+
+000105     164600        TRR    1,2              		; Compare with min diff
+000106     212112        JGE    1,0,NEXT         		; If not smaller, next
+
+000107     011052        STR    1,0,MINDIF       		; Update min difference
+000110     003525        LDR    3,1,ARRAY        		; Get original number
+000111     013053        STR    3,0,RESULT       		; Save as closest
+
+000112     014401        AIR    1,1              		; Next index
+000113     100077        SOB    0,0,FNDLP        		; Continue if not done
+
+000114     007053        LDR    3,0,RESULT       		; Load result
+000115     151401        OUT    3,1              		; Print closest number
+
+000116     000000        HLT                     		; Stop

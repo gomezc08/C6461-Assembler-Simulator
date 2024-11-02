@@ -446,6 +446,10 @@ public class CPUExe {
 
         // Store the result back in the register
         gpr.setGPR(reg, (short) result);
+        System.out.println("here is reg_str: " + reg_str);
+        System.out.println("here is immed: " + offset_str);
+        System.out.println("result: " + result);
+        System.out.println("we are storing R" + reg + " with " + (short) result);
 
         return false;  // Continue execution
     }

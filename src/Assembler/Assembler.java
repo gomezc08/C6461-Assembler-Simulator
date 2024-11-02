@@ -151,129 +151,181 @@ public class Assembler {
         miscellaneous.add("TRAP");
     }
     
+    // In passOne method, update the line processing:
     private static void passOne(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
-        String line = reader.readLine();    // initialize to first line to ignore the headers.
+        String line = reader.readLine();    // skip header line
         boolean startAssigned = false;
     
-        // OUTER LOOP: reading each line of source file.
         while ((line = reader.readLine()) != null) {
-            String[] parts = line.split("\\s+");
-    
-            // Handle LOC: change the current address before processing labels or instructions
-            if (parts[1].equalsIgnoreCase("LOC") && startAssigned == false) {
-                startAddress = Integer.parseInt(parts[2]);
-                currentAddress = Integer.parseInt(parts[2]);
-                startAssigned = true;
+            // Skip empty lines
+            if (line.trim().isEmpty()) {
+                continue;
             }
-
-            // incrementing address.
-            if(parts.length > 0 && (isInstruction(parts) || parts[1].equalsIgnoreCase("Data"))) {
-                currentAddress++;
+            
+            // Handle comment-only lines
+            if (line.trim().startsWith(";")) {
+                continue;
             }
     
-            // Handling labels: add to labelTable.
-            if (parts.length > 0 && parts[0].endsWith(":")) {
+            // Remove comments for processing
+            int commentIndex = line.indexOf(';');
+            if (commentIndex != -1) {
+                line = line.substring(0, commentIndex).trim();
+            }
+            
+            // Split and filter out empty strings
+            String[] parts = Arrays.stream(line.split("\\s+"))
+                                  .filter(s -> !s.trim().isEmpty())
+                                  .toArray(String[]::new);
+            
+            if (parts.length == 0) continue;
+    
+            // Handle LOC directive
+            if (parts[0].equalsIgnoreCase("LOC") && !startAssigned) {
+                if (parts.length > 1) {
+                    try {
+                        startAddress = Integer.parseInt(parts[1]);
+                        currentAddress = startAddress;
+                        startAssigned = true;
+                    } catch (NumberFormatException e) {
+                        System.err.println("Error: Invalid address for LOC directive");
+                    }
+                }
+                continue;
+            }
+    
+            // Handle labels
+            if (parts[0].endsWith(":")) {
                 String label = parts[0].substring(0, parts[0].length() - 1);
                 labelTable.put(label, currentAddress);
-                System.out.println("Label added to table: " + label + " at address " + currentAddress);
+                System.out.println("Added label: " + label + " at address: " + currentAddress);
+            }
     
+            // Increment address for instructions and Data directives
+            if (parts.length > 0 && 
+                (isInstruction(parts) || 
+                 parts[0].equalsIgnoreCase("Data") || 
+                 (parts.length > 1 && parts[1].equalsIgnoreCase("Data")))) {
+                currentAddress++;
             }
         }
         reader.close();
     }
-    
 
-    // Pass Two: Convert to machine code and generate load/listing files.
     private static void passTwo(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
-        String line = reader.readLine();
-        currentAddress = 0;
-
+        String line = reader.readLine();    // skip header line
+        currentAddress = startAddress;
+    
         while ((line = reader.readLine()) != null) {
-            // Handling comments.
-            StringBuilder buildingComment = new StringBuilder();
+            // Handle empty lines
+            if (line.trim().isEmpty()) {
+                listingFile.add("");
+                continue;
+            }
+    
+            // Handle comment-only lines
+            if (line.trim().startsWith(";")) {
+                listingFile.add(line.trim());
+                continue;
+            }
+    
+            // Extract and handle comments
             String comment = "";
             int commentIndex = line.indexOf(';');
             if (commentIndex != -1) {
-                buildingComment.append("\t\t");
-                buildingComment.append(line.substring(commentIndex).trim()); // Grab comment including the semicolon
-                comment = buildingComment.toString();
+                comment = "\t\t" + line.substring(commentIndex).trim();
+                line = line.substring(0, commentIndex).trim();
             }
-
-            String[] parts = line.split("\\s+");
-
-            // Handle LOC: change the current address.
-            if (parts[1].equalsIgnoreCase("LOC")) {
-                listingFile.add(String.format(rowFormat, "", "", parts[1], parts[2], comment));
-                currentAddress = Integer.parseInt(parts[2]);
-            } 
-
-            // Handle Data: store a value in memory.
-            else if (parts[1].equalsIgnoreCase("Data")) {
-                String dataValue;
-
-                // Operand is a label (e.g., "End").
-                if (labelTable.containsKey(parts[2])) {
-                    dataValue = String.format("%06o", labelTable.get(parts[2])); 
-                } 
-                // Operand is a direct value (e.g., "10").
-                else {
-                    dataValue = String.format("%06o", Integer.parseInt(parts[2])); 
+    
+            // Split and filter out empty strings
+            String[] parts = Arrays.stream(line.split("\\s+"))
+                                  .filter(s -> !s.trim().isEmpty())
+                                  .toArray(String[]::new);
+    
+            if (parts.length == 0) {
+                listingFile.add(comment);
+                continue;
+            }
+    
+            // Handle LOC directive
+            if (parts[0].equalsIgnoreCase("LOC")) {
+                if (parts.length > 1) {
+                    currentAddress = Integer.parseInt(parts[1]);
+                    listingFile.add(String.format(rowFormat, "", "", "LOC", parts[1], comment));
                 }
-
-                // Update(s).
+                continue;
+            }
+    
+            // Handle Data directive
+            if (parts[0].equalsIgnoreCase("Data") || 
+                (parts.length > 1 && parts[1].equalsIgnoreCase("Data"))) {
+                String dataValue = "000000";
+                String operand = "";
+                int dataIndex = parts[0].equalsIgnoreCase("Data") ? 1 : 2;
+    
+                if (parts.length > dataIndex) {
+                    operand = parts[dataIndex];
+                    try {
+                        if (labelTable.containsKey(parts[dataIndex])) {
+                            dataValue = String.format("%06o", labelTable.get(parts[dataIndex]));
+                        } else {
+                            dataValue = String.format("%06o", Integer.parseInt(parts[dataIndex]));
+                        }
+                    } catch (NumberFormatException e) {
+                        System.err.println("Error: Invalid data value at address " + currentAddress);
+                    }
+                }
+    
                 String currentAddressOctal = String.format("%06o", currentAddress);
-                listingFile.add(String.format(rowFormat, currentAddressOctal, dataValue, parts[1], parts[2], comment));
+                listingFile.add(String.format(rowFormat, currentAddressOctal, dataValue, "Data", operand, comment));
                 loadFile.add(String.format("%06o %s", currentAddress, dataValue));
                 currentAddress++;
+                continue;
             }
-
-            // Handle actual instructions: LDR, LDX, etc.
-            else if (isInstruction(parts)) {
-                String opcode = parts[1].toUpperCase();
-                String machineCodeStr = opcodeMap.get(opcode);
-
-                // Convert opcode to integer (since it's currently in binary string format)
-                if (machineCodeStr != null) {
-                    // Calculate the operand value
-                    String operandValue = "";
-                    // Ensure there is an operand
-                    if (parts.length > 2) { 
-                        // ensure we are passing valid strings.
-                        StringBuilder operand = new StringBuilder();
-                        String[] operand_labels = parts[2].split(","); 
-                        for(String s : operand_labels) {
-                            if(labelTable.containsKey(s)) {
-                                operand.append(labelTable.get(s) + ",");
-                            }
-                            else {
-                                operand.append(s + ",");
-                            }
-                        }
-                        operand.deleteCharAt(operand.length()-1);
-                        operandValue = getOperandValue(opcode, operand.toString()); // Handle operands
-                    }
-
-                    String currentAddressOctal = String.format("%06o", currentAddress);
-                    
-                    listingFile.add(String.format(rowFormat, currentAddressOctal, operandValue, parts[1], parts[2], comment));
-                    loadFile.add(String.format("%s %s", currentAddressOctal, operandValue));
-                    currentAddress++;
-                } 
-
-                // Handle invalid instructions
-                else {
-                    listingFile.add(String.format("%06o %s %s", currentAddress, "null", comment));
-                    loadFile.add(String.format("%06o %s", currentAddress, "null"));
+    
+            // Handle regular instructions and HLT
+            String opcode;
+            String operands = "";
+            int opcodeIndex;
+    
+            if (parts[0].endsWith(":")) {
+                opcodeIndex = 1;
+            } else {
+                opcodeIndex = 0;
+            }
+    
+            if (parts.length > opcodeIndex) {
+                opcode = parts[opcodeIndex].toUpperCase();
+                if (parts.length > opcodeIndex + 1) {
+                    operands = parts[opcodeIndex + 1];
                 }
-            }
-
-            else if(parts[1].equalsIgnoreCase("HLT")) {
-                hltAddress = currentAddress;
+    
+                String operandValue = "";
+                if (!operands.isEmpty()) {
+                    StringBuilder operand = new StringBuilder();
+                    String[] operand_labels = operands.split(",");
+                    for (String s : operand_labels) {
+                        if (labelTable.containsKey(s)) {
+                            operand.append(labelTable.get(s)).append(",");
+                        } else {
+                            operand.append(s).append(",");
+                        }
+                    }
+                    if (operand.length() > 0) {
+                        operand.setLength(operand.length() - 1);
+                        operandValue = getOperandValue(opcode, operand.toString());
+                    }
+                } else if (opcode.equals("HLT")) {
+                    operandValue = "000000";
+                }
+    
                 String currentAddressOctal = String.format("%06o", currentAddress);
-                listingFile.add(String.format("%-10s %s %-6s %-24s %-16s", currentAddressOctal, "000000", parts[0], parts[1], comment));
-                loadFile.add(String.format("%06o %s", currentAddress, "000000"));
+                listingFile.add(String.format(rowFormat, currentAddressOctal, operandValue, 
+                              parts[opcodeIndex], operands, comment));
+                loadFile.add(String.format("%s %s", currentAddressOctal, operandValue));
+                currentAddress++;
             }
         }
         reader.close();
@@ -343,7 +395,15 @@ public class Assembler {
             // Case c: r, immed.
             else if(opcode.equals("AIR") || opcode.equals("SIR")) {
                 register = Integer.parseInt(parts[0]);
-                address = (Integer.parseInt(parts[1]));
+                // Convert negative numbers to 5-bit two's complement
+                int immedValue = Integer.parseInt(parts[1]);
+                if (immedValue < 0) {
+                    // For 5-bit field, we use 0x1F (31) as our mask
+                    address = immedValue & 0x1F;  // This will handle negative numbers correctly
+                } 
+                else {
+                    address = immedValue;
+                }
             }
 
             // Case d: Immed.
@@ -486,8 +546,7 @@ public class Assembler {
         }
 
         String octalResult = octalBuilder.toString();
-        //System.out.println(octalResult);
-        
+
         String paddedOctalResult = String.format("%6s", octalResult).replace(' ', '0');
         return paddedOctalResult;
     }
@@ -495,16 +554,15 @@ public class Assembler {
 
     // Determines if the line contains a valid instruction
     private static boolean isInstruction(String[] parts) {
-        if (parts.length > 1) {
-            // Check for assembler directives (LOC, Data)
-            if (parts[1].equalsIgnoreCase("LOC") || parts[1].equalsIgnoreCase("Data")) {
-                return false; 
-            }
-
-            // Check if the first part is a label or an empty string (ignore if true)
-            return true; // Check that there is a proper opcode in parts[1]
+        if (parts.length == 0) return false;
+        
+        // If first part is a label, check second part
+        if (parts[0].endsWith(":")) {
+            return parts.length > 1 && opcodeMap.containsKey(parts[1].toUpperCase());
         }
-        return false;
+        
+        // Check if first part is an opcode
+        return opcodeMap.containsKey(parts[0].toUpperCase());
     }
 
     // Writes the output to files.
@@ -540,12 +598,19 @@ public class Assembler {
         System.out.println("<<Finished Running the Assembler (End)>>");
     }
 
+    // Additional helper method to check for valid line
+    private static boolean isValidLine(String line) {
+        line = line.trim();
+        return !line.isEmpty() && !line.startsWith(";");
+    }
+
     
-    /* 
+    
+/* 
     public static void main(String[] args) throws IOException {
         // Sample input file
-        String sourceFile = "assembly/Program1new.asm";
+        String sourceFile = "assembly/LabelsTest.asm";
         run(sourceFile);
-    }
-        */
+    }*/
+        
 }
