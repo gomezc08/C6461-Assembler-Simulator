@@ -40,6 +40,7 @@ public class CPU {
                 int data = Integer.parseInt(parts[1], 8);     // Data part
 
                 memory.storeValue(address, data);
+                
             }
         }
     }
@@ -51,36 +52,40 @@ public class CPU {
     // Fetch-Decode-Execute Cycle.
     public void run() {
         boolean halt = false;
-        while (halt == false) {
+        while (!halt) {
             String binaryInstruction = fetch();
             halt = decode(binaryInstruction);
         }
     }
 
-    // Fetch the instruction from memory
     private String fetch() {
-        int instruction = memory.loadMemoryValue(pc.getPC());
+        // First check if current PC has a LOC directive
+        int currentPC = pc.getPC();
+        
+        if (pc.hasLocDirective(currentPC)) {
+            int newLocation = pc.getLocTarget(currentPC);
+            pc.setPC(newLocation);
+            return fetch(); // Fetch from new location
+        }
+        
+        // Load instruction from memory
+        int instruction = memory.loadMemoryValue(currentPC);
+        
+        // Increment PC for next instruction
         pc.incrementPC();
         
-        // Convert the octal instruction to binary, ensuring 16 bits
-        // First convert to a proper binary integer
+        // Convert to binary
         String binaryInstruction = Integer.toBinaryString(instruction);
-        System.out.println("bin: " + binaryInstruction);
-        
-        // Pad to 16 bits
         while (binaryInstruction.length() < 16) {
             binaryInstruction = "0" + binaryInstruction;
         }
         
-        //System.out.println("Fetched Instruction (octal): " + Integer.toOctalString(instruction));
-        //System.out.println("Fetched Instruction (binary): " + binaryInstruction);
-        
         return binaryInstruction;
     }
 
+
     // Decode and execute the instruction directly
     private boolean decode(String binaryInstruction) {
-        System.out.println("here is binary: " + binaryInstruction);
         String opcode = binaryInstruction.substring(0, 6);  // Extract opcode (first 6 bits)
         switch (opcode) {
             // LDR: Done!
@@ -218,7 +223,8 @@ public class CPU {
                 // HLT.
                 if(Assembler.getHltAddress() == pc.getPC()) {
                     System.out.println("HLT");
-                    return cpuExe.executeHLT();
+                    return true;
+                    //return cpuExe.executeHLT();
                 }
 
                 // data.

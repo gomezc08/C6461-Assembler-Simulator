@@ -37,6 +37,8 @@ package Assembler;
 import java.io.*;
 import java.util.*;
 
+import components.ProgramCounter;
+
 public class Assembler {
     // Holds label locations
     private static Map<String, Integer> labelTable = new HashMap<>();
@@ -52,6 +54,11 @@ public class Assembler {
     private static String rowFormat = "%-10s %-13s %-6s %-16s %5s";
     private static int startAddress = 0;
     private static int hltAddress = 0;
+    private static ProgramCounter programCounter;  
+
+    public Assembler() {
+        programCounter = new ProgramCounter();
+    }
 
     // initialize opcodeMap.
     static {
@@ -151,30 +158,22 @@ public class Assembler {
         miscellaneous.add("TRAP");
     }
     
-    // In passOne method, update the line processing:
     private static void passOne(String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(fileName));
         String line = reader.readLine();    // skip header line
         boolean startAssigned = false;
+        int lastInstructionAddress = -1;  // Track last real instruction address
     
         while ((line = reader.readLine()) != null) {
-            // Skip empty lines
-            if (line.trim().isEmpty()) {
-                continue;
-            }
-            
-            // Handle comment-only lines
-            if (line.trim().startsWith(";")) {
+            if (line.trim().isEmpty() || line.trim().startsWith(";")) {
                 continue;
             }
     
-            // Remove comments for processing
             int commentIndex = line.indexOf(';');
             if (commentIndex != -1) {
                 line = line.substring(0, commentIndex).trim();
             }
             
-            // Split and filter out empty strings
             String[] parts = Arrays.stream(line.split("\\s+"))
                                   .filter(s -> !s.trim().isEmpty())
                                   .toArray(String[]::new);
@@ -182,12 +181,22 @@ public class Assembler {
             if (parts.length == 0) continue;
     
             // Handle LOC directive
-            if (parts[0].equalsIgnoreCase("LOC") && !startAssigned) {
+            if (parts[0].equalsIgnoreCase("LOC")) {
                 if (parts.length > 1) {
                     try {
-                        startAddress = Integer.parseInt(parts[1]);
-                        currentAddress = startAddress;
-                        startAssigned = true;
+                        int targetLocation = Integer.parseInt(parts[1]);
+                        if (!startAssigned) {
+                            // First LOC just sets start address
+                            startAddress = targetLocation;
+                            currentAddress = startAddress;
+                            startAssigned = true;
+                        } else {
+                            // Only add LOC directive if we've seen instructions before
+                            if (lastInstructionAddress != -1) {
+                                programCounter.addLocDirective(lastInstructionAddress + 1, targetLocation);
+                            }
+                            currentAddress = targetLocation;
+                        }
                     } catch (NumberFormatException e) {
                         System.err.println("Error: Invalid address for LOC directive");
                     }
@@ -199,14 +208,13 @@ public class Assembler {
             if (parts[0].endsWith(":")) {
                 String label = parts[0].substring(0, parts[0].length() - 1);
                 labelTable.put(label, currentAddress);
-                System.out.println("Added label: " + label + " at address: " + currentAddress);
             }
     
-            // Increment address for instructions and Data directives
-            if (parts.length > 0 && 
-                (isInstruction(parts) || 
-                 parts[0].equalsIgnoreCase("Data") || 
-                 (parts.length > 1 && parts[1].equalsIgnoreCase("Data")))) {
+            // Track real instructions and data
+            if (isInstruction(parts) || 
+                parts[0].equalsIgnoreCase("Data") || 
+                (parts.length > 1 && parts[1].equalsIgnoreCase("Data"))) {
+                lastInstructionAddress = currentAddress;
                 currentAddress++;
             }
         }
@@ -590,8 +598,19 @@ public class Assembler {
         return hltAddress;
     }
 
+    // Method to get the ProgramCounter instance
+    public static ProgramCounter getProgramCounter() {
+        return programCounter;
+    }
+
     public static void run(String sourceFile) throws IOException {
         System.out.println("<<Running the Assembler>>");
+        if (programCounter == null) {
+            programCounter = new ProgramCounter();
+        } else {
+            programCounter.reset();
+            programCounter.clearLocDirectives();
+        }
         passOne(sourceFile);  
         passTwo(sourceFile);
         writeFiles();

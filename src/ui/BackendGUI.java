@@ -37,25 +37,27 @@ public class BackendGUI {
     }
 
     // Load and execute the rom.
+    // In BackendGUI.loadExecuteRom():
     public void loadExecuteRom(File file) {
         try {
-            // assemble the asm file.
-            System.out.println("assembly/" + file.getName());
+            // Run assembler
             Assembler.run("assembly/" + file.getName());
             
-            // load rom.
+            // Get the configured PC from assembler
+            ProgramCounter assemblerPC = Assembler.getProgramCounter();
+            
+            // Update our CPU's PC with the assembler's PC
+            this.pc = assemblerPC;
+            this.cpu = new CPU(memory, mar, mbr, gprs, ixr, assemblerPC, cc, cache);
+            
+            // Load ROM and execute
             cpu.loadROMFile(new File("output/output.ld"));
-            printerArea.append("Loaded ROM file successfully\n");
-
-            // execute it.
-            pc.setPC(Assembler.getStartAddress());    // pc = first real instruction address - 1
+            pc.setPC(Assembler.getStartAddress());
             cpu.run();
-                        
-            // update the checkboxes for all components in gui.
+            
             updateGUIFields();
             updateCacheDisplay();
-        } 
-        catch (IOException ex) {
+        } catch (IOException ex) {
             printerArea.append("Error loading ROM file: " + ex.getMessage() + "\n");
         }
     }

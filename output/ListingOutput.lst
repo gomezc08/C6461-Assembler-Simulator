@@ -1,44 +1,48 @@
-; R0 - Index for storing input values
-; R1 - Current input value
-; R2 - Target value
-; R3 - Smallest difference found so far
-; R4 - Closest number found
-; R5 - Temporary register for differences
+; R0 - Index for storing input values (starting at address 100)
+; R1 - Counter (number of values to read)
+; R2 - Current input value
+; R3 - Target value
+; R4 - Smallest difference found so far
+; R5 - Closest number found
 
-                         LOC    6                		; Start at lower address
-000006     000024        Data   20               		; Number of values to read
-000007     000000        Data   0                		; Start of numbers storage (20 words)
-000010     000000        Data   0                     
-000011     000000        Data   0                     
-000012     000000        Data   0                     
-000013     000000        Data   0                     
-000014     000000        Data   0                     
-000015     000000        Data   0                     
-000016     000000        Data   0                     
-000017     000000        Data   0                     
-000020     000000        Data   0                     
-000021     000000        Data   0                     
-000022     000000        Data   0                     
-000023     000000        Data   0                     
-000024     000000        Data   0                     
-000025     000000        Data   0                     
-000026     000000        Data   0                     
-000027     000000        Data   0                     
-000030     000000        Data   0                     
-000031     000000        Data   0                     
-000032     000000        Data   0                     
-; Define constants and counters
-000033     000024        Data   20               		; Number of values to read
-000034     000000        Data   0                		; Target number to compare against
+                         LOC    100              		; Start at lower address
+000144     000024        Data   20               		; Start of numbers storage (20 words)
+000145     000012        Data   10                    
+000146     000036        Data   30                    
+000147     000000        Data   0                     
+000150     000000        Data   0                     
+000151     000000        Data   0                     
+000152     000000        Data   0                     
+000153     000000        Data   0                     
+000154     000000        Data   0                     
+000155     000000        Data   0                     
+000156     000000        Data   0                     
+000157     000000        Data   0                     
+000160     000000        Data   0                     
+000161     000000        Data   0                     
+000162     000000        Data   0                     
+000163     000000        Data   0                     
+000164     000000        Data   0                     
+000165     000000        Data   0                     
+000166     000000        Data   0                     
 
-; Main program - Start at lower address
-000035     002033        LDR    0,0,COUNT        		; Load counter (20) into R0
-000036     006406        LDA    1,0,6            		; Load base address of data (6) into R1 for offset
+                         LOC    6                     
+000006     000024        Data   20                    
+000007     000000        Data   0                     
+000010     000144        Data   100                   
 
-; Read numbers loop at a low address
-000037     147400        IN     3,0              		; Read user input into R3
-000040     005500        STR    3,1,0            		; Store input at address [R1]
-000041     014401        AIR    1,1              		; Increment R1 to next memory address
-000042     016001        SIR    0,1              		; Decrement R0 (counter)
-000043     026037        JNE    0,0,RDLOOP       		; If R0 != 0, loop back to RDLOOP (should fit in 5 bits now)
-000044     000000        HLT                     		; Stop
+000011     122110        LDX    1,TEMP           		; IX1 gets 100
+000012     006000        LDA    0,0,0            		; Initialize R0 for offset
+000013     147000        IN     2,0              		; Get input into R2
+000014     005100        STR    2,1,0            		; Store R2 at memory[0 + IX1]
+000015     002100        LDR    0,1,0            		; Load current IX1 value into R0
+000016     014001        AIR    0,1              		; Increment it
+000017     124001        STX    0,1,0            		; Store incremented value back to IX1
+000020     003406        LDR    3,0,COUNT        		; Get count
+000021     017401        SIR    3,1              		; Decrement count
+000022     005406        STR    3,0,COUNT        		; Save count
+000023     027413        JNE    3,0,RDLOOP       		; Loop if count not zero
+000024     05027777      JZ     0,1,End               
+
+                         LOC    4095                  
+007777     000000        HLT                     		; Stop

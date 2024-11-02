@@ -74,6 +74,7 @@ public class CPUExe {
         int value = gpr.getGPR(reg); 
 
         memory.storeValue(ea, value);  // Store the value into memory
+        System.out.println("we have stored: " + value + " in address: " + ea);
         cache.write(ea, value);
         return false;  
     }
@@ -162,7 +163,6 @@ public class CPUExe {
 
         // Get the contents of the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("reg val: " + regValue);
         
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
@@ -182,10 +182,6 @@ public class CPUExe {
         String ix_str = binaryInstruction.substring(8, 10);  
         String iBit_str = binaryInstruction.substring(10, 11);  
         String address_str = binaryInstruction.substring(11, 16);  
-        System.out.println("reg: " + reg_str);
-        System.out.println("ix: " + ix_str);
-        System.out.println("i bit: " + iBit_str);
-        System.out.println("address: " + address_str);
 
         int reg = Integer.parseInt(reg_str, 2);
         int ix = Integer.parseInt(ix_str, 2);
@@ -194,11 +190,9 @@ public class CPUExe {
 
         // Get the contents of the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("reg val: " + regValue);
         
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
-        System.out.println("ea: " + ea);
 
         // If the value in the register is NOT zero, jump to the EA, otherwise increment the PC
         if (regValue != 0) {
@@ -452,10 +446,6 @@ public class CPUExe {
 
         // Store the result back in the register
         gpr.setGPR(reg, (short) result);
-        System.out.println("here is reg_str: " + reg_str);
-        System.out.println("here is immed: " + offset_str);
-        System.out.println("result: " + result);
-        System.out.println("we are storing R" + reg + " with " + (short) result);
 
         return false;  // Continue execution
     }
@@ -468,10 +458,7 @@ public class CPUExe {
         String ix_str = binaryInstruction.substring(8, 10);  // Index register field
         String iBit_str = binaryInstruction.substring(10, 11);  // Indirect bit field
         String immed_str = binaryInstruction.substring(11, 16);  // Immediate Value
-        System.out.println("reg: " + reg_str);
-        System.out.println("ix : " + ix_str);
-        System.out.println("i: " + iBit_str);
-        System.out.println("immed: " + immed_str);
+
     
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
         int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
@@ -482,7 +469,6 @@ public class CPUExe {
 
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
-        System.out.println("intial gpr val: " + regValue);
         
         // do nothing if immed is 0.
         if (immed == 0) {
@@ -498,7 +484,6 @@ public class CPUExe {
         }
         
         int result =   regValue - immed;
-        System.out.println("here is result of " + regValue + " - " + immed + " = " + result);
         if(result < 0) {
             //if the result is negative, set the underflow to 1
             cc.setUnderflow(true);

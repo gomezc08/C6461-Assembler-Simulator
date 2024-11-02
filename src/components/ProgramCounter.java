@@ -1,40 +1,72 @@
 package components;
 
-// Program Counter class to simulate a 12-bit PC
+import java.util.HashMap;
+import java.util.Map;
+
 public class ProgramCounter {
     private int pc; 
-    private final int MAX_VALUE = 0xFFF; // Maximum value for 12 bits (0xFFF = 4095)
+    private final int MAX_VALUE = 0xFFF; // Maximum value for 12 bits
     
-    // Constructor initializes the PC to 0
+    // Map to store LOC directive locations and their target addresses
+    private Map<Integer, Integer> locDirectives;
+    
     public ProgramCounter() {
         this.pc = 0;
+        this.locDirectives = new HashMap<>();
     }
 
-    // Set the Program Counter (ensures it's within 12-bit range)
+    // Add a new LOC directive mapping
+    public void addLocDirective(int currentAddress, int targetLocation) {
+        if (targetLocation >= 0 && targetLocation <= MAX_VALUE) {
+            locDirectives.put(currentAddress, targetLocation);
+        } else {
+            throw new IllegalArgumentException("LOC target location out of range for 12-bit address");
+        }
+    }
+
+    // Check if current address has a LOC directive
+    public boolean hasLocDirective(int address) {
+        return locDirectives.containsKey(address);
+    }
+
+    // Get the target location for a LOC directive
+    public int getLocTarget(int address) {
+        return locDirectives.getOrDefault(address, address);
+    }
+
     public void setPC(int value) {
         if (value >= 0 && value <= MAX_VALUE) {
-            this.pc = value & MAX_VALUE; // Apply mask to ensure only lower 12 bits are used
+            this.pc = value & MAX_VALUE;
         } else {
             throw new IllegalArgumentException("Value out of range for 12-bit register");
         }
     }
 
-    // Get the current value of the Program Counter
     public int getPC() {
         return this.pc;
     }
 
-    // Increment the Program Counter by 1 (with 12-bit wrapping)
+    // Modified increment to check for LOC directives
     public void incrementPC() {
-        this.pc = (this.pc + 1) & MAX_VALUE; // Increment and apply the mask to wrap within 12 bits
+        int nextPC = (this.pc + 1) & MAX_VALUE;
+        // If next address has a LOC directive, jump to that location instead
+        if (hasLocDirective(nextPC)) {
+            this.pc = getLocTarget(nextPC);
+        } else {
+            this.pc = nextPC;
+        }
     }
 
-    // Reset the Program Counter to 0
     public void reset() {
         this.pc = 0;
+        this.locDirectives.clear();
     }
 
-    // Print the current value of the Program Counter (for debugging)
+    // Clear all LOC directives
+    public void clearLocDirectives() {
+        this.locDirectives.clear();
+    }
+
     @Override
     public String toString() {
         return String.format("PC: %d (0x%03X)", this.pc, this.pc);
