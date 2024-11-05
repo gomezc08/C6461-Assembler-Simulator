@@ -1,9 +1,72 @@
 package ui; 
 
+/*
+ * FrontendGUI: Provides the graphical user interface for the CSCI 6461 Machine Simulator, 
+ * allowing users to interact with CPU and memory components, load ROM files, and visualize register states.
+ * 
+ * FrontendGUI(): Initializes the GUI window, register panels, control buttons, and links with the backend.
+ * 
+ * clearBits(): Resets all register bit panels to 0.
+ * 
+ * createRegisterPanels(int count, int bitsPerRegister): Creates bit panels for specified registers.
+ * - @param count: The number of registers.
+ * - @param bitsPerRegister: Number of bits per register.
+ * - @return BitPanel[][]: A 2D array of BitPanel objects for each register.
+ * 
+ * createPanels(int size): Creates bit panels of specified size for single registers like PC, MAR, etc.
+ * - @param size: Number of bits.
+ * - @return BitPanel[]: An array of BitPanel objects.
+ * 
+ * addRegisterPanels(JPanel panel, BitPanel[][] panels, String labelPrefix, GridBagConstraints gbc): 
+ * Adds GPR and IXR register panels to the GUI.
+ * - @param panel: The JPanel to add the registers to.
+ * - @param panels: 2D array of BitPanels representing the registers.
+ * - @param labelPrefix: The label prefix (e.g., "GPR" or "IXR").
+ * - @param gbc: Layout constraints.
+ * 
+ * addSingleRegisterPanels(JPanel panel, BitPanel[] panels, String label): Adds individual registers like PC, MAR to the GUI.
+ * - @param panel: The JPanel to add the register to.
+ * - @param panels: Array of BitPanels representing the register.
+ * - @param label: Label for the register.
+ * 
+ * createControlPanel(): Sets up control buttons (Load, Store, Initialize, Clear All).
+ * - @return JPanel: The panel containing control buttons.
+ * 
+ * initActionListeners(): Initializes actions for control buttons, handling load, store, and clear actions.
+ * 
+ * clearRegisterBits(BitPanel[] panels): Clears bits in the specified register.
+ * - @param panels: Array of BitPanels to clear.
+ * 
+ * getRegisterValue(BitPanel[] bitPanels): Retrieves the binary value represented by the bit panels.
+ * - @param bitPanels: Array of BitPanels representing a register.
+ * - @return int: The integer value of the register.
+ * 
+ * update(BitPanel[] bitPanels, int value): Updates the bit panels to reflect a specific integer value.
+ * - @param bitPanels: Array of BitPanels to update.
+ * - @param value: The integer value to set in the panels.
+ * 
+ * updateAllRegisters(short[] gprValues, short[] ixrValues, int pcValue, int marValue, int mbrValue, int[] ccValues, int[] mfrValues): 
+ * Updates all register displays with current values.
+ * - @param gprValues: Array of GPR values.
+ * - @param ixrValues: Array of IXR values.
+ * - @param pcValue: Program Counter value.
+ * - @param marValue: Memory Address Register value.
+ * - @param mbrValue: Memory Buffer Register value.
+ * - @param ccValues: Condition Code values.
+ * - @param mfrValues: Machine Fault Register values.
+ * 
+ * updateCacheContent(String cacheContent): Updates the cache content display in the GUI.
+ * - @param cacheContent: Formatted string representing cache content.
+ * 
+ * getBackend(): Retrieves the linked BackendGUI instance.
+ * - @return BackendGUI: The backend instance.
+ * 
+ * main(String[] args): Main method to launch the GUI application.
+ * - @param args: Command-line arguments.
+ */
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;

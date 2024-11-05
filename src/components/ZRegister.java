@@ -1,5 +1,7 @@
 package components;
 
+// not used in the final product.
+
 public class ZRegister {
     private short zRegister; // 16-bit Z register
 

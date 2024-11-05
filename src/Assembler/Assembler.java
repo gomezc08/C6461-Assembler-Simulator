@@ -1,7 +1,7 @@
 package Assembler;
 
 /*
- * C6461Assembler: This class contains methods for assembling a C6461 assembly source file into machine code. 
+ * Assembler: This class contains methods for assembling a C6461 assembly source file into machine code. 
  * The assembler follows a two-pass process: 
  * Pass One populates the label table and determines code locations, while Pass Two generates the machine code.
  * 

@@ -1,5 +1,50 @@
 package components;
 
+/*
+ * ConditionCode: Manages a set of condition flags represented within a single byte, 
+ * utilizing only the lower 4 bits to represent different states (Overflow, Underflow, 
+ * Division by Zero, and Equal). This class provides methods to set, check, reset, and 
+ * display these condition flags.
+ * 
+ * ConditionCode(): Constructor that initializes the condition flags to 0 (all flags false).
+ * 
+ * updateConditionCodes(int result): Updates the condition flags based on the given result.
+ * - @param result: The integer result to evaluate, setting overflow, underflow, equal, 
+ *   and division-by-zero flags accordingly.
+ * 
+ * setOverflow(boolean flag): Sets or clears the Overflow flag.
+ * - @param flag: True to set the Overflow flag, false to clear it.
+ * 
+ * setUnderflow(boolean flag): Sets or clears the Underflow flag.
+ * - @param flag: True to set the Underflow flag, false to clear it.
+ * 
+ * setDivZero(boolean flag): Sets or clears the Division by Zero flag.
+ * - @param flag: True to set the DivZero flag, false to clear it.
+ * 
+ * setEqual(boolean flag): Sets or clears the Equal flag.
+ * - @param flag: True to set the Equal flag, false to clear it.
+ * 
+ * isOverflow(): Checks if the Overflow flag is set.
+ * - @return boolean: True if the Overflow flag is set, false otherwise.
+ * 
+ * isUnderflow(): Checks if the Underflow flag is set.
+ * - @return boolean: True if the Underflow flag is set, false otherwise.
+ * 
+ * isDivZero(): Checks if the Division by Zero flag is set.
+ * - @return boolean: True if the DivZero flag is set, false otherwise.
+ * 
+ * isEqual(): Checks if the Equal flag is set.
+ * - @return boolean: True if the Equal flag is set, false otherwise.
+ * 
+ * reset(): Resets all condition flags to 0.
+ * 
+ * getBinaryRepresentation(): Returns a binary string representation of the condition code.
+ * - @return String: An 8-bit binary string of the conditionCode, showing only the lower 4 bits.
+ * 
+ * toString(): Provides a formatted string of the current status of each condition flag.
+ * - @return String: A string listing each flag's state (true or false) for debugging purposes.
+ */
+
 /* 
 only using the last 4 bits: 0000 XXXX
 example: 0000 1010

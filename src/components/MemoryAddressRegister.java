@@ -1,14 +1,25 @@
 package components;
 
 /*
- * Use masking to trim 32 bits into 12 bits
- * Original number:          0011 1111 1111 1111 1111 1111 1111 1111
- * Mask:                     0000 0000 0000 0000 0000 1111 1111 1111
- * -----------------------------------------------------------------
- * Result (AND operation):   0000 0000 0000 0000 0000 1111 1111 1111
+ * MemoryAddressRegister: Represents a 12-bit memory address register (MAR) with methods to set, 
+ * retrieve, reset, and increment the address, using masking to enforce the 12-bit range.
  * 
+ * MemoryAddressRegister(): Constructor that initializes the MAR to 0.
+ * 
+ * setValue(short address): Sets the MAR value, ensuring it fits within the 12-bit range (0-4095).
+ * - @param address: The 12-bit address value to store in the MAR.
+ * 
+ * getValue(): Retrieves the current 12-bit address stored in the MAR.
+ * - @return int: The 12-bit address value.
+ * 
+ * resetMAR(): Resets the MAR to 0.
+ * 
+ * increment(int mar_value): Increments the MAR by 1, wrapping around to 0 if the maximum value (4095) is exceeded.
+ * - @param mar_value: The value to increment from.
+ * 
+ * toString(): Returns a string representation of the MAR value in hexadecimal for debugging purposes.
+ * - @return String: A formatted string displaying the MAR as a 3-digit hex value.
  */
-
 
 public class MemoryAddressRegister {
     private int mar; // Use an int to hold the 12-bit address (we'll mask to ensure it's 12 bits)

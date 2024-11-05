@@ -1,3 +1,4 @@
+// CACHE TEST (not used in the final product).
 // to run the simulator - compile then call: java -cp bin components.CacheSimulator
 
 package components;

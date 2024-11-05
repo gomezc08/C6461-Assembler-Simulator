@@ -1,5 +1,23 @@
 package components;
 
+/*
+ * MemoryBufferRegister: Represents a 16-bit memory buffer register (MBR), 
+ * providing methods to set, retrieve, and reset the value.
+ * 
+ * MemoryBufferRegister(): Constructor that initializes the MBR to 0.
+ * 
+ * setValue(short value): Sets the MBR to a specified 16-bit value.
+ * - @param value: The 16-bit value to store in the MBR.
+ * 
+ * getValue(): Retrieves the current 16-bit value stored in the MBR.
+ * - @return short: The 16-bit value in the MBR.
+ * 
+ * resetMBR(): Resets the MBR to 0.
+ * 
+ * toString(): Returns a string representation of the MBR value in hexadecimal for debugging purposes.
+ * - @return String: A formatted string displaying the MBR as a 4-digit hex value.
+ */
+
 // 16-bit memory buffer register
 public class MemoryBufferRegister {
     private short mbr; 

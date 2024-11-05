@@ -1,11 +1,66 @@
 package ui;
 
+/*
+ * BackendGUI: Provides the backend functionality for the GUI, handling memory, CPU, 
+ * and register operations. This class interacts with components such as the Memory, 
+ * Program Counter, and Condition Code, while updating the GUI based on actions 
+ * like loading, storing, and executing instructions.
+ * 
+ * BackendGUI(JTextArea printerArea): Initializes all components and sets up the printer area for output.
+ * - @param printerArea: The text area for displaying output messages in the GUI.
+ * 
+ * loadExecuteRom(File file): Loads a ROM file and executes it, updating the CPU's Program Counter 
+ * and running the assembled code.
+ * - @param file: The ROM file to load and execute.
+ * 
+ * loadValue(int marValue): Loads a value from memory into the Memory Buffer Register (MBR) based 
+ * on the specified MAR value and updates the GUI.
+ * - @param marValue: The address to load from.
+ * 
+ * storeValue(int marValue, int mbrValue): Stores a value from the MBR into memory at the specified 
+ * MAR address, updating the cache display and GUI.
+ * - @param marValue: The memory address to store the value.
+ * - @param mbrValue: The value to store.
+ * 
+ * storePlusValue(int marValue, int mbrValue): Stores a value in memory and increments the MAR, updating the cache and GUI.
+ * - @param marValue: The initial address to store the value.
+ * - @param mbrValue: The value to store.
+ * 
+ * updateGUIFields(): Updates all register and condition code displays in the GUI.
+ * 
+ * getMarValue(): Retrieves the current value of the Memory Address Register (MAR).
+ * - @return int: The MAR value.
+ * 
+ * getMbrValue(): Retrieves the current value of the Memory Buffer Register (MBR).
+ * - @return int: The MBR value.
+ * 
+ * getGPRValues(): Retrieves the values of all General Purpose Registers (GPRs).
+ * - @return short[]: Array containing GPR values.
+ * 
+ * getIXRValues(): Retrieves the values of all Index Registers (IXRs).
+ * - @return short[]: Array containing IXR values.
+ * 
+ * getPCValue(): Retrieves the current value of the Program Counter (PC).
+ * - @return int: The PC value.
+ * 
+ * getCCValue(): Retrieves the Condition Code values as an array of integers.
+ * - @return int[]: Array with 1 if the condition is met, 0 otherwise for each condition code flag.
+ * 
+ * getMfrValues(): Retrieves the Machine Fault Register values (not yet implemented).
+ * - @return int[]: Array representing MFR values.
+ * 
+ * updateCacheDisplay(): Updates the cache content display in the frontend GUI.
+ * 
+ * resetRegisters(): Resets all CPU registers and provides feedback in the printer area.
+ * 
+ * setFrontendGUI(FrontendGUI gui): Links the frontend GUI to enable communication with the backend.
+ * - @param gui: The frontend GUI instance to connect.
+ */
+
 import components.*;
 import javax.swing.*;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import Assembler.Assembler;
 

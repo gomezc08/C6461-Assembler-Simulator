@@ -1,5 +1,82 @@
 package components;
 
+/*
+ * CPUExe: Handles the execution of instructions for the computer simulator.
+ * Provides methods to execute a variety of assembly instructions, including 
+ * load, store, jump, arithmetic, and I/O operations.
+ * 
+ * CPUExe(Memory memory, GeneralPurposeRegisters gpr, IndexRegisters ixr, ProgramCounter pc, 
+ * ConditionCode cc, Cache c): Constructs the execution handler with the required components.
+ * - @param memory: The memory instance connected to the CPUExe.
+ * - @param gpr: General Purpose Registers for computation.
+ * - @param ixr: Index Registers for addressing.
+ * - @param pc: Program Counter for tracking the next instruction.
+ * - @param cc: Condition Code register to handle overflow, zero, etc.
+ * - @param c: Cache instance for memory operations.
+ * 
+ * calculateEffectiveAddress(String ix, String iBit, String address): Helper function 
+ * to calculate the effective address based on index registers and indirect addressing.
+ * - @param ix: Index register field from the instruction.
+ * - @param iBit: Indirect addressing bit.
+ * - @param address: Address field from the instruction.
+ * - @return int: The calculated effective address.
+ * 
+ * executeLDR(String binaryInstruction): Execute Load Register (LDR) instruction.
+ * 
+ * executeSTR(String binaryInstruction): Execute Store Register (STR) instruction.
+ * 
+ * executeLDA(String binaryInstruction): Execute Load Address (LDA) instruction.
+ * 
+ * executeLDX(String binaryInstruction): Execute Load Index Register (LDX) instruction.
+ * 
+ * executeSTX(String binaryInstruction): Execute Store Index Register (STX) instruction.
+ * 
+ * executeJZ(String binaryInstruction): Execute Jump if Zero (JZ) instruction.
+ * 
+ * executeJNE(String binaryInstruction): Execute Jump if Not Equal (JNE) instruction.
+ * 
+ * executeJCC(String binaryInstruction, ProgramCounter pc, ConditionCode cc): Execute Jump if Condition Code (JCC) instruction.
+ * 
+ * executeJMA(String binaryInstruction): Execute Jump to Address (JMA) instruction.
+ * 
+ * executeJSR(String binaryInstruction): Execute Jump to Subroutine (JSR) instruction.
+ * 
+ * executeRFS(String binaryInstruction): Execute Return from Subroutine (RFS) instruction.
+ * 
+ * executeSOB(String binaryInstruction): Execute Subtract One and Branch (SOB) instruction.
+ * 
+ * executeJGE(String binaryInstruction): Execute Jump if Greater than or Equal (JGE) instruction.
+ * 
+ * executeAMR(String binaryInstruction): Execute Add Memory to Register (AMR) instruction.
+ * 
+ * executeSMR(String binaryInstruction): Execute Subtract Memory from Register (SMR) instruction.
+ * 
+ * executeAIR(String binaryInstruction): Execute Add Immediate to Register (AIR) instruction.
+ * 
+ * executeSIR(String binaryInstruction): Execute Subtract Immediate from Register (SIR) instruction.
+ * 
+ * executeMLT(String binaryInstruction): Execute Multiply (MLT) instruction.
+ * 
+ * executeDVD(String binaryInstruction): Execute Divide (DVD) instruction.
+ * 
+ * executeTRR(String binaryInstruction): Execute Test the Equality of Registers (TRR) instruction.
+ * 
+ * executeAND(String binaryInstruction): Execute Logical AND (AND) instruction.
+ * 
+ * executeORR(String binaryInstruction): Execute Logical OR (ORR) instruction.
+ * 
+ * executeNOT(String binaryInstruction): Execute Logical NOT (NOT) instruction.
+ * 
+ * executeIN(String binaryInstruction): Execute Input (IN) instruction.
+ * 
+ * executeOUT(String binaryInstruction): Execute Output (OUT) instruction.
+ * 
+ * executeCHK(String binaryInstruction): Execute Check Device Status (CHK) instruction.
+ * 
+ * executeHLT(): Execute Halt (HLT) instruction.
+ * - @return boolean: True to stop execution.
+ */
+
 import java.lang.Math;
 import java.util.Scanner;
 
@@ -42,9 +119,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  
 
         int reg = Integer.parseInt(reg_str, 2);
-        int ix = Integer.parseInt(ix_str, 2);
-        int iBit = Integer.parseInt(iBit_str, 2);
-        int address = Integer.parseInt(address_str, 2);
+        //int ix = Integer.parseInt(ix_str, 2);
+        //int iBit = Integer.parseInt(iBit_str, 2);
+        //int address = Integer.parseInt(address_str, 2);
     
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  // Calculate effective address
         
@@ -64,9 +141,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16); 
 
         int reg = Integer.parseInt(reg_str, 2);
-        int ix = Integer.parseInt(ix_str, 2);
-        int iBit = Integer.parseInt(iBit_str, 2);
-        int address = Integer.parseInt(address_str, 2);
+        //int ix = Integer.parseInt(ix_str, 2);
+        //int iBit = Integer.parseInt(iBit_str, 2);
+        //int address = Integer.parseInt(address_str, 2);
 
 
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
@@ -89,9 +166,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  
     
         int reg = Integer.parseInt(reg_str, 2);
-        int ix = Integer.parseInt(ix_str, 2);
-        int iBit = Integer.parseInt(iBit_str, 2);
-        int address = Integer.parseInt(address_str, 2);
+        //int ix = Integer.parseInt(ix_str, 2);
+        //int iBit = Integer.parseInt(iBit_str, 2);
+        //int address = Integer.parseInt(address_str, 2);
     
         // Calculate the effective address (same method as LDR/STR)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
@@ -110,8 +187,8 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  // Correct bits for the address
     
         int ix = Integer.parseInt(ix_str, 2);  // Convert IX field to integer
-        int iBit = Integer.parseInt(iBit_str, 2);  // Convert I bit to integer
-        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+        //int iBit = Integer.parseInt(iBit_str, 2);  // Convert I bit to integer
+        //int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
     
         // Calculate Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
@@ -133,8 +210,8 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);
     
         int ix = Integer.parseInt(ix_str, 2);  // Convert IX field to integer
-        int iBit = Integer.parseInt(iBit_str, 2);  // Convert I bit to integer
-        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+        //int iBit = Integer.parseInt(iBit_str, 2);  // Convert I bit to integer
+        //int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
     
         // Calculate Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
@@ -157,9 +234,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  
 
         int reg = Integer.parseInt(reg_str, 2);
-        int ix = Integer.parseInt(ix_str, 2);
-        int iBit = Integer.parseInt(iBit_str, 2);
-        int address = Integer.parseInt(address_str, 2);
+        //int ix = Integer.parseInt(ix_str, 2);
+        //int iBit = Integer.parseInt(iBit_str, 2);
+        //int address = Integer.parseInt(address_str, 2);
 
         // Get the contents of the register
         int regValue = gpr.getGPR(reg);
@@ -184,9 +261,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  
 
         int reg = Integer.parseInt(reg_str, 2);
-        int ix = Integer.parseInt(ix_str, 2);
-        int iBit = Integer.parseInt(iBit_str, 2);
-        int address = Integer.parseInt(address_str, 2);
+        //int ix = Integer.parseInt(ix_str, 2);
+        //int iBit = Integer.parseInt(iBit_str, 2);
+        //int address = Integer.parseInt(address_str, 2);
 
         // Get the contents of the register
         int regValue = gpr.getGPR(reg);
@@ -211,9 +288,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  
 
         int conditionCodeIndex = Integer.parseInt(conditionCodeStr, 2);
-        int ix = Integer.parseInt(ix_str, 2);
-        int iBit = Integer.parseInt(iBit_str, 2);
-        int address = Integer.parseInt(address_str, 2);
+        //int ix = Integer.parseInt(ix_str, 2);
+        //int iBit = Integer.parseInt(iBit_str, 2);
+        //int address = Integer.parseInt(address_str, 2);
 
         // Get the effective address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);
@@ -268,9 +345,9 @@ public class CPUExe {
         String iBit_str = binaryInstruction.substring(10, 11);  
         String address_str = binaryInstruction.substring(11, 16);  
 
-        int ix = Integer.parseInt(ix_str, 2);
-        int iBit = Integer.parseInt(iBit_str, 2);
-        int address = Integer.parseInt(address_str, 2);
+        //int ix = Integer.parseInt(ix_str, 2);
+        //int iBit = Integer.parseInt(iBit_str, 2);
+        //int address = Integer.parseInt(address_str, 2);
 
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
@@ -309,9 +386,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  
     
         int reg = Integer.parseInt(reg_str, 2);
-        int ix = Integer.parseInt(ix_str, 2);
-        int iBit = Integer.parseInt(iBit_str, 2);
-        int address = Integer.parseInt(address_str, 2);
+        //int ix = Integer.parseInt(ix_str, 2);
+        //int iBit = Integer.parseInt(iBit_str, 2);
+        //int address = Integer.parseInt(address_str, 2);
     
         // Get the current value of the register and decrement it by 1
         int regValue = gpr.getGPR(reg);
@@ -343,9 +420,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  // Address field
     
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
-        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
-        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
-        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+        //int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        //int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        //int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
     
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
@@ -373,9 +450,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  // Address field
     
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
-        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
-        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
-        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+        //int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        //int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        //int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
     
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
@@ -402,9 +479,9 @@ public class CPUExe {
         String address_str = binaryInstruction.substring(11, 16);  // Address field
     
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
-        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
-        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
-        int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
+        //int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        //int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        //int address = Integer.parseInt(address_str, 2);  // Convert address field to integer
     
         // Get the value in the register
         int regValue = gpr.getGPR(reg);
@@ -448,9 +525,7 @@ public class CPUExe {
         gpr.setGPR(reg, (short) result);
 
         return false;  // Continue execution
-    }
-
-        
+    } 
 
     //SIR
     public boolean executeSIR(String binaryInstruction) {
@@ -461,8 +536,8 @@ public class CPUExe {
 
     
         int reg = Integer.parseInt(reg_str, 2);  // Convert register field to integer
-        int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
-        int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
+        //int ix = Integer.parseInt(ix_str, 2);  // Convert index register field to integer
+        //int iBit = Integer.parseInt(iBit_str, 2);  // Convert indirect bit field to integer
         //int immed = Integer.parseInt(immed_str, 2);  // Convert address field to integer 
 
         int immed = calculateEffectiveAddress(ix_str, iBit_str, immed_str);

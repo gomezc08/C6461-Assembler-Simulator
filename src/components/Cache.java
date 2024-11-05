@@ -1,5 +1,43 @@
 package components;
 
+/*
+ * Cache: This class contains methods for managing a fully associative cache with 4 cache lines, 
+ * implementing a Least Recently Used (LRU) replacement policy. Each cache line stores a block of 
+ * 8 words from memory, supporting read, write, and cache management operations.
+ * 
+ * Cache(Memory memory): Initializes the cache and sets up cache lines and the LRU list.
+ * - @param memory: A reference to the Memory instance used to access and store data.
+ * 
+ * getBlockID(int address): Retrieves the block ID from a memory address.
+ * - @param address: The full memory address.
+ * - @return int: The block ID derived from the lower 3 bits of the address.
+ * 
+ * getTag(int address): Extracts the tag portion of a memory address for cache lookups.
+ * - @param address: The full memory address.
+ * - @return int: The tag derived from the upper bits of the address.
+ * 
+ * read(int address): Reads a word from the cache or loads the block from memory if it's not present.
+ * - @param address: The full memory address of the word to read.
+ * - @return int: The word at the specified address.
+ * 
+ * write(int address, int value): Writes a word to the cache, updating the block if present or loading it if not.
+ * - @param address: The full memory address where the value should be written.
+ * - @param value: The word to write at the specified address.
+ * 
+ * updateLRU(int index): Updates the LRU order by moving the specified index to the most recently used position.
+ * - @param index: The index of the cache line to update.
+ * 
+ * loadBlockFromMemory(int address): Loads a block of words from memory into a cache line and manages eviction.
+ * - @param address: The starting memory address of the block to load.
+ * - @return int: The index of the cache line where the block was loaded.
+ * 
+ * writeBackToMemory(CacheLine cacheLine): Writes back a dirty cache line to memory before eviction.
+ * - @param cacheLine: The cache line to write back to memory.
+ * 
+ * getCacheStateString(): Generates a formatted string representing the current state of the cache.
+ * - @return String: A detailed string showing the cache line tags and block data.
+ */
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 

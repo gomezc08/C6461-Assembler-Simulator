@@ -1,5 +1,49 @@
 package components;
 
+/*
+ * CPU: Manages the main components of a computer simulator, including the memory, registers, 
+ * cache, and condition codes. This class controls the Fetch-Decode-Execute cycle and provides
+ * methods to load ROM files, store values in memory, and reset registers. Each instruction is
+ * decoded and executed through direct calls to the CPUExe class.
+ * 
+ * CPU(Memory memory, MemoryAddressRegister mar, MemoryBufferRegister mbr, GeneralPurposeRegisters gpr, 
+ * IndexRegisters ixr, ProgramCounter pc, ConditionCode cc, Cache cac): Constructs the CPU with all required components.
+ * - @param memory: The memory instance connected to the CPU.
+ * - @param mar: Memory Address Register for memory addressing.
+ * - @param mbr: Memory Buffer Register for temporary data storage.
+ * - @param gpr: General Purpose Registers for various computations.
+ * - @param ixr: Index Registers for indexed addressing.
+ * - @param pc: Program Counter to track the address of the next instruction.
+ * - @param cc: Condition Code register to handle flags like overflow and zero.
+ * - @param cac: Cache instance for storing frequently accessed data.
+ * 
+ * loadROMFile(File file): Loads a ROM file into memory, parsing address-data pairs in octal format.
+ * - @param file: The file containing the ROM instructions.
+ * - @throws IOException: If an error occurs while reading the file.
+ * 
+ * getCache(): Returns the Cache instance connected to the CPU.
+ * - @return Cache: The cache instance associated with the CPU.
+ * 
+ * run(): Executes the Fetch-Decode-Execute cycle until a HLT instruction is encountered.
+ * 
+ * fetch(): Retrieves the next instruction from memory based on the current Program Counter (PC).
+ * - @return String: The binary string representation of the instruction.
+ * 
+ * decode(String binaryInstruction): Decodes and executes a binary instruction based on the opcode.
+ * - @param binaryInstruction: The binary string of the instruction to decode and execute.
+ * - @return boolean: True if a HLT instruction is encountered, ending execution.
+ * 
+ * getPc(): Retrieves the current value of the Program Counter (PC).
+ * - @return int: The current PC value.
+ * 
+ * store(int address, int value): Stores a value in memory and updates the cache with the given address.
+ * - @param address: The memory address to store the value.
+ * - @param value: The value to store at the specified address.
+ * 
+ * resetRegisters(): Resets all general-purpose registers, index registers, and control registers 
+ * (PC, MAR, MBR) to their initial state.
+ */
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

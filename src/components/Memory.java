@@ -1,5 +1,24 @@
 package components;
 
+/*
+ * Memory: Represents a memory module with 2048 words of 16-bit storage, allowing for 
+ * storing and loading values, as well as resetting the entire memory.
+ * 
+ * Memory(): Constructor that initializes memory with a default size of 2048 words, 
+ * setting each word to 0.
+ * 
+ * resetMemory(): Resets all memory values to 0.
+ * 
+ * storeValue(int address, int value): Stores a 16-bit value at a specified memory address, 
+ * ensuring it fits within the 16-bit range.
+ * - @param address: The memory address where the value will be stored.
+ * - @param value: The value to store, limited to 16 bits.
+ * 
+ * loadMemoryValue(int address): Loads and returns the value at a specified memory address as an unsigned 16-bit value.
+ * - @param address: The memory address to load the value from.
+ * - @return int: The 16-bit unsigned value at the specified address, or 0 if the address is out of bounds.
+ */
+
 public class Memory {
     private short[] memoryArray; // 16-bit words in memory
     private final int SIZE = 2048; // Maximum 2048 words

@@ -1,5 +1,26 @@
 package components;
 
+/*
+ * MachineFaultRegister: Represents a 4-bit machine fault register (MFR) used to handle 
+ * machine faults, allowing for setting, resetting, and retrieving fault codes.
+ * 
+ * MachineFaultRegister(): Constructor that initializes the MFR to 0.
+ * 
+ * triggerFault(String faultMessage): Displays a machine fault message.
+ * - @param faultMessage: A message describing the fault.
+ * 
+ * setMFR(int value): Sets the MFR value, ensuring it's within the 4-bit range (0-15).
+ * - @param value: The integer value to store in the MFR.
+ * 
+ * getMFR(): Retrieves the MFR value, limited to the lower 4 bits.
+ * - @return int: The 4-bit MFR value.
+ * 
+ * resetMFR(): Resets the MFR to 0.
+ * 
+ * toString(): Returns a string representation of the MFR value in binary for debugging purposes.
+ * - @return String: A formatted string showing the MFR in binary.
+ */
+
 public class MachineFaultRegister {
     private byte mfr; // Use a byte to hold the 4-bit value
 

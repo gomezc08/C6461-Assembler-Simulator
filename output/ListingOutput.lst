@@ -1,52 +1,37 @@
-; R0 - Temporary register for holding and updating the storage address
-; R1 - Counter for the number of values to read
-; R2 - Current input value
-; R3 - Target value (not currently used)
-; R4 - Smallest difference found so far (not currently used)
-; R5 - Closest number found (not currently used)
-
-                         LOC    100              		; Start data storage at address 100
-000144     000024        Data   20               		; Start of numbers storage (20 words)
-000145     000012        Data   10                    
-000146     000036        Data   30                    
-000147     000000        Data   0                     
-000150     000000        Data   0                     
-000151     000000        Data   0                     
-000152     000000        Data   0                     
-000153     000000        Data   0                     
-000154     000000        Data   0                     
-000155     000000        Data   0                     
-000156     000000        Data   0                     
-000157     000000        Data   0                     
-000160     000000        Data   0                     
-000161     000000        Data   0                     
-000162     000000        Data   0                     
-000163     000000        Data   0                     
-000164     000000        Data   0                     
-000165     000000        Data   0                     
-000166     000000        Data   0                     
-
-                         LOC    6                     
-000006     000024        Data   20               		; Counter for number of values to read
-000007     000000        Data   0                		; Target value placeholder (not used here)
-000010     000144        Data   100              		; Holds current address for data storage
-
-000011     122110        LDX    1,CURR_ADDR      		; Load starting address (100) into IX1
-000012     002406        LDR    1,0,COUNT        		; Load count (20) into R1
-
-000013     147000        IN     2,0              		; Get input into R2
-000014     005100        STR    2,1,0            		; Store input at the address pointed by IX1
-
-000015     002010        LDR    0,0,CURR_ADDR    		; Load current storage address into R0
-000016     014001        AIR    0,1              		; Increment R0 to move to the next storage address
-000017     004010        STR    0,0,CURR_ADDR    		; Store the updated address back to CURR_ADDR
-000020     122110        LDX    1,CURR_ADDR      		; Update IX1 with the new address for the next loop
-
-000021     016401        SIR    1,1              		; Decrement R1 (count)
-000022     004406        STR    1,0,COUNT        		; Save the updated count back to COUNT
-
-000023     026413        JNE    1,0,RDLOOP       		; Loop if count is not zero
-000024     05027777      JZ     0,1,End          		; Jump to End if count reaches zero
-
-                         LOC    4095                  
-007777     000000        HLT                     		; Stop
+                         LOC    6                		; Start storing numbers at location 6
+000006     000000        Data   0                		; 6. Reserve 20 locations for our numbers
+000007     000000        Data   0                		; 7. Reserve 20 locations for our numbers
+000010     000000        Data   0                		; 8. Reserve 20 locations for our numbers
+000011     000000        Data   0                		; 9. Reserve 20 locations for our numbers
+000012     000000        Data   0                		; 10. Reserve 20 locations for our numbers
+000013     000000        Data   0                		; 11. Reserve 20 locations for our numbers
+000014     000000        Data   0                		; 12. Reserve 20 locations for our numbers
+000015     000000        Data   0                		; 13. Reserve 20 locations for our numbers
+000016     000000        Data   0                		; 14. Reserve 20 locations for our numbers
+000017     000000        Data   0                		; 15. Reserve 20 locations for our numbers
+000020     000000        Data   0                		; 16. Reserve 20 locations for our numbers
+000021     000000        Data   0                		; 17. Reserve 20 locations for our numbers
+000022     000000        Data   0                		; 18. Reserve 20 locations for our numbers
+000023     000000        Data   0                		; 19. Reserve 20 locations for our numbers
+000024     000000        Data   0                		; 20. Reserve 20 locations for our numbers
+000025     000000        Data   0                		; 21. Reserve 20 locations for our numbers
+000026     000000        Data   0                		; 22. Reserve 20 locations for our numbers
+000027     000000        Data   0                		; 23. Reserve 20 locations for our numbers
+000030     000000        Data   0                		; 24. Reserve 20 locations for our numbers
+000031     000000        Data   0                		; 25. Reserve 20 locations for our numbers
+000032     000024        Data   20               		; 26. i = 19,18,17,..,0.
+000033     000006        Data   6                		; 27. memory = 6,7,8,...,25.
+000034     000040        Data   32               		; 28. memory = end.
+000035     002032        LDR    0,0,26           		; 29. TREATING R0 as i. R0 = 19 at first.
+000036     002433        LDR    1,0,27           		; 30. TREATING R1 as where in memory we are.. R1 = 6
+000037     147000        IN     2,0              		; 31. R2 = User input.
+000040     151001        OUT    2,1              		; 32. output it.
+000041     005073        STR    2,0,27,1         		; 33. store whatever user typed in into memory[i]
+000042     016001        SIR    0,1              		; 34. R0 -= 1
+000043     014401        AIR    1,1              		; 35. R1 += 1
+000044     004032        STR    0,0,26           		; 36. update memory 26.
+000045     004433        STR    1,0,27           		; 37. update memory 27.
+000046     026135        JNE    0,1,LOOP1        		; 38. If R0 (i) is NOT 0, jump back to start of loop.
+000047     147400        IN     3,0              		; 39. special number will be stored in R3 the whole time.
+                         LOC    1024             		; End program section
+002000     000000        HLT                     		; Stop execution

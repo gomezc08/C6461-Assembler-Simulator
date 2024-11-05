@@ -1,5 +1,7 @@
 package components;
 
+// not used in the final product.
+
 public class YRegister {
     private short yRegister; // 16-bit Y register
 
