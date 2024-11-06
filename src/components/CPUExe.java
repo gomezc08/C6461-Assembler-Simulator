@@ -243,6 +243,7 @@ public class CPUExe {
         
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Calculated Effective Address: " + ea);
 
         // If the value in the register is zero, jump to the EA, otherwise we just continue.
         if (regValue == 0) {
@@ -270,6 +271,7 @@ public class CPUExe {
         
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Calculated Effective Address: " + ea);
 
         // If the value in the register is NOT zero, jump to the EA, otherwise increment the PC
         if (regValue != 0) {
@@ -294,6 +296,7 @@ public class CPUExe {
 
         // Get the effective address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);
+        System.out.println("Calculated Effective Address: " + ea);
 
         // Check the condition based on the condition code index
         boolean conditionMet = false;
@@ -331,6 +334,7 @@ public class CPUExe {
 
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Calculated Effective Address: " + ea);
 
         // Set the Program Counter (PC) to the effective address
         pc.setPC(ea);
@@ -351,6 +355,7 @@ public class CPUExe {
 
         // Calculate the Effective Address (EA)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+        System.out.println("Calculated Effective Address: " + ea);
 
         // Step 1: Save the return address (PC + 1) in GPR[3]
         gpr.setGPR(3, (short) (pc.getPC()));  

@@ -159,10 +159,40 @@ public class Assembler {
     }
     
     private static void passOne(String fileName) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(fileName));
-        String line = reader.readLine();    // skip header line
+        BufferedReader reader1 = new BufferedReader(new FileReader(fileName));
+        String line = reader1.readLine();    // skip header line
         boolean startAssigned = false;
         int lastInstructionAddress = -1;  // Track last real instruction address
+
+        currentAddress = 0;  // Reset current address at start
+        System.out.println("DEBUG Initial currentAddress: " + currentAddress);
+
+        // First pass - just look for the first LOC
+        while ((line = reader1.readLine()) != null) {
+            if (line.trim().isEmpty() || line.trim().startsWith(";")) continue;
+            
+            String[] parts = Arrays.stream(line.split("\\s+"))
+                                .filter(s -> !s.trim().isEmpty())
+                                .toArray(String[]::new);
+            
+            if (parts.length == 0) continue;
+
+            if (parts[0].equalsIgnoreCase("LOC")) {
+                try {
+                    currentAddress = Integer.parseInt(parts[1]);
+                    startAddress = currentAddress;
+                    startAssigned = true;
+                    System.out.println("DEBUG Initial LOC found: Setting address to " + currentAddress);
+                    break;  // Found our starting point
+                } catch (NumberFormatException e) {
+                    System.err.println("Error: Invalid address for LOC directive");
+                }
+            }
+        }
+        reader1.close();
+        
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        line = reader.readLine();  // skip header
     
         while ((line = reader.readLine()) != null) {
             if (line.trim().isEmpty() || line.trim().startsWith(";")) {
@@ -185,29 +215,37 @@ public class Assembler {
                 if (parts.length > 1) {
                     try {
                         int targetLocation = Integer.parseInt(parts[1]);
+                        System.out.println("DEBUG Found LOC directive: " + targetLocation);
+                        currentAddress = targetLocation;  // Always set current address
                         if (!startAssigned) {
-                            // First LOC just sets start address
                             startAddress = targetLocation;
-                            currentAddress = startAddress;
                             startAssigned = true;
+                            System.out.println("DEBUG passOne - First LOC sets address to: " + currentAddress);
                         } else {
-                            // Only add LOC directive if we've seen instructions before
                             if (lastInstructionAddress != -1) {
                                 programCounter.addLocDirective(lastInstructionAddress + 1, targetLocation);
                             }
-                            currentAddress = targetLocation;
+                            System.out.println("DEBUG passOne - Changing address to: " + currentAddress);
                         }
+                        System.out.println("DEBUG After LOC processing - currentAddress: " + currentAddress);
                     } catch (NumberFormatException e) {
                         System.err.println("Error: Invalid address for LOC directive");
                     }
                 }
-                continue;
+                continue;  // Changed from return to continue
             }
+
+            // Only process further if we have a start address
+            System.out.println("DEBUG Current working address before processing line: " + currentAddress);
+            System.out.println("DEBUG Processing line: " + line);
     
-            // Handle labels
+            // Handle labels first, before processing any instruction or data
             if (parts[0].endsWith(":")) {
                 String label = parts[0].substring(0, parts[0].length() - 1);
                 labelTable.put(label, currentAddress);
+                System.out.println("DEBUG passOne - Label " + label + " stored at address: " + currentAddress);
+                parts = Arrays.copyOfRange(parts, 1, parts.length);
+                if (parts.length == 0) continue;
             }
     
             // Track real instructions and data
@@ -215,8 +253,27 @@ public class Assembler {
                 parts[0].equalsIgnoreCase("Data") || 
                 (parts.length > 1 && parts[1].equalsIgnoreCase("Data"))) {
                 lastInstructionAddress = currentAddress;
-                currentAddress++;
+                if (parts[0].equalsIgnoreCase("Data") || (parts.length > 1 && parts[1].equalsIgnoreCase("Data"))) {
+                    System.out.println("DEBUG Processing Data directive at address: " + currentAddress);
+                } else {
+                    System.out.println("DEBUG Processing Instruction at address: " + currentAddress);
+                }
+                currentAddress++;  // Increment after processing instruction or data
+                System.out.println("DEBUG - Current Address updated to: " + currentAddress);
             }
+        }  // <-- This was missing
+        if (!startAssigned) {
+            startAddress = 0;
+            currentAddress = 0;
+            startAssigned = true;
+            System.out.println("DEBUG No LOC directives found, using default address: 0");
+        }
+    
+        // At end of passOne
+        System.out.println("DEBUG - Label Table contents:");
+        for (Map.Entry<String, Integer> entry : labelTable.entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue() + " (hex: " + 
+                             String.format("%04X", entry.getValue()) + ")");
         }
         reader.close();
     }
@@ -277,8 +334,11 @@ public class Assembler {
                     operand = parts[dataIndex];
                     try {
                         if (labelTable.containsKey(parts[dataIndex])) {
+                            System.out.println("DEBUG passTwo - Found label in Data directive: " + parts[dataIndex] + 
+                                 " with value: " + labelTable.get(parts[dataIndex]));
                             dataValue = String.format("%06o", labelTable.get(parts[dataIndex]));
                         } else {
+                            System.out.println("DEBUG passTwo - Processing numeric Data value: " + parts[dataIndex]);
                             dataValue = String.format("%06o", Integer.parseInt(parts[dataIndex]));
                         }
                     } catch (NumberFormatException e) {
@@ -316,8 +376,11 @@ public class Assembler {
                     String[] operand_labels = operands.split(",");
                     for (String s : operand_labels) {
                         if (labelTable.containsKey(s)) {
-                            operand.append(labelTable.get(s)).append(",");
+                            int labelAddress = labelTable.get(s);
+                            System.out.println("DEBUG passTwo - Resolving label: " + s + " to address: " + labelAddress);
+                            operand.append(labelAddress).append(",");
                         } else {
+                            System.out.println("DEBUG passTwo - Using direct value: " + s);
                             operand.append(s).append(",");
                         }
                     }
@@ -624,12 +687,11 @@ public class Assembler {
     }
 
     
-    
-/* 
+    /* 
     public static void main(String[] args) throws IOException {
         // Sample input file
-        String sourceFile = "assembly/LabelsTest.asm";
+        String sourceFile = "assembly/gomez.asm";
         run(sourceFile);
-    }*/
-        
+    }
+        */
 }

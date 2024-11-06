@@ -84,10 +84,12 @@ public class ProgramCounter {
 
     // Modified increment to check for LOC directives
     public void incrementPC() {
+        System.out.println("Incrementing PC from: " + this.pc);
         int nextPC = (this.pc + 1) & MAX_VALUE;
         // If next address has a LOC directive, jump to that location instead
         if (hasLocDirective(nextPC)) {
             this.pc = getLocTarget(nextPC);
+            System.out.println("LOC directive jump to: " + this.pc);
         } else {
             this.pc = nextPC;
         }
