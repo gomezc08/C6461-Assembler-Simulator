@@ -165,7 +165,6 @@ public class Assembler {
         int lastInstructionAddress = -1;  // Track last real instruction address
 
         currentAddress = 0;  // Reset current address at start
-        System.out.println("DEBUG Initial currentAddress: " + currentAddress);
 
         // First pass - just look for the first LOC
         while ((line = reader1.readLine()) != null) {
@@ -182,7 +181,6 @@ public class Assembler {
                     currentAddress = Integer.parseInt(parts[1]);
                     startAddress = currentAddress;
                     startAssigned = true;
-                    System.out.println("DEBUG Initial LOC found: Setting address to " + currentAddress);
                     break;  // Found our starting point
                 } catch (NumberFormatException e) {
                     System.err.println("Error: Invalid address for LOC directive");
@@ -215,19 +213,15 @@ public class Assembler {
                 if (parts.length > 1) {
                     try {
                         int targetLocation = Integer.parseInt(parts[1]);
-                        System.out.println("DEBUG Found LOC directive: " + targetLocation);
                         currentAddress = targetLocation;  // Always set current address
                         if (!startAssigned) {
                             startAddress = targetLocation;
                             startAssigned = true;
-                            System.out.println("DEBUG passOne - First LOC sets address to: " + currentAddress);
                         } else {
                             if (lastInstructionAddress != -1) {
                                 programCounter.addLocDirective(lastInstructionAddress + 1, targetLocation);
                             }
-                            System.out.println("DEBUG passOne - Changing address to: " + currentAddress);
                         }
-                        System.out.println("DEBUG After LOC processing - currentAddress: " + currentAddress);
                     } catch (NumberFormatException e) {
                         System.err.println("Error: Invalid address for LOC directive");
                     }
@@ -236,14 +230,11 @@ public class Assembler {
             }
 
             // Only process further if we have a start address
-            System.out.println("DEBUG Current working address before processing line: " + currentAddress);
-            System.out.println("DEBUG Processing line: " + line);
     
             // Handle labels first, before processing any instruction or data
             if (parts[0].endsWith(":")) {
                 String label = parts[0].substring(0, parts[0].length() - 1);
                 labelTable.put(label, currentAddress);
-                System.out.println("DEBUG passOne - Label " + label + " stored at address: " + currentAddress);
                 parts = Arrays.copyOfRange(parts, 1, parts.length);
                 if (parts.length == 0) continue;
             }
@@ -253,28 +244,16 @@ public class Assembler {
                 parts[0].equalsIgnoreCase("Data") || 
                 (parts.length > 1 && parts[1].equalsIgnoreCase("Data"))) {
                 lastInstructionAddress = currentAddress;
-                if (parts[0].equalsIgnoreCase("Data") || (parts.length > 1 && parts[1].equalsIgnoreCase("Data"))) {
-                    System.out.println("DEBUG Processing Data directive at address: " + currentAddress);
-                } else {
-                    System.out.println("DEBUG Processing Instruction at address: " + currentAddress);
-                }
                 currentAddress++;  // Increment after processing instruction or data
-                System.out.println("DEBUG - Current Address updated to: " + currentAddress);
             }
         }  // <-- This was missing
         if (!startAssigned) {
             startAddress = 0;
             currentAddress = 0;
             startAssigned = true;
-            System.out.println("DEBUG No LOC directives found, using default address: 0");
         }
     
         // At end of passOne
-        System.out.println("DEBUG - Label Table contents:");
-        for (Map.Entry<String, Integer> entry : labelTable.entrySet()) {
-            System.out.println(entry.getKey() + " -> " + entry.getValue() + " (hex: " + 
-                             String.format("%04X", entry.getValue()) + ")");
-        }
         reader.close();
     }
 
@@ -334,11 +313,8 @@ public class Assembler {
                     operand = parts[dataIndex];
                     try {
                         if (labelTable.containsKey(parts[dataIndex])) {
-                            System.out.println("DEBUG passTwo - Found label in Data directive: " + parts[dataIndex] + 
-                                 " with value: " + labelTable.get(parts[dataIndex]));
                             dataValue = String.format("%06o", labelTable.get(parts[dataIndex]));
                         } else {
-                            System.out.println("DEBUG passTwo - Processing numeric Data value: " + parts[dataIndex]);
                             dataValue = String.format("%06o", Integer.parseInt(parts[dataIndex]));
                         }
                     } catch (NumberFormatException e) {
@@ -366,7 +342,6 @@ public class Assembler {
     
             if (parts.length > opcodeIndex) {
                 opcode = parts[opcodeIndex].toUpperCase();
-                System.out.println("The opcode generated is: " + opcode);
                 if (parts.length > opcodeIndex + 1) {
                     operands = parts[opcodeIndex + 1];
                 }
@@ -378,10 +353,8 @@ public class Assembler {
                     for (String s : operand_labels) {
                         if (labelTable.containsKey(s)) {
                             int labelAddress = labelTable.get(s);
-                            System.out.println("DEBUG passTwo - Resolving label: " + s + " to address: " + labelAddress);
                             operand.append(labelAddress).append(",");
                         } else {
-                            System.out.println("DEBUG passTwo - Using direct value: " + s);
                             operand.append(s).append(",");
                         }
                     }
@@ -503,8 +476,6 @@ public class Assembler {
             // After creating the binary string
             binaryString = output.toString();
 
-
-            System.out.println("The binary value of opcode is : " + opcodeBinary);
             return binaryToOctal(binaryString);
         }
         

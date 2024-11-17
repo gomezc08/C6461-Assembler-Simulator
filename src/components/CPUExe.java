@@ -151,7 +151,7 @@ public class CPUExe {
         int value = gpr.getGPR(reg); 
 
         memory.storeValue(ea, value);  // Store the value into memory
-        System.out.println("we have stored: " + value + " in address: " + ea);
+        //System.out.println("we have stored: " + value + " in address: " + ea);
         cache.write(ea, value);
         return false;  
     }
@@ -502,6 +502,7 @@ public class CPUExe {
         int result = 0;
         boolean flag  = cc.isUnderflow();
 
+        /* 
         System.out.println("Initial state of underflow is: "+ flag);
 
         if (flag){
@@ -519,17 +520,11 @@ public class CPUExe {
          System.out.println("The result of the substraction is "  + result);
 
         }
-
+        */
         
-        if(result < 0) {
-            //if the result is negatiev, set the underflow to 1
-            cc.setUnderflow(true);
-        }
-        else {
-            cc.setUnderflow(false);
-        }
+        cc.updateConditionCodes(result);
 
-        System.out.println("Status of underflow is:" + cc.isUnderflow());
+        //System.out.println("Status of underflow is:" + cc.isUnderflow());
 
         gpr.setGPR( reg, (short) Math.abs(result));
         return false;  // Continue execution
