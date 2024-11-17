@@ -23,6 +23,7 @@ Label       Opcode      Operand         Comments
             Data        20              ; 26. i = 19,18,17,..,0.
             Data        6               ; 27. memory = 6,7,8,...,25.
             Data        32              ; 28. memory = end.
+            
 LOOP1:      LDR         0,0,26          ; 29. TREATING R0 as i. R0 = 19 at first.
             LDR         1,0,27          ; 30. TREATING R1 as where in memory we are.. R1 = 6
             IN          2,0             ; 31. R2 = User input.

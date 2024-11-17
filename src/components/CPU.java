@@ -234,7 +234,7 @@ public class CPU {
 
             // AND: Done!
             case "111011":
-                System.out.println("TRR");
+                System.out.println("AND");
                 return cpuExe.executeAND(binaryInstruction);
 
             // ORR: Done!

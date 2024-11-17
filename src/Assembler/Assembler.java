@@ -45,7 +45,7 @@ public class Assembler {
     private static List<String> listingFile = new ArrayList<>();
     private static List<String> loadFile = new ArrayList<>();
     private static int currentAddress = 0;
-    private static Map<String, String> opcodeMap = new HashMap<>();
+    private static final Map<String, String> opcodeMap = new HashMap<>();
     private static Set<String> memoryToMemory = new HashSet<>();
     private static Set<String> registerToRegister = new HashSet<>();
     private static Set<String> shiftRotate = new HashSet<>();
@@ -366,6 +366,7 @@ public class Assembler {
     
             if (parts.length > opcodeIndex) {
                 opcode = parts[opcodeIndex].toUpperCase();
+                System.out.println("The opcode generated is: " + opcode);
                 if (parts.length > opcodeIndex + 1) {
                     operands = parts[opcodeIndex + 1];
                 }
@@ -441,7 +442,9 @@ public class Assembler {
         // CASE 1: Memory to Memory Instruction.
         if(memoryToMemory.contains(opcode)) {
             // Case a: r, x, address[,I].
-            if (opcode.equals("LDR") || opcode.equals("STR") || opcode.equals("LDA") || opcode.equals("JZ") || opcode.equals("JNE") || opcode.equals("SOB") || opcode.equals("JGE") || opcode.equals("JCC") || opcode.equals("AMR") || opcode.equals("SMR")) {
+            if (opcode.equals("LDR") || opcode.equals("STR") || opcode.equals("LDA") || 
+                opcode.equals("JZ") || opcode.equals("JNE") || opcode.equals("SOB") || 
+                opcode.equals("JGE") || opcode.equals("JCC") || opcode.equals("AMR") || opcode.equals("SMR")) {
                 register = Integer.parseInt(parts[0]);
                 indexRegister = Integer.parseInt(parts[1]);
                 address = Integer.parseInt(parts[2]);
@@ -453,7 +456,8 @@ public class Assembler {
             } 
 
             // Case b: x, address[,I].
-            else if (opcode.equals("LDX") || opcode.equals("STX") || opcode.equals("JMA") || opcode.equals("JSR") || opcode.equals("JMA")) {
+            else if (opcode.equals("LDX") || opcode.equals("STX") || opcode.equals("JMA") || 
+                    opcode.equals("JSR") || opcode.equals("JMA")) {
                 indexRegister = Integer.parseInt(parts[0]);
                 address = Integer.parseInt(parts[1]);
 
@@ -498,6 +502,9 @@ public class Assembler {
 
             // After creating the binary string
             binaryString = output.toString();
+
+
+            System.out.println("The binary value of opcode is : " + opcodeBinary);
             return binaryToOctal(binaryString);
         }
         

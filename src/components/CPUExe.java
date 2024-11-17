@@ -172,9 +172,12 @@ public class CPUExe {
     
         // Calculate the effective address (same method as LDR/STR)
         int ea = calculateEffectiveAddress(ix_str, iBit_str, address_str);  
+
+        System.out.println("We are loading \t" + reg + "from address \t" + ea);
     
         // Store the effective address directly in the register
         gpr.setGPR(reg, (short) ea); 
+        
     
         return false;  // Continue execution
     }
@@ -496,10 +499,28 @@ public class CPUExe {
 
         //load the value present in effective address of memroy
         int value = memory.loadMemoryValue(ea);
+        int result = 0;
+        boolean flag  = cc.isUnderflow();
 
+        System.out.println("Initial state of underflow is: "+ flag);
+
+        if (flag){
+            System.out.println("We are adding  Register value: \t" + regValue + "\t and value from memory: \t" + value);
+
+            result = regValue + Math.abs(value);
+            System.out.println("The result of the addition is "  + result);
+
+        }
+
+        else{
         //substract the value from  memory with register
-        int result =  regValue - value;
+         System.out.println("We are substracting  Register value: \t" + regValue + "\t and value from memory: \t" + value);
+         result =  regValue - value;
+         System.out.println("The result of the substraction is "  + result);
 
+        }
+
+        
         if(result < 0) {
             //if the result is negatiev, set the underflow to 1
             cc.setUnderflow(true);
@@ -508,9 +529,12 @@ public class CPUExe {
             cc.setUnderflow(false);
         }
 
+        System.out.println("Status of underflow is:" + cc.isUnderflow());
+
         gpr.setGPR( reg, (short) Math.abs(result));
         return false;  // Continue execution
     }
+
 
     // AIR (Add Immediate to Register)
     public boolean executeAIR(String binaryInstruction) {
@@ -691,9 +715,21 @@ public class CPUExe {
         // Get the contents of the registers Rx and Ry
         int valueRx = gpr.getGPR(rx);
         int valueRy = gpr.getGPR(ry);
+        int result = 0;
 
         // Perform the logical AND operation
-        int result = valueRx & valueRy;
+        if (valueRx>valueRy) {
+                result = valueRy;
+        }    
+            
+            else
+            {
+                result = valueRx;
+
+            }
+               
+        
+        System.out.println("The value of the AND Operation is:"+ result);
 
         // Store the result in Rx
         gpr.setGPR(rx, (short)result);

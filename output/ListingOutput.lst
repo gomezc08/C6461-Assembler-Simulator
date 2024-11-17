@@ -1,100 +1,75 @@
-; Constants and data storage
-                         LOC    6                     
-000006     000024        Data   20               		; Size of our array
-000007     000000        Data   0                		; Counter for input numbers
-000010     000000        Data   0                		; Temporary storage
-000011     000000        Data   0                		; Current number being processed
-000012     000000        Data   0                		; Number to find closest to
-000013     000000        Data   0                		; Closest number found
-000014     000000        Data   0                		; Current difference
-000015     001747        Data   999              		; Minimum difference found
-000016     000000        Data   0                		; Start of number array (20 words)
+                         LOC    6                		; Start storing numbers at location 6
+000006     000000        Data   0                		; 6. Reserve 20 locations for our numbers
+000007     000000        Data   0                		; 7. Reserve 20 locations for our numbers
+000010     000000        Data   0                		; 8. Reserve 20 locations for our numbers
+000011     000000        Data   0                		; 9. Reserve 20 locations for our numbers
+000012     000000        Data   0                		; 10. Reserve 20 locations for our numbers
+000013     000000        Data   0                		; 11. Reserve 20 locations for our numbers
+000014     000000        Data   0                		; 12. Reserve 20 locations for our numbers
+000015     000000        Data   0                		; 13. Reserve 20 locations for our numbers
+000016     000000        Data   0                		; 14. Reserve 20 locations for our numbers
+000017     000000        Data   0                		; 15. Reserve 20 locations for our numbers
+000020     000000        Data   0                		; 16. Reserve 20 locations for our numbers
+000021     000000        Data   0                		; 17. Reserve 20 locations for our numbers
+000022     000000        Data   0                		; 18. Reserve 20 locations for our numbers
+000023     000000        Data   0                		; 19. Reserve 20 locations for our numbers
+000024     000000        Data   0                		; 20. Reserve 20 locations for our numbers
+000025     000000        Data   0                		; 21. Reserve 20 locations for our numbers
+000026     000000        Data   0                		; 22. Reserve 20 locations for our numbers
+000027     000000        Data   0                		; 23. Reserve 20 locations for our numbers
+000030     000000        Data   0                		; 24. Reserve 20 locations for our numbers
+000031     000000        Data   0                		; 25. Reserve 20 locations for our numbers
+000032     000000        Data   0                		; 26. Reserve for new number
+000033     000024        Data   20               		; 27. i = 19,18,17,..,0.
+000034     000006        Data   6                		; 28. memory = 6,7,8,...,25.
+000035     000000        Data   0                		; 29. store the AND value (initially 0)
+000036     000067        Data   55               		; 30 Store the location of the loop
 
-; Store addresses for indirect jumps
-000017     000162        Data   114              		; Address of Process routine
-000020     000147        Data   103              		; Address of ReadLoop routine
-000021     000174        Data   124              		; Address of Search routine
-000022     000212        Data   138              		; Address of NextNum routine
-000023     000216        Data   142              		; Address of Done routine
+000037     002033        LDR    0,0,27           		; 31. TREATING R0 as i. R0 = 19 at first.
+000040     002434        LDR    1,0,28           		; 32. TREATING R1 as where in memory we are.. R1 = 6
+000041     147000        IN     2,0              		; 33. R2 = User input.
+000042     151001        OUT    2,1              		; 34. output it.
+000043     005074        STR    2,0,28,1         		; 35. store whatever user typed in into memory[i]
+000044     016001        SIR    0,1              		; 36. R0 -= 1
+000045     014401        AIR    1,1              		; 37. R1 += 1
+000046     004033        STR    0,0,27           		; 38. update memory 27.
+000047     004434        STR    1,0,28           		; 39. update memory 28.
+000050     026137        JNE    0,1,LOOP         		; 40. If R0 (i) is NOT 0, jump back to start of loop.
 
-; Main program
-                         LOC    100                   
-000144     002007        LDR    0,0,Count        		; Initialize counter
-000145     014000        AIR    0,0              		; Set counter to 0
-000146     004007        STR    0,0,Count             
+000051     016406        SIR    1,6              		; 41 Substract 6 from reg 1 to make it 20
+000052     014006        AIR    0,6              		; 42 Make the memory location 6
+000053     004034        STR    0,0,28           		; 43
+000054     004433        STR    1,0,27           		; 44 Again, make the count 20//
 
-; Read loop - Get 20 numbers
-000147     002007        LDR    0,0,Count        		; Load counter
-000150     002406        LDR    1,0,Size         		; Load size
-000151     164100        TRR    0,1              		; Compare counter to size
-000152     146166        JCC    3,0,Process      		; If equal, go to processing (check cc(3))
+000055     147000        IN     2,0              		; 45. special number will be stored in R3 the whole time.
+000056     005032        STR    2,0,26           		; 46. Store the number to be compared into memory at reg 2.
 
-000153     147000        IN     2,0              		; Get input from keyboard
-000154     005011        STR    2,0,Current      		; Store the number
+000057     002033        LDR    0,0,27           		; 47Counter for substraction(load 20 value in reg 0).
+000060     002434        LDR    1,0,28           		; 48 loads the value of location 6//
+000061     013074        SMR    2,0,28,1         		; 49 subtract given number from memory address(Reg 2 - Memory location 6)
+000062     005035        STR    2,0,29           		; 50 Store into location 29 the difference (calculated and stored at 3)
+000063     014401        AIR    1,1              		; 51 Increment the count which indicates at the 20 numbers we scanned
+000064     016001        SIR    0,1              		; 52 Substract 1 from 20
+000065     004033        STR    0,0,27           		; 53 Store contents of register 0 into memroy location 27.
+000066     004434        STR    1,0,28           		; 54 store contents of register 1 into memory location 28.
 
-; Store in array
-000155     003407        LDR    3,0,Count        		; Get current count
-000156     124107        STX    1,Count          		; Store count in index register 1
-000157     005116        STR    2,1,Array        		; Store number in array using IX1
 
-; Print the number
-000160     003011        LDR    2,0,Current           
-000161     151001        OUT    2,1              		; Print to console
+000067     003032        LDR    2,0,26           		; 55 Load the unique number to be substracted in register 2
+000070     013074        SMR    2,0,28,1         		; 56 subtract given number from memory address (Reg 2 - Memory loc 7.8.9....20)
+000071     003435        LDR    3,0,29           		; 57 Load register 3 with contents of memory 29
+000072     167300        AND    2,3              		; 58 AND between 2 and 3
+000073     005035        STR    2,0,29           		; 59 Load the AND value at location 29
+000074     014401        AIR    1,1              		; 60 Increment the count which indicates at the 20 numbers we scanned
+000075     016001        SIR    0,1              		; 61 Substract 1 from 20 every time
+000076     004033        STR    0,0,27           		; 62 Send value of 0 to 27
+000077     003032        LDR    2,0,26           		; 63 Load reg 2 from memory 26(last value)
+000100     003435        LDR    3,0,29           		; 64 move  and value to reg 3
+000101     004033        STR    0,0,27           		; 65 Send new reduced value to memory loc 27 from reg 0.
+000102     004434        STR    1,0,28           		; 66 Send new reduced value to memory loc 28 from reg 0.
+000103     026176        JNE    0,1,30,1         		; 67 If R0 (i) is NOT 0, jump back to start of loop.
 
-; Increment counter
-000162     002007        LDR    0,0,Count             
-000163     014001        AIR    0,1              		; Add 1 to counter
-000164     004007        STR    0,0,Count             
-000165     032060        JMA    0,ReadAddr,1     		; Continue reading
+000104     013035        SMR    2,0,29           		; 72 Substract the given number with the final AND value
+000105     151001        OUT    2,1              		; 73
 
-; Process - Get target number and find closest
-000166     147000        IN     2,0              		; Get target number
-000167     005012        STR    2,0,Target       		; Store target
-000170     151001        OUT    2,1              		; Echo target number
-
-; Initialize for search
-000171     002015        LDR    0,0,MinDiff           
-000172     004015        STR    0,0,MinDiff      		; Reset minimum difference
-000173     014000        AIR    0,0              		; Clear R0 for counter
-000174     004007        STR    0,0,Count             
-
-; Search loop
-000175     002007        LDR    0,0,Count        		; Load counter
-000176     002406        LDR    1,0,Size         		; Load size
-000177     164100        TRR    0,1              		; Compare counter to size
-000200     0314224       JCC    3,0,Done         		; If equal, jump to Done (check cc(3))
-
-; Calculate difference
-000201     003012        LDR    2,0,Target       		; Load target
-000202     003407        LDR    3,0,Count        		; Get current index
-000203     124107        STX    1,Count          		; Store count in index register 1
-000204     003516        LDR    3,1,Array        		; Load array[count] using IX1
-
-; Find absolute difference
-000205     013412        SMR    3,0,Target       		; Subtract target
-000206     005414        STR    3,0,Diff         		; Store difference
-
-; Compare with minimum
-000207     002415        LDR    1,0,MinDiff           
-000210     012414        SMR    1,0,Diff         		; Compare differences
-000211     042462        JGE    1,0,NextAddr,1   		; If current >= min, skip (indirect)
-
-; Update minimum and closest
-000212     003407        LDR    3,0,Count        		; Get current index
-000213     124107        STX    1,Count          		; Store count in index register 1
-000214     003516        LDR    3,1,Array        		; Load array[count] using IX1
-000215     005413        STR    3,0,Closest      		; Update closest
-000216     003414        LDR    3,0,Diff              
-000217     005415        STR    3,0,MinDiff      		; Update minimum difference
-
-000220     002007        LDR    0,0,Count        		; Increment counter
-000221     014001        AIR    0,1                   
-000222     004007        STR    0,0,Count             
-000223     032061        JMA    0,SearchAddr,1   		; Continue search (indirect)
-
-; Print results
-000224     003012        LDR    2,0,Target       		; Load target
-000225     151001        OUT    2,1              		; Print target
-000226     003013        LDR    2,0,Closest      		; Load closest
-000227     151001        OUT    2,1              		; Print closest number
-000230     000000        HLT                     		; Stop program
+                         LOC    1024             		; 76 End program section
+002000     000000        HLT                     		; 77 Stop execution
