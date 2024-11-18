@@ -1,5 +1,8 @@
 package components;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+
 /*
  * CPUExe: Handles the execution of instructions for the computer simulator.
  * Provides methods to execute a variety of assembly instructions, including 
@@ -792,21 +795,20 @@ public class CPUExe {
         return false; // Continue execution
     }
 
-    // IN.
     public boolean executeIN(String binaryInstruction) {
         Scanner scanner = new Scanner(System.in);
-
+    
         // Extract Rx and DevID fields from the binary instruction
-        String rx_str = binaryInstruction.substring(6, 8);  
+        String rx_str = binaryInstruction.substring(6, 8);
         String devid_str = binaryInstruction.substring(11, 16);
-
+    
         int rx = Integer.parseInt(rx_str, 2);  // Register to store the input
         int devid = Integer.parseInt(devid_str, 2);  // Device ID
-
+    
         // Simulate input based on device ID
         int input = 0;
-        // Console Keyboard (the more general case).
-        if (devid == 0) {  
+    
+        if (devid == 0) {  // Console Keyboard
             while (true) {
                 System.out.print("Enter a number: ");
                 if (scanner.hasNextInt()) {
@@ -819,27 +821,46 @@ public class CPUExe {
                     }
                 } else {
                     System.out.println("Error: Invalid input. Please enter a whole number.");
-                    scanner.next(); 
+                    scanner.next();  // Clear invalid input
                 }
             }
-        } 
-        // Card Reader (assuming functionality).
-        else if (devid == 2) {  
-            // Placeholder: implement card reader input if supported
-            System.out.println("Simulated input from Card Reader (Device ID 2).");
-            input = 12345;  // Example fixed input for testing purposes
-        } 
-        
-        else {
+        } else if (devid == 2) {  // Card Reader (File Input)
+            // Prompt for file path
+            System.out.print("Enter file path: ");
+            String filePath = scanner.next();
+    
+            try (FileInputStream fileReader = new FileInputStream(filePath)) {
+                int memoryAddress = 100;  // Starting memory address for file contents
+                int charRead;
+    
+                // Read characters from the file and store them into memory
+                while ((charRead = fileReader.read()) != -1) {
+                    // Store character in memory
+                    memory.storeValue(memoryAddress++, (short) charRead);
+    
+                    // Check for memory overflow
+                    if (memoryAddress >= 2048) { 
+                        System.out.println("Error: Memory overflow while reading the file.");
+                        return false;
+                    }
+                }
+                System.out.println("File contents successfully stored in memory starting at address 100.");
+            } catch (IOException e) {
+                System.out.println("Error reading file: " + e.getMessage());
+                return false;
+            }
+        } else {
             System.out.println("Device ID " + devid + " not supported for IN operation.");
-            return false;  
+            return false;
         }
-
+    
         // Store the input in the specified register Rx
-        gpr.setGPR(rx, (short)input);
-
+        gpr.setGPR(rx, (short) input);
+    
         return false;  // Continue execution
     }
+    
+    
 
 
     // OUT.
