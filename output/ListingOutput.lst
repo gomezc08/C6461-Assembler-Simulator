@@ -68,8 +68,9 @@
 000102     004434        STR    1,0,28           		; 66 Send new reduced value to memory loc 28 from reg 0.
 000103     026176        JNE    0,1,30,1         		; 67 If R0 (i) is NOT 0, jump back to start of loop.
 
-000104     013035        SMR    2,0,29           		; 72 Substract the given number with the final AND value
-000105     151001        OUT    2,1              		; 73
+000104     013035        SMR    2,0,29           		; 68 Substract the given number with the final AND value
+000105     151001        OUT    2,1              		; 69
+000106     003473        LDR    3,0,27,1         		; 70 Make R3 0
 
-                         LOC    1024             		; 76 End program section
-002000     000000        HLT                     		; 77 Stop execution
+                         LOC    1024             		; 71 End program section
+002000     000000        HLT                     		; 72 Stop execution

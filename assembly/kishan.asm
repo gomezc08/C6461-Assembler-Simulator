@@ -69,8 +69,9 @@ NEWLOOP:    LDR        2,0,26        ; 55 Load the unique number to be substract
             STR         1,0,28          ; 66 Send new reduced value to memory loc 28 from reg 0.
             JNE         0,1,30,1       ; 67 If R0 (i) is NOT 0, jump back to start of loop.
 
-            SMR         2,0,29          ; 72 Substract the given number with the final AND value
-            OUT         2,1             ; 73
+            SMR         2,0,29          ; 68 Substract the given number with the final AND value
+            OUT         2,1             ; 69
+            LDR         3,0,27,1        ; 70 Make R3 0
             
-            LOC         1024            ; 76 End program section
-End:        HLT                         ; 77 Stop execution 
+            LOC         1024            ; 71 End program section
+End:        HLT                         ; 72 Stop execution 

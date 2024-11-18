@@ -151,7 +151,7 @@ public class CPUExe {
         int value = gpr.getGPR(reg); 
 
         memory.storeValue(ea, value);  // Store the value into memory
-        System.out.println("we have stored: " + value + " in address: " + ea);
+        //System.out.println("we have stored: " + value + " in address: " + ea);
         cache.write(ea, value);
         return false;  
     }
@@ -502,12 +502,13 @@ public class CPUExe {
         int result = 0;
         boolean flag  = cc.isUnderflow();
 
+        
         System.out.println("Initial state of underflow is: "+ flag);
 
         if (flag){
             System.out.println("We are adding  Register value: \t" + regValue + "\t and value from memory: \t" + value);
 
-            result = regValue + Math.abs(value);
+            result = regValue + value;
             System.out.println("The result of the addition is "  + result);
 
         }
@@ -519,19 +520,13 @@ public class CPUExe {
          System.out.println("The result of the substraction is "  + result);
 
         }
-
         
-        if(result < 0) {
-            //if the result is negatiev, set the underflow to 1
-            cc.setUnderflow(true);
-        }
-        else {
-            cc.setUnderflow(false);
-        }
+        
+        cc.updateConditionCodes(result);
 
-        System.out.println("Status of underflow is:" + cc.isUnderflow());
+        //System.out.println("Status of underflow is:" + cc.isUnderflow());
 
-        gpr.setGPR( reg, (short) Math.abs(result));
+        gpr.setGPR( reg, (short) result);
         return false;  // Continue execution
     }
 
@@ -719,13 +714,29 @@ public class CPUExe {
 
         // Perform the logical AND operation
         if (valueRx>valueRy) {
+
+            if (valueRy<0) { 
+                result = valueRx;
+                cc.updateConditionCodes(valueRy);
+            }
+
+            else{
                 result = valueRy;
+            }
         }    
             
             else
             {
-                result = valueRx;
+                if(valueRx<0)
+                {
+                    result = valueRy;
+                    cc.updateConditionCodes(valueRx);
+                }
 
+                else{
+                    result = valueRx;
+
+                }
             }
                
         
@@ -734,7 +745,7 @@ public class CPUExe {
         // Store the result in Rx
         gpr.setGPR(rx, (short)result);
 
-        return false;  // Continue execution
+        return false;   // Continue execution
     }
 
     // ORR.
