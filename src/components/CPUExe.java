@@ -502,7 +502,6 @@ public class CPUExe {
         int result = 0;
         boolean flag  = cc.isUnderflow();
 
-        
         System.out.println("Initial state of underflow is: "+ flag);
 
         if (flag){
@@ -520,7 +519,7 @@ public class CPUExe {
          System.out.println("The result of the substraction is "  + result);
 
         }
-        
+
         
         cc.updateConditionCodes(result);
 
