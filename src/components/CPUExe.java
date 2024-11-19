@@ -824,7 +824,10 @@ public class CPUExe {
                     scanner.next();  // Clear invalid input
                 }
             }
-        } else if (devid == 2) {  // Card Reader (File Input)
+        } 
+        
+        // Card Reader (File Input).
+        else if (devid == 2) { 
             // Prompt for file path
             System.out.print("Enter file path: ");
             String filePath = scanner.next();
@@ -845,11 +848,29 @@ public class CPUExe {
                     }
                 }
                 System.out.println("File contents successfully stored in memory starting at address 100.");
-            } catch (IOException e) {
+            } 
+            
+            catch (IOException e) {
                 System.out.println("Error reading file: " + e.getMessage());
                 return false;
             }
-        } else {
+        } 
+
+        // Search word input.
+        else if (devid == 3) { 
+            System.out.print("Enter target word: ");
+            String word = scanner.next();
+            int memoryAddress = 10;
+            
+            for (char c : word.toCharArray()) {
+                memory.storeValue(memoryAddress++, (short) c);
+            }
+
+            // store period at the end.
+            memory.storeValue(memoryAddress, (short) 46); 
+        }
+        
+        else {
             System.out.println("Device ID " + devid + " not supported for IN operation.");
             return false;
         }
