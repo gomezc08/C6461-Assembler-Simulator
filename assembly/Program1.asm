@@ -73,5 +73,4 @@ NEWLOOP:    LDR        2,0,26        ; 55 Load the unique number to be substract
             OUT         2,1             ; 69
             LDR         3,0,27,1        ; 70 Make R3 0
             
-            LOC         1024            ; 71 End program section
-End:        HLT                         ; 72 Stop execution 
+            HLT                         ; 72 Stop execution 

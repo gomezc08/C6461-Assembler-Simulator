@@ -72,5 +72,4 @@
 000105     151001        OUT    2,1              		; 69
 000106     003473        LDR    3,0,27,1         		; 70 Make R3 0
 
-                         LOC    1024             		; 71 End program section
-002000     000000        HLT                     		; 72 Stop execution
+000107     000000        HLT                     		; 72 Stop execution

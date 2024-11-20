@@ -363,6 +363,7 @@ public class Assembler {
                         operandValue = getOperandValue(opcode, operand.toString());
                     }
                 } else if (opcode.equals("HLT")) {
+                    hltAddress = currentAddress;
                     operandValue = "000000";
                 }
     

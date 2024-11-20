@@ -265,8 +265,7 @@ public class CPU {
             // HLT + Data: Done!
             case "000000":  
                 // HLT.
-                if(Assembler.getHltAddress() == pc.getPC()) {
-                    //System.out.println("HLT");
+                if(Assembler.getHltAddress() == pc.getPC()-1) {
                     return true;
                     //return cpuExe.executeHLT();
                 }
