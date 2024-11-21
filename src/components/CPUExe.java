@@ -832,14 +832,17 @@ public class CPUExe {
             System.out.print("Enter file path: ");
             String filePath = scanner.next();
     
+            System.out.print("Here is the input sentence: ");
             try (FileInputStream fileReader = new FileInputStream(filePath)) {
-                int memoryAddress = 100;  // Starting memory address for file contents
+                int memoryAddress = 200;  // Starting memory address for file contents
                 int charRead;
     
                 // Read characters from the file and store them into memory
                 while ((charRead = fileReader.read()) != -1) {
                     // Store character in memory
-                    memory.storeValue(memoryAddress++, (short) charRead);
+                    char lowerCase = Character.toLowerCase((char)charRead);
+                    memory.storeValue(memoryAddress++, (short) lowerCase);
+                    System.out.print(lowerCase);
     
                     // Check for memory overflow
                     if (memoryAddress >= 2048) { 
@@ -858,12 +861,13 @@ public class CPUExe {
 
         // Search word input.
         else if (devid == 3) { 
-            System.out.print("Enter target word: ");
+            System.out.print("\nEnter target word: ");
             String word = scanner.next();
-            int memoryAddress = 10;
+            int memoryAddress = 100;
             
             for (char c : word.toCharArray()) {
-                memory.storeValue(memoryAddress++, (short) c);
+                char lowerCase = Character.toLowerCase((char)c);
+                memory.storeValue(memoryAddress++, (short) lowerCase);
             }
 
             // store period at the end.
@@ -907,7 +911,8 @@ public class CPUExe {
                 break;
 
             case 2:
-                System.out.println("Error: OUT operation not supported for Card Reader (Device ID 2).");
+                // Print ASCII for character: Kishan, test to see if this is good.
+                System.out.print((char) output);
                 break;
 
             default:
